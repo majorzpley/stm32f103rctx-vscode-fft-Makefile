@@ -1,0 +1,1303 @@
+ARM GAS  C:\Users\wyx12\AppData\Local\Temp\cckM2pj5.s 			page 1
+
+
+   1              		.cpu cortex-m3
+   2              		.arch armv7-m
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 1
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.file	"sx126x_board.c"
+  14              		.text
+  15              	.Ltext0:
+  16              		.cfi_sections	.debug_frame
+  17              		.file 1 "Modules/sx1262/Src/sx126x_board.c"
+  18              		.section	.text.HAL_Delay_nMS,"ax",%progbits
+  19              		.align	1
+  20              		.global	HAL_Delay_nMS
+  21              		.syntax unified
+  22              		.thumb
+  23              		.thumb_func
+  25              	HAL_Delay_nMS:
+  26              	.LVL0:
+  27              	.LFB65:
+   1:Modules/sx1262/Src/sx126x_board.c **** /*
+   2:Modules/sx1262/Src/sx126x_board.c ****   ______                              _
+   3:Modules/sx1262/Src/sx126x_board.c ****  / _____)             _              | |
+   4:Modules/sx1262/Src/sx126x_board.c **** ( (____  _____ ____ _| |_ _____  ____| |__
+   5:Modules/sx1262/Src/sx126x_board.c ****  \____ \| ___ |    (_   _) ___ |/ ___)  _ \
+   6:Modules/sx1262/Src/sx126x_board.c ****  _____) ) ____| | | || |_| ____( (___| | | |
+   7:Modules/sx1262/Src/sx126x_board.c **** (______/|_____)_|_|_| \__)_____)\____)_| |_|
+   8:Modules/sx1262/Src/sx126x_board.c ****     (C)2013 Semtech
+   9:Modules/sx1262/Src/sx126x_board.c **** 
+  10:Modules/sx1262/Src/sx126x_board.c **** Description: SX126x driver specific target board functions implementation
+  11:Modules/sx1262/Src/sx126x_board.c **** 
+  12:Modules/sx1262/Src/sx126x_board.c **** License: Revised BSD License, see LICENSE.TXT file include in the project
+  13:Modules/sx1262/Src/sx126x_board.c **** 
+  14:Modules/sx1262/Src/sx126x_board.c **** Maintainer: Miguel Luis and Gregory Cristian
+  15:Modules/sx1262/Src/sx126x_board.c **** */
+  16:Modules/sx1262/Src/sx126x_board.c **** #include "gpio.h"
+  17:Modules/sx1262/Src/sx126x_board.c **** #include "spi.h"
+  18:Modules/sx1262/Src/sx126x_board.c **** #include "radio.h"
+  19:Modules/sx1262/Src/sx126x_board.c **** #include "sx126x.h"
+  20:Modules/sx1262/Src/sx126x_board.c **** #include "sx126x-board.h"
+  21:Modules/sx1262/Src/sx126x_board.c **** // #include "App_gpio.h"
+  22:Modules/sx1262/Src/sx126x_board.c **** void HAL_Delay_nMS(uint16_t time)
+  23:Modules/sx1262/Src/sx126x_board.c **** {
+  28              		.loc 1 23 1 view -0
+  29              		.cfi_startproc
+  30              		@ args = 0, pretend = 0, frame = 0
+  31              		@ frame_needed = 0, uses_anonymous_args = 0
+  32              		.loc 1 23 1 is_stmt 0 view .LVU1
+  33 0000 08B5     		push	{r3, lr}
+  34              	.LCFI0:
+  35              		.cfi_def_cfa_offset 8
+ARM GAS  C:\Users\wyx12\AppData\Local\Temp\cckM2pj5.s 			page 2
+
+
+  36              		.cfi_offset 3, -8
+  37              		.cfi_offset 14, -4
+  24:Modules/sx1262/Src/sx126x_board.c ****     // delay1ms(time);
+  25:Modules/sx1262/Src/sx126x_board.c ****     HAL_Delay(time);
+  38              		.loc 1 25 5 is_stmt 1 view .LVU2
+  39 0002 FFF7FEFF 		bl	HAL_Delay
+  40              	.LVL1:
+  26:Modules/sx1262/Src/sx126x_board.c **** }
+  41              		.loc 1 26 1 is_stmt 0 view .LVU3
+  42 0006 08BD     		pop	{r3, pc}
+  43              		.cfi_endproc
+  44              	.LFE65:
+  46              		.section	.text.SX126xReset,"ax",%progbits
+  47              		.align	1
+  48              		.global	SX126xReset
+  49              		.syntax unified
+  50              		.thumb
+  51              		.thumb_func
+  53              	SX126xReset:
+  54              	.LFB66:
+  27:Modules/sx1262/Src/sx126x_board.c **** 
+  28:Modules/sx1262/Src/sx126x_board.c **** void SX126xReset(void)
+  29:Modules/sx1262/Src/sx126x_board.c **** {
+  55              		.loc 1 29 1 is_stmt 1 view -0
+  56              		.cfi_startproc
+  57              		@ args = 0, pretend = 0, frame = 0
+  58              		@ frame_needed = 0, uses_anonymous_args = 0
+  59 0000 10B5     		push	{r4, lr}
+  60              	.LCFI1:
+  61              		.cfi_def_cfa_offset 8
+  62              		.cfi_offset 4, -8
+  63              		.cfi_offset 14, -4
+  30:Modules/sx1262/Src/sx126x_board.c ****     HAL_Delay_nMS(10);
+  64              		.loc 1 30 5 view .LVU5
+  65 0002 0A20     		movs	r0, #10
+  66 0004 FFF7FEFF 		bl	HAL_Delay_nMS
+  67              	.LVL2:
+  31:Modules/sx1262/Src/sx126x_board.c ****     // Gpio_ClrIO(RF_RST_PORT, RF_RST_PIN);
+  32:Modules/sx1262/Src/sx126x_board.c ****     RF_RST_L;
+  68              		.loc 1 32 5 view .LVU6
+  69 0008 084C     		ldr	r4, .L5
+  70 000a 0022     		movs	r2, #0
+  71 000c 1021     		movs	r1, #16
+  72 000e 2046     		mov	r0, r4
+  73 0010 FFF7FEFF 		bl	HAL_GPIO_WritePin
+  74              	.LVL3:
+  33:Modules/sx1262/Src/sx126x_board.c ****     HAL_Delay_nMS(20);
+  75              		.loc 1 33 5 view .LVU7
+  76 0014 1420     		movs	r0, #20
+  77 0016 FFF7FEFF 		bl	HAL_Delay_nMS
+  78              	.LVL4:
+  34:Modules/sx1262/Src/sx126x_board.c ****     //   Gpio_SetIO(RF_RST_PORT, RF_RST_PIN);
+  35:Modules/sx1262/Src/sx126x_board.c ****     RF_RST_H;
+  79              		.loc 1 35 5 view .LVU8
+  80 001a 0122     		movs	r2, #1
+  81 001c 1021     		movs	r1, #16
+  82 001e 2046     		mov	r0, r4
+ARM GAS  C:\Users\wyx12\AppData\Local\Temp\cckM2pj5.s 			page 3
+
+
+  83 0020 FFF7FEFF 		bl	HAL_GPIO_WritePin
+  84              	.LVL5:
+  36:Modules/sx1262/Src/sx126x_board.c ****     HAL_Delay_nMS(10);
+  85              		.loc 1 36 5 view .LVU9
+  86 0024 0A20     		movs	r0, #10
+  87 0026 FFF7FEFF 		bl	HAL_Delay_nMS
+  88              	.LVL6:
+  37:Modules/sx1262/Src/sx126x_board.c **** }
+  89              		.loc 1 37 1 is_stmt 0 view .LVU10
+  90 002a 10BD     		pop	{r4, pc}
+  91              	.L6:
+  92              		.align	2
+  93              	.L5:
+  94 002c 00100140 		.word	1073811456
+  95              		.cfi_endproc
+  96              	.LFE66:
+  98              		.section	.text.Sx1276SetNSS,"ax",%progbits
+  99              		.align	1
+ 100              		.global	Sx1276SetNSS
+ 101              		.syntax unified
+ 102              		.thumb
+ 103              		.thumb_func
+ 105              	Sx1276SetNSS:
+ 106              	.LVL7:
+ 107              	.LFB67:
+  38:Modules/sx1262/Src/sx126x_board.c **** 
+  39:Modules/sx1262/Src/sx126x_board.c **** /**
+  40:Modules/sx1262/Src/sx126x_board.c ****  * 设置SPI的片选脚的电平(低电平使能，高电平取消)
+  41:Modules/sx1262/Src/sx126x_board.c ****  * lev:true的时候高电平,false的时候低电平
+  42:Modules/sx1262/Src/sx126x_board.c ****  */
+  43:Modules/sx1262/Src/sx126x_board.c **** void Sx1276SetNSS(bool lev)
+  44:Modules/sx1262/Src/sx126x_board.c **** {
+ 108              		.loc 1 44 1 is_stmt 1 view -0
+ 109              		.cfi_startproc
+ 110              		@ args = 0, pretend = 0, frame = 0
+ 111              		@ frame_needed = 0, uses_anonymous_args = 0
+ 112              		.loc 1 44 1 is_stmt 0 view .LVU12
+ 113 0000 08B5     		push	{r3, lr}
+ 114              	.LCFI2:
+ 115              		.cfi_def_cfa_offset 8
+ 116              		.cfi_offset 3, -8
+ 117              		.cfi_offset 14, -4
+  45:Modules/sx1262/Src/sx126x_board.c ****     if (lev)
+ 118              		.loc 1 45 5 is_stmt 1 view .LVU13
+ 119              		.loc 1 45 8 is_stmt 0 view .LVU14
+ 120 0002 28B1     		cbz	r0, .L8
+  46:Modules/sx1262/Src/sx126x_board.c ****     {
+  47:Modules/sx1262/Src/sx126x_board.c ****         // Spi_SetCS(M0P_SPI0, TRUE);
+  48:Modules/sx1262/Src/sx126x_board.c ****         RF_CS_H;
+ 121              		.loc 1 48 9 is_stmt 1 view .LVU15
+ 122 0004 0122     		movs	r2, #1
+ 123 0006 1021     		movs	r1, #16
+ 124 0008 0448     		ldr	r0, .L11
+ 125              	.LVL8:
+ 126              		.loc 1 48 9 is_stmt 0 view .LVU16
+ 127 000a FFF7FEFF 		bl	HAL_GPIO_WritePin
+ 128              	.LVL9:
+ARM GAS  C:\Users\wyx12\AppData\Local\Temp\cckM2pj5.s 			page 4
+
+
+ 129              	.L7:
+  49:Modules/sx1262/Src/sx126x_board.c ****     }
+  50:Modules/sx1262/Src/sx126x_board.c ****     else
+  51:Modules/sx1262/Src/sx126x_board.c ****     {
+  52:Modules/sx1262/Src/sx126x_board.c ****         // Spi_SetCS(M0P_SPI0, FALSE);
+  53:Modules/sx1262/Src/sx126x_board.c ****         RF_CS_L;
+  54:Modules/sx1262/Src/sx126x_board.c ****     }
+  55:Modules/sx1262/Src/sx126x_board.c **** }
+ 130              		.loc 1 55 1 view .LVU17
+ 131 000e 08BD     		pop	{r3, pc}
+ 132              	.LVL10:
+ 133              	.L8:
+  53:Modules/sx1262/Src/sx126x_board.c ****     }
+ 134              		.loc 1 53 9 is_stmt 1 view .LVU18
+ 135 0010 0022     		movs	r2, #0
+ 136 0012 1021     		movs	r1, #16
+ 137 0014 0148     		ldr	r0, .L11
+ 138              	.LVL11:
+  53:Modules/sx1262/Src/sx126x_board.c ****     }
+ 139              		.loc 1 53 9 is_stmt 0 view .LVU19
+ 140 0016 FFF7FEFF 		bl	HAL_GPIO_WritePin
+ 141              	.LVL12:
+ 142              		.loc 1 55 1 view .LVU20
+ 143 001a F8E7     		b	.L7
+ 144              	.L12:
+ 145              		.align	2
+ 146              	.L11:
+ 147 001c 00080140 		.word	1073809408
+ 148              		.cfi_endproc
+ 149              	.LFE67:
+ 151              		.section	.text.Sx1276SpiInOut,"ax",%progbits
+ 152              		.align	1
+ 153              		.global	Sx1276SpiInOut
+ 154              		.syntax unified
+ 155              		.thumb
+ 156              		.thumb_func
+ 158              	Sx1276SpiInOut:
+ 159              	.LVL13:
+ 160              	.LFB68:
+  56:Modules/sx1262/Src/sx126x_board.c **** 
+  57:Modules/sx1262/Src/sx126x_board.c **** /**
+  58:Modules/sx1262/Src/sx126x_board.c ****  * SPI读写函数,data是发送的数据，返回值是接收到的数据
+  59:Modules/sx1262/Src/sx126x_board.c ****  */
+  60:Modules/sx1262/Src/sx126x_board.c **** uint8_t Sx1276SpiInOut(uint16_t data)
+  61:Modules/sx1262/Src/sx126x_board.c **** {
+ 161              		.loc 1 61 1 is_stmt 1 view -0
+ 162              		.cfi_startproc
+ 163              		@ args = 0, pretend = 0, frame = 0
+ 164              		@ frame_needed = 0, uses_anonymous_args = 0
+ 165              		.loc 1 61 1 is_stmt 0 view .LVU22
+ 166 0000 08B5     		push	{r3, lr}
+ 167              	.LCFI3:
+ 168              		.cfi_def_cfa_offset 8
+ 169              		.cfi_offset 3, -8
+ 170              		.cfi_offset 14, -4
+  62:Modules/sx1262/Src/sx126x_board.c ****     return SpiInOut(data);
+ 171              		.loc 1 62 5 is_stmt 1 view .LVU23
+ARM GAS  C:\Users\wyx12\AppData\Local\Temp\cckM2pj5.s 			page 5
+
+
+ 172              		.loc 1 62 12 is_stmt 0 view .LVU24
+ 173 0002 C0B2     		uxtb	r0, r0
+ 174              	.LVL14:
+ 175              		.loc 1 62 12 view .LVU25
+ 176 0004 FFF7FEFF 		bl	SpiInOut
+ 177              	.LVL15:
+  63:Modules/sx1262/Src/sx126x_board.c **** }
+ 178              		.loc 1 63 1 view .LVU26
+ 179 0008 08BD     		pop	{r3, pc}
+ 180              		.cfi_endproc
+ 181              	.LFE68:
+ 183              		.section	.text.SX126xWaitOnBusy,"ax",%progbits
+ 184              		.align	1
+ 185              		.global	SX126xWaitOnBusy
+ 186              		.syntax unified
+ 187              		.thumb
+ 188              		.thumb_func
+ 190              	SX126xWaitOnBusy:
+ 191              	.LFB69:
+  64:Modules/sx1262/Src/sx126x_board.c **** 
+  65:Modules/sx1262/Src/sx126x_board.c **** void SX126xWaitOnBusy(void)
+  66:Modules/sx1262/Src/sx126x_board.c **** {
+ 192              		.loc 1 66 1 is_stmt 1 view -0
+ 193              		.cfi_startproc
+ 194              		@ args = 0, pretend = 0, frame = 0
+ 195              		@ frame_needed = 0, uses_anonymous_args = 0
+ 196 0000 08B5     		push	{r3, lr}
+ 197              	.LCFI4:
+ 198              		.cfi_def_cfa_offset 8
+ 199              		.cfi_offset 3, -8
+ 200              		.cfi_offset 14, -4
+ 201              	.L16:
+  67:Modules/sx1262/Src/sx126x_board.c ****     // whileV (Gpio_GetInputIO(RF_BUSY_PORT, RF_BUSY_PIN) == 1)
+  68:Modules/sx1262/Src/sx126x_board.c ****     while (IS_RF_BUSY == 1)
+ 202              		.loc 1 68 23 discriminator 1 view .LVU28
+ 203              		.loc 1 68 12 is_stmt 0 discriminator 1 view .LVU29
+ 204 0002 2021     		movs	r1, #32
+ 205 0004 0248     		ldr	r0, .L18
+ 206 0006 FFF7FEFF 		bl	HAL_GPIO_ReadPin
+ 207              	.LVL16:
+ 208              		.loc 1 68 23 discriminator 1 view .LVU30
+ 209 000a 0128     		cmp	r0, #1
+ 210 000c F9D0     		beq	.L16
+  69:Modules/sx1262/Src/sx126x_board.c ****         ;
+  70:Modules/sx1262/Src/sx126x_board.c **** }
+ 211              		.loc 1 70 1 view .LVU31
+ 212 000e 08BD     		pop	{r3, pc}
+ 213              	.L19:
+ 214              		.align	2
+ 215              	.L18:
+ 216 0010 00100140 		.word	1073811456
+ 217              		.cfi_endproc
+ 218              	.LFE69:
+ 220              		.section	.text.SX126xWakeup,"ax",%progbits
+ 221              		.align	1
+ 222              		.global	SX126xWakeup
+ 223              		.syntax unified
+ARM GAS  C:\Users\wyx12\AppData\Local\Temp\cckM2pj5.s 			page 6
+
+
+ 224              		.thumb
+ 225              		.thumb_func
+ 227              	SX126xWakeup:
+ 228              	.LFB70:
+  71:Modules/sx1262/Src/sx126x_board.c **** 
+  72:Modules/sx1262/Src/sx126x_board.c **** void SX126xWakeup(void)
+  73:Modules/sx1262/Src/sx126x_board.c **** {
+ 229              		.loc 1 73 1 is_stmt 1 view -0
+ 230              		.cfi_startproc
+ 231              		@ args = 0, pretend = 0, frame = 0
+ 232              		@ frame_needed = 0, uses_anonymous_args = 0
+ 233 0000 08B5     		push	{r3, lr}
+ 234              	.LCFI5:
+ 235              		.cfi_def_cfa_offset 8
+ 236              		.cfi_offset 3, -8
+ 237              		.cfi_offset 14, -4
+  74:Modules/sx1262/Src/sx126x_board.c **** 
+  75:Modules/sx1262/Src/sx126x_board.c ****     Sx1276SetNSS(0);
+ 238              		.loc 1 75 5 view .LVU33
+ 239 0002 0020     		movs	r0, #0
+ 240 0004 FFF7FEFF 		bl	Sx1276SetNSS
+ 241              	.LVL17:
+  76:Modules/sx1262/Src/sx126x_board.c ****     Sx1276SpiInOut(RADIO_GET_STATUS);
+ 242              		.loc 1 76 5 view .LVU34
+ 243 0008 C020     		movs	r0, #192
+ 244 000a FFF7FEFF 		bl	Sx1276SpiInOut
+ 245              	.LVL18:
+  77:Modules/sx1262/Src/sx126x_board.c ****     Sx1276SpiInOut(0);
+ 246              		.loc 1 77 5 view .LVU35
+ 247 000e 0020     		movs	r0, #0
+ 248 0010 FFF7FEFF 		bl	Sx1276SpiInOut
+ 249              	.LVL19:
+  78:Modules/sx1262/Src/sx126x_board.c **** 
+  79:Modules/sx1262/Src/sx126x_board.c ****     Sx1276SetNSS(1);
+ 250              		.loc 1 79 5 view .LVU36
+ 251 0014 0120     		movs	r0, #1
+ 252 0016 FFF7FEFF 		bl	Sx1276SetNSS
+ 253              	.LVL20:
+  80:Modules/sx1262/Src/sx126x_board.c **** 
+  81:Modules/sx1262/Src/sx126x_board.c ****     // Wait for chip to be ready.
+  82:Modules/sx1262/Src/sx126x_board.c ****     SX126xWaitOnBusy();
+ 254              		.loc 1 82 5 view .LVU37
+ 255 001a FFF7FEFF 		bl	SX126xWaitOnBusy
+ 256              	.LVL21:
+  83:Modules/sx1262/Src/sx126x_board.c **** }
+ 257              		.loc 1 83 1 is_stmt 0 view .LVU38
+ 258 001e 08BD     		pop	{r3, pc}
+ 259              		.cfi_endproc
+ 260              	.LFE70:
+ 262              		.section	.text.SX126xWriteCommand,"ax",%progbits
+ 263              		.align	1
+ 264              		.global	SX126xWriteCommand
+ 265              		.syntax unified
+ 266              		.thumb
+ 267              		.thumb_func
+ 269              	SX126xWriteCommand:
+ 270              	.LVL22:
+ARM GAS  C:\Users\wyx12\AppData\Local\Temp\cckM2pj5.s 			page 7
+
+
+ 271              	.LFB71:
+  84:Modules/sx1262/Src/sx126x_board.c **** 
+  85:Modules/sx1262/Src/sx126x_board.c **** void SX126xWriteCommand(RadioCommands_t command, uint8_t *buffer, uint16_t size)
+  86:Modules/sx1262/Src/sx126x_board.c **** {
+ 272              		.loc 1 86 1 is_stmt 1 view -0
+ 273              		.cfi_startproc
+ 274              		@ args = 0, pretend = 0, frame = 0
+ 275              		@ frame_needed = 0, uses_anonymous_args = 0
+ 276              		.loc 1 86 1 is_stmt 0 view .LVU40
+ 277 0000 F8B5     		push	{r3, r4, r5, r6, r7, lr}
+ 278              	.LCFI6:
+ 279              		.cfi_def_cfa_offset 24
+ 280              		.cfi_offset 3, -24
+ 281              		.cfi_offset 4, -20
+ 282              		.cfi_offset 5, -16
+ 283              		.cfi_offset 6, -12
+ 284              		.cfi_offset 7, -8
+ 285              		.cfi_offset 14, -4
+ 286 0002 0746     		mov	r7, r0
+ 287 0004 0E46     		mov	r6, r1
+ 288 0006 1546     		mov	r5, r2
+  87:Modules/sx1262/Src/sx126x_board.c **** 
+  88:Modules/sx1262/Src/sx126x_board.c ****     SX126xCheckDeviceReady();
+ 289              		.loc 1 88 5 is_stmt 1 view .LVU41
+ 290 0008 FFF7FEFF 		bl	SX126xCheckDeviceReady
+ 291              	.LVL23:
+  89:Modules/sx1262/Src/sx126x_board.c **** 
+  90:Modules/sx1262/Src/sx126x_board.c ****     Sx1276SetNSS(0);
+ 292              		.loc 1 90 5 view .LVU42
+ 293 000c 0020     		movs	r0, #0
+ 294 000e FFF7FEFF 		bl	Sx1276SetNSS
+ 295              	.LVL24:
+  91:Modules/sx1262/Src/sx126x_board.c **** 
+  92:Modules/sx1262/Src/sx126x_board.c ****     Sx1276SpiInOut((uint8_t)command);
+ 296              		.loc 1 92 5 view .LVU43
+ 297 0012 3846     		mov	r0, r7
+ 298 0014 FFF7FEFF 		bl	Sx1276SpiInOut
+ 299              	.LVL25:
+  93:Modules/sx1262/Src/sx126x_board.c **** 
+  94:Modules/sx1262/Src/sx126x_board.c ****     for (uint16_t i = 0; i < size; i++)
+ 300              		.loc 1 94 5 view .LVU44
+ 301              	.LBB2:
+ 302              		.loc 1 94 10 view .LVU45
+ 303              		.loc 1 94 19 is_stmt 0 view .LVU46
+ 304 0018 0024     		movs	r4, #0
+ 305              		.loc 1 94 5 view .LVU47
+ 306 001a 04E0     		b	.L23
+ 307              	.LVL26:
+ 308              	.L24:
+  95:Modules/sx1262/Src/sx126x_board.c ****     {
+  96:Modules/sx1262/Src/sx126x_board.c ****         Sx1276SpiInOut(buffer[i]);
+ 309              		.loc 1 96 9 is_stmt 1 discriminator 3 view .LVU48
+ 310 001c 305D     		ldrb	r0, [r6, r4]	@ zero_extendqisi2
+ 311 001e FFF7FEFF 		bl	Sx1276SpiInOut
+ 312              	.LVL27:
+  94:Modules/sx1262/Src/sx126x_board.c ****     {
+ 313              		.loc 1 94 37 discriminator 3 view .LVU49
+ARM GAS  C:\Users\wyx12\AppData\Local\Temp\cckM2pj5.s 			page 8
+
+
+ 314 0022 0134     		adds	r4, r4, #1
+ 315              	.LVL28:
+  94:Modules/sx1262/Src/sx126x_board.c ****     {
+ 316              		.loc 1 94 37 is_stmt 0 discriminator 3 view .LVU50
+ 317 0024 A4B2     		uxth	r4, r4
+ 318              	.LVL29:
+ 319              	.L23:
+  94:Modules/sx1262/Src/sx126x_board.c ****     {
+ 320              		.loc 1 94 28 is_stmt 1 discriminator 1 view .LVU51
+ 321 0026 AC42     		cmp	r4, r5
+ 322 0028 F8D3     		bcc	.L24
+ 323              	.LBE2:
+  97:Modules/sx1262/Src/sx126x_board.c ****     }
+  98:Modules/sx1262/Src/sx126x_board.c **** 
+  99:Modules/sx1262/Src/sx126x_board.c ****     Sx1276SetNSS(1);
+ 324              		.loc 1 99 5 view .LVU52
+ 325 002a 0120     		movs	r0, #1
+ 326 002c FFF7FEFF 		bl	Sx1276SetNSS
+ 327              	.LVL30:
+ 100:Modules/sx1262/Src/sx126x_board.c **** 
+ 101:Modules/sx1262/Src/sx126x_board.c ****     if (command != RADIO_SET_SLEEP)
+ 328              		.loc 1 101 5 view .LVU53
+ 329              		.loc 1 101 8 is_stmt 0 view .LVU54
+ 330 0030 842F     		cmp	r7, #132
+ 331 0032 00D1     		bne	.L27
+ 332              	.L22:
+ 102:Modules/sx1262/Src/sx126x_board.c ****     {
+ 103:Modules/sx1262/Src/sx126x_board.c ****         SX126xWaitOnBusy();
+ 104:Modules/sx1262/Src/sx126x_board.c ****     }
+ 105:Modules/sx1262/Src/sx126x_board.c **** }
+ 333              		.loc 1 105 1 view .LVU55
+ 334 0034 F8BD     		pop	{r3, r4, r5, r6, r7, pc}
+ 335              	.LVL31:
+ 336              	.L27:
+ 103:Modules/sx1262/Src/sx126x_board.c ****     }
+ 337              		.loc 1 103 9 is_stmt 1 view .LVU56
+ 338 0036 FFF7FEFF 		bl	SX126xWaitOnBusy
+ 339              	.LVL32:
+ 340              		.loc 1 105 1 is_stmt 0 view .LVU57
+ 341 003a FBE7     		b	.L22
+ 342              		.cfi_endproc
+ 343              	.LFE71:
+ 345              		.section	.text.SX126xReadCommand,"ax",%progbits
+ 346              		.align	1
+ 347              		.global	SX126xReadCommand
+ 348              		.syntax unified
+ 349              		.thumb
+ 350              		.thumb_func
+ 352              	SX126xReadCommand:
+ 353              	.LVL33:
+ 354              	.LFB72:
+ 106:Modules/sx1262/Src/sx126x_board.c **** 
+ 107:Modules/sx1262/Src/sx126x_board.c **** void SX126xReadCommand(RadioCommands_t command, uint8_t *buffer, uint16_t size)
+ 108:Modules/sx1262/Src/sx126x_board.c **** {
+ 355              		.loc 1 108 1 is_stmt 1 view -0
+ 356              		.cfi_startproc
+ 357              		@ args = 0, pretend = 0, frame = 0
+ARM GAS  C:\Users\wyx12\AppData\Local\Temp\cckM2pj5.s 			page 9
+
+
+ 358              		@ frame_needed = 0, uses_anonymous_args = 0
+ 359              		.loc 1 108 1 is_stmt 0 view .LVU59
+ 360 0000 70B5     		push	{r4, r5, r6, lr}
+ 361              	.LCFI7:
+ 362              		.cfi_def_cfa_offset 16
+ 363              		.cfi_offset 4, -16
+ 364              		.cfi_offset 5, -12
+ 365              		.cfi_offset 6, -8
+ 366              		.cfi_offset 14, -4
+ 367 0002 0446     		mov	r4, r0
+ 368 0004 0E46     		mov	r6, r1
+ 369 0006 1546     		mov	r5, r2
+ 109:Modules/sx1262/Src/sx126x_board.c ****     SX126xCheckDeviceReady();
+ 370              		.loc 1 109 5 is_stmt 1 view .LVU60
+ 371 0008 FFF7FEFF 		bl	SX126xCheckDeviceReady
+ 372              	.LVL34:
+ 110:Modules/sx1262/Src/sx126x_board.c **** 
+ 111:Modules/sx1262/Src/sx126x_board.c ****     Sx1276SetNSS(0);
+ 373              		.loc 1 111 5 view .LVU61
+ 374 000c 0020     		movs	r0, #0
+ 375 000e FFF7FEFF 		bl	Sx1276SetNSS
+ 376              	.LVL35:
+ 112:Modules/sx1262/Src/sx126x_board.c **** 
+ 113:Modules/sx1262/Src/sx126x_board.c ****     Sx1276SpiInOut((uint8_t)command);
+ 377              		.loc 1 113 5 view .LVU62
+ 378 0012 2046     		mov	r0, r4
+ 379 0014 FFF7FEFF 		bl	Sx1276SpiInOut
+ 380              	.LVL36:
+ 114:Modules/sx1262/Src/sx126x_board.c ****     Sx1276SpiInOut(0x00);
+ 381              		.loc 1 114 5 view .LVU63
+ 382 0018 0020     		movs	r0, #0
+ 383 001a FFF7FEFF 		bl	Sx1276SpiInOut
+ 384              	.LVL37:
+ 115:Modules/sx1262/Src/sx126x_board.c ****     for (uint16_t i = 0; i < size; i++)
+ 385              		.loc 1 115 5 view .LVU64
+ 386              	.LBB3:
+ 387              		.loc 1 115 10 view .LVU65
+ 388              		.loc 1 115 19 is_stmt 0 view .LVU66
+ 389 001e 0024     		movs	r4, #0
+ 390              		.loc 1 115 5 view .LVU67
+ 391 0020 05E0     		b	.L29
+ 392              	.LVL38:
+ 393              	.L30:
+ 116:Modules/sx1262/Src/sx126x_board.c ****     {
+ 117:Modules/sx1262/Src/sx126x_board.c ****         buffer[i] = Sx1276SpiInOut(0);
+ 394              		.loc 1 117 9 is_stmt 1 discriminator 3 view .LVU68
+ 395              		.loc 1 117 21 is_stmt 0 discriminator 3 view .LVU69
+ 396 0022 0020     		movs	r0, #0
+ 397 0024 FFF7FEFF 		bl	Sx1276SpiInOut
+ 398              	.LVL39:
+ 399              		.loc 1 117 19 discriminator 3 view .LVU70
+ 400 0028 3055     		strb	r0, [r6, r4]
+ 115:Modules/sx1262/Src/sx126x_board.c ****     for (uint16_t i = 0; i < size; i++)
+ 401              		.loc 1 115 37 is_stmt 1 discriminator 3 view .LVU71
+ 402 002a 0134     		adds	r4, r4, #1
+ 403              	.LVL40:
+ 115:Modules/sx1262/Src/sx126x_board.c ****     for (uint16_t i = 0; i < size; i++)
+ARM GAS  C:\Users\wyx12\AppData\Local\Temp\cckM2pj5.s 			page 10
+
+
+ 404              		.loc 1 115 37 is_stmt 0 discriminator 3 view .LVU72
+ 405 002c A4B2     		uxth	r4, r4
+ 406              	.LVL41:
+ 407              	.L29:
+ 115:Modules/sx1262/Src/sx126x_board.c ****     for (uint16_t i = 0; i < size; i++)
+ 408              		.loc 1 115 28 is_stmt 1 discriminator 1 view .LVU73
+ 409 002e AC42     		cmp	r4, r5
+ 410 0030 F7D3     		bcc	.L30
+ 411              	.LBE3:
+ 118:Modules/sx1262/Src/sx126x_board.c ****     }
+ 119:Modules/sx1262/Src/sx126x_board.c **** 
+ 120:Modules/sx1262/Src/sx126x_board.c ****     Sx1276SetNSS(1);
+ 412              		.loc 1 120 5 view .LVU74
+ 413 0032 0120     		movs	r0, #1
+ 414 0034 FFF7FEFF 		bl	Sx1276SetNSS
+ 415              	.LVL42:
+ 121:Modules/sx1262/Src/sx126x_board.c **** 
+ 122:Modules/sx1262/Src/sx126x_board.c ****     SX126xWaitOnBusy();
+ 416              		.loc 1 122 5 view .LVU75
+ 417 0038 FFF7FEFF 		bl	SX126xWaitOnBusy
+ 418              	.LVL43:
+ 123:Modules/sx1262/Src/sx126x_board.c **** }
+ 419              		.loc 1 123 1 is_stmt 0 view .LVU76
+ 420 003c 70BD     		pop	{r4, r5, r6, pc}
+ 421              		.loc 1 123 1 view .LVU77
+ 422              		.cfi_endproc
+ 423              	.LFE72:
+ 425              		.section	.text.SX126xWriteRegisters,"ax",%progbits
+ 426              		.align	1
+ 427              		.global	SX126xWriteRegisters
+ 428              		.syntax unified
+ 429              		.thumb
+ 430              		.thumb_func
+ 432              	SX126xWriteRegisters:
+ 433              	.LVL44:
+ 434              	.LFB73:
+ 124:Modules/sx1262/Src/sx126x_board.c **** 
+ 125:Modules/sx1262/Src/sx126x_board.c **** void SX126xWriteRegisters(uint16_t address, uint8_t *buffer, uint16_t size)
+ 126:Modules/sx1262/Src/sx126x_board.c **** {
+ 435              		.loc 1 126 1 is_stmt 1 view -0
+ 436              		.cfi_startproc
+ 437              		@ args = 0, pretend = 0, frame = 0
+ 438              		@ frame_needed = 0, uses_anonymous_args = 0
+ 439              		.loc 1 126 1 is_stmt 0 view .LVU79
+ 440 0000 70B5     		push	{r4, r5, r6, lr}
+ 441              	.LCFI8:
+ 442              		.cfi_def_cfa_offset 16
+ 443              		.cfi_offset 4, -16
+ 444              		.cfi_offset 5, -12
+ 445              		.cfi_offset 6, -8
+ 446              		.cfi_offset 14, -4
+ 447 0002 0446     		mov	r4, r0
+ 448 0004 0E46     		mov	r6, r1
+ 449 0006 1546     		mov	r5, r2
+ 127:Modules/sx1262/Src/sx126x_board.c ****     SX126xCheckDeviceReady();
+ 450              		.loc 1 127 5 is_stmt 1 view .LVU80
+ 451 0008 FFF7FEFF 		bl	SX126xCheckDeviceReady
+ARM GAS  C:\Users\wyx12\AppData\Local\Temp\cckM2pj5.s 			page 11
+
+
+ 452              	.LVL45:
+ 128:Modules/sx1262/Src/sx126x_board.c **** 
+ 129:Modules/sx1262/Src/sx126x_board.c ****     Sx1276SetNSS(0);
+ 453              		.loc 1 129 5 view .LVU81
+ 454 000c 0020     		movs	r0, #0
+ 455 000e FFF7FEFF 		bl	Sx1276SetNSS
+ 456              	.LVL46:
+ 130:Modules/sx1262/Src/sx126x_board.c **** 
+ 131:Modules/sx1262/Src/sx126x_board.c ****     Sx1276SpiInOut(RADIO_WRITE_REGISTER);
+ 457              		.loc 1 131 5 view .LVU82
+ 458 0012 0D20     		movs	r0, #13
+ 459 0014 FFF7FEFF 		bl	Sx1276SpiInOut
+ 460              	.LVL47:
+ 132:Modules/sx1262/Src/sx126x_board.c ****     Sx1276SpiInOut((address & 0xFF00) >> 8);
+ 461              		.loc 1 132 5 view .LVU83
+ 462 0018 200A     		lsrs	r0, r4, #8
+ 463 001a FFF7FEFF 		bl	Sx1276SpiInOut
+ 464              	.LVL48:
+ 133:Modules/sx1262/Src/sx126x_board.c ****     Sx1276SpiInOut(address & 0x00FF);
+ 465              		.loc 1 133 5 view .LVU84
+ 466 001e E0B2     		uxtb	r0, r4
+ 467 0020 FFF7FEFF 		bl	Sx1276SpiInOut
+ 468              	.LVL49:
+ 134:Modules/sx1262/Src/sx126x_board.c **** 
+ 135:Modules/sx1262/Src/sx126x_board.c ****     for (uint16_t i = 0; i < size; i++)
+ 469              		.loc 1 135 5 view .LVU85
+ 470              	.LBB4:
+ 471              		.loc 1 135 10 view .LVU86
+ 472              		.loc 1 135 19 is_stmt 0 view .LVU87
+ 473 0024 0024     		movs	r4, #0
+ 474              		.loc 1 135 5 view .LVU88
+ 475 0026 04E0     		b	.L33
+ 476              	.LVL50:
+ 477              	.L34:
+ 136:Modules/sx1262/Src/sx126x_board.c ****     {
+ 137:Modules/sx1262/Src/sx126x_board.c ****         Sx1276SpiInOut(buffer[i]);
+ 478              		.loc 1 137 9 is_stmt 1 discriminator 3 view .LVU89
+ 479 0028 305D     		ldrb	r0, [r6, r4]	@ zero_extendqisi2
+ 480 002a FFF7FEFF 		bl	Sx1276SpiInOut
+ 481              	.LVL51:
+ 135:Modules/sx1262/Src/sx126x_board.c ****     {
+ 482              		.loc 1 135 37 discriminator 3 view .LVU90
+ 483 002e 0134     		adds	r4, r4, #1
+ 484              	.LVL52:
+ 135:Modules/sx1262/Src/sx126x_board.c ****     {
+ 485              		.loc 1 135 37 is_stmt 0 discriminator 3 view .LVU91
+ 486 0030 A4B2     		uxth	r4, r4
+ 487              	.LVL53:
+ 488              	.L33:
+ 135:Modules/sx1262/Src/sx126x_board.c ****     {
+ 489              		.loc 1 135 28 is_stmt 1 discriminator 1 view .LVU92
+ 490 0032 AC42     		cmp	r4, r5
+ 491 0034 F8D3     		bcc	.L34
+ 492              	.LBE4:
+ 138:Modules/sx1262/Src/sx126x_board.c ****     }
+ 139:Modules/sx1262/Src/sx126x_board.c **** 
+ 140:Modules/sx1262/Src/sx126x_board.c ****     Sx1276SetNSS(1);
+ARM GAS  C:\Users\wyx12\AppData\Local\Temp\cckM2pj5.s 			page 12
+
+
+ 493              		.loc 1 140 5 view .LVU93
+ 494 0036 0120     		movs	r0, #1
+ 495 0038 FFF7FEFF 		bl	Sx1276SetNSS
+ 496              	.LVL54:
+ 141:Modules/sx1262/Src/sx126x_board.c **** 
+ 142:Modules/sx1262/Src/sx126x_board.c ****     SX126xWaitOnBusy();
+ 497              		.loc 1 142 5 view .LVU94
+ 498 003c FFF7FEFF 		bl	SX126xWaitOnBusy
+ 499              	.LVL55:
+ 143:Modules/sx1262/Src/sx126x_board.c **** }
+ 500              		.loc 1 143 1 is_stmt 0 view .LVU95
+ 501 0040 70BD     		pop	{r4, r5, r6, pc}
+ 502              		.loc 1 143 1 view .LVU96
+ 503              		.cfi_endproc
+ 504              	.LFE73:
+ 506              		.section	.text.SX126xWriteRegister,"ax",%progbits
+ 507              		.align	1
+ 508              		.global	SX126xWriteRegister
+ 509              		.syntax unified
+ 510              		.thumb
+ 511              		.thumb_func
+ 513              	SX126xWriteRegister:
+ 514              	.LVL56:
+ 515              	.LFB74:
+ 144:Modules/sx1262/Src/sx126x_board.c **** 
+ 145:Modules/sx1262/Src/sx126x_board.c **** void SX126xWriteRegister(uint16_t address, uint8_t value)
+ 146:Modules/sx1262/Src/sx126x_board.c **** {
+ 516              		.loc 1 146 1 is_stmt 1 view -0
+ 517              		.cfi_startproc
+ 518              		@ args = 0, pretend = 0, frame = 8
+ 519              		@ frame_needed = 0, uses_anonymous_args = 0
+ 520              		.loc 1 146 1 is_stmt 0 view .LVU98
+ 521 0000 00B5     		push	{lr}
+ 522              	.LCFI9:
+ 523              		.cfi_def_cfa_offset 4
+ 524              		.cfi_offset 14, -4
+ 525 0002 83B0     		sub	sp, sp, #12
+ 526              	.LCFI10:
+ 527              		.cfi_def_cfa_offset 16
+ 528 0004 8DF80710 		strb	r1, [sp, #7]
+ 147:Modules/sx1262/Src/sx126x_board.c ****     SX126xWriteRegisters(address, &value, 1);
+ 529              		.loc 1 147 5 is_stmt 1 view .LVU99
+ 530 0008 0122     		movs	r2, #1
+ 531 000a 0DF10701 		add	r1, sp, #7
+ 532              	.LVL57:
+ 533              		.loc 1 147 5 is_stmt 0 view .LVU100
+ 534 000e FFF7FEFF 		bl	SX126xWriteRegisters
+ 535              	.LVL58:
+ 148:Modules/sx1262/Src/sx126x_board.c **** }
+ 536              		.loc 1 148 1 view .LVU101
+ 537 0012 03B0     		add	sp, sp, #12
+ 538              	.LCFI11:
+ 539              		.cfi_def_cfa_offset 4
+ 540              		@ sp needed
+ 541 0014 5DF804FB 		ldr	pc, [sp], #4
+ 542              		.cfi_endproc
+ 543              	.LFE74:
+ARM GAS  C:\Users\wyx12\AppData\Local\Temp\cckM2pj5.s 			page 13
+
+
+ 545              		.section	.text.SX126xReadRegisters,"ax",%progbits
+ 546              		.align	1
+ 547              		.global	SX126xReadRegisters
+ 548              		.syntax unified
+ 549              		.thumb
+ 550              		.thumb_func
+ 552              	SX126xReadRegisters:
+ 553              	.LVL59:
+ 554              	.LFB75:
+ 149:Modules/sx1262/Src/sx126x_board.c **** 
+ 150:Modules/sx1262/Src/sx126x_board.c **** void SX126xReadRegisters(uint16_t address, uint8_t *buffer, uint16_t size)
+ 151:Modules/sx1262/Src/sx126x_board.c **** {
+ 555              		.loc 1 151 1 is_stmt 1 view -0
+ 556              		.cfi_startproc
+ 557              		@ args = 0, pretend = 0, frame = 0
+ 558              		@ frame_needed = 0, uses_anonymous_args = 0
+ 559              		.loc 1 151 1 is_stmt 0 view .LVU103
+ 560 0000 70B5     		push	{r4, r5, r6, lr}
+ 561              	.LCFI12:
+ 562              		.cfi_def_cfa_offset 16
+ 563              		.cfi_offset 4, -16
+ 564              		.cfi_offset 5, -12
+ 565              		.cfi_offset 6, -8
+ 566              		.cfi_offset 14, -4
+ 567 0002 0446     		mov	r4, r0
+ 568 0004 0E46     		mov	r6, r1
+ 569 0006 1546     		mov	r5, r2
+ 152:Modules/sx1262/Src/sx126x_board.c ****     SX126xCheckDeviceReady();
+ 570              		.loc 1 152 5 is_stmt 1 view .LVU104
+ 571 0008 FFF7FEFF 		bl	SX126xCheckDeviceReady
+ 572              	.LVL60:
+ 153:Modules/sx1262/Src/sx126x_board.c **** 
+ 154:Modules/sx1262/Src/sx126x_board.c ****     Sx1276SetNSS(0);
+ 573              		.loc 1 154 5 view .LVU105
+ 574 000c 0020     		movs	r0, #0
+ 575 000e FFF7FEFF 		bl	Sx1276SetNSS
+ 576              	.LVL61:
+ 155:Modules/sx1262/Src/sx126x_board.c **** 
+ 156:Modules/sx1262/Src/sx126x_board.c ****     Sx1276SpiInOut(RADIO_READ_REGISTER);
+ 577              		.loc 1 156 5 view .LVU106
+ 578 0012 1D20     		movs	r0, #29
+ 579 0014 FFF7FEFF 		bl	Sx1276SpiInOut
+ 580              	.LVL62:
+ 157:Modules/sx1262/Src/sx126x_board.c ****     Sx1276SpiInOut((address & 0xFF00) >> 8);
+ 581              		.loc 1 157 5 view .LVU107
+ 582 0018 200A     		lsrs	r0, r4, #8
+ 583 001a FFF7FEFF 		bl	Sx1276SpiInOut
+ 584              	.LVL63:
+ 158:Modules/sx1262/Src/sx126x_board.c ****     Sx1276SpiInOut(address & 0x00FF);
+ 585              		.loc 1 158 5 view .LVU108
+ 586 001e E0B2     		uxtb	r0, r4
+ 587 0020 FFF7FEFF 		bl	Sx1276SpiInOut
+ 588              	.LVL64:
+ 159:Modules/sx1262/Src/sx126x_board.c ****     Sx1276SpiInOut(0);
+ 589              		.loc 1 159 5 view .LVU109
+ 590 0024 0020     		movs	r0, #0
+ 591 0026 FFF7FEFF 		bl	Sx1276SpiInOut
+ARM GAS  C:\Users\wyx12\AppData\Local\Temp\cckM2pj5.s 			page 14
+
+
+ 592              	.LVL65:
+ 160:Modules/sx1262/Src/sx126x_board.c ****     for (uint16_t i = 0; i < size; i++)
+ 593              		.loc 1 160 5 view .LVU110
+ 594              	.LBB5:
+ 595              		.loc 1 160 10 view .LVU111
+ 596              		.loc 1 160 19 is_stmt 0 view .LVU112
+ 597 002a 0024     		movs	r4, #0
+ 598              		.loc 1 160 5 view .LVU113
+ 599 002c 05E0     		b	.L39
+ 600              	.LVL66:
+ 601              	.L40:
+ 161:Modules/sx1262/Src/sx126x_board.c ****     {
+ 162:Modules/sx1262/Src/sx126x_board.c ****         buffer[i] = Sx1276SpiInOut(0);
+ 602              		.loc 1 162 9 is_stmt 1 discriminator 3 view .LVU114
+ 603              		.loc 1 162 21 is_stmt 0 discriminator 3 view .LVU115
+ 604 002e 0020     		movs	r0, #0
+ 605 0030 FFF7FEFF 		bl	Sx1276SpiInOut
+ 606              	.LVL67:
+ 607              		.loc 1 162 19 discriminator 3 view .LVU116
+ 608 0034 3055     		strb	r0, [r6, r4]
+ 160:Modules/sx1262/Src/sx126x_board.c ****     for (uint16_t i = 0; i < size; i++)
+ 609              		.loc 1 160 37 is_stmt 1 discriminator 3 view .LVU117
+ 610 0036 0134     		adds	r4, r4, #1
+ 611              	.LVL68:
+ 160:Modules/sx1262/Src/sx126x_board.c ****     for (uint16_t i = 0; i < size; i++)
+ 612              		.loc 1 160 37 is_stmt 0 discriminator 3 view .LVU118
+ 613 0038 A4B2     		uxth	r4, r4
+ 614              	.LVL69:
+ 615              	.L39:
+ 160:Modules/sx1262/Src/sx126x_board.c ****     for (uint16_t i = 0; i < size; i++)
+ 616              		.loc 1 160 28 is_stmt 1 discriminator 1 view .LVU119
+ 617 003a AC42     		cmp	r4, r5
+ 618 003c F7D3     		bcc	.L40
+ 619              	.LBE5:
+ 163:Modules/sx1262/Src/sx126x_board.c ****     }
+ 164:Modules/sx1262/Src/sx126x_board.c **** 
+ 165:Modules/sx1262/Src/sx126x_board.c ****     Sx1276SetNSS(1);
+ 620              		.loc 1 165 5 view .LVU120
+ 621 003e 0120     		movs	r0, #1
+ 622 0040 FFF7FEFF 		bl	Sx1276SetNSS
+ 623              	.LVL70:
+ 166:Modules/sx1262/Src/sx126x_board.c **** 
+ 167:Modules/sx1262/Src/sx126x_board.c ****     SX126xWaitOnBusy();
+ 624              		.loc 1 167 5 view .LVU121
+ 625 0044 FFF7FEFF 		bl	SX126xWaitOnBusy
+ 626              	.LVL71:
+ 168:Modules/sx1262/Src/sx126x_board.c **** }
+ 627              		.loc 1 168 1 is_stmt 0 view .LVU122
+ 628 0048 70BD     		pop	{r4, r5, r6, pc}
+ 629              		.loc 1 168 1 view .LVU123
+ 630              		.cfi_endproc
+ 631              	.LFE75:
+ 633              		.section	.text.SX126xReadRegister,"ax",%progbits
+ 634              		.align	1
+ 635              		.global	SX126xReadRegister
+ 636              		.syntax unified
+ 637              		.thumb
+ARM GAS  C:\Users\wyx12\AppData\Local\Temp\cckM2pj5.s 			page 15
+
+
+ 638              		.thumb_func
+ 640              	SX126xReadRegister:
+ 641              	.LVL72:
+ 642              	.LFB76:
+ 169:Modules/sx1262/Src/sx126x_board.c **** 
+ 170:Modules/sx1262/Src/sx126x_board.c **** uint8_t SX126xReadRegister(uint16_t address)
+ 171:Modules/sx1262/Src/sx126x_board.c **** {
+ 643              		.loc 1 171 1 is_stmt 1 view -0
+ 644              		.cfi_startproc
+ 645              		@ args = 0, pretend = 0, frame = 8
+ 646              		@ frame_needed = 0, uses_anonymous_args = 0
+ 647              		.loc 1 171 1 is_stmt 0 view .LVU125
+ 648 0000 00B5     		push	{lr}
+ 649              	.LCFI13:
+ 650              		.cfi_def_cfa_offset 4
+ 651              		.cfi_offset 14, -4
+ 652 0002 83B0     		sub	sp, sp, #12
+ 653              	.LCFI14:
+ 654              		.cfi_def_cfa_offset 16
+ 172:Modules/sx1262/Src/sx126x_board.c ****     uint8_t data;
+ 655              		.loc 1 172 5 is_stmt 1 view .LVU126
+ 173:Modules/sx1262/Src/sx126x_board.c ****     SX126xReadRegisters(address, &data, 1);
+ 656              		.loc 1 173 5 view .LVU127
+ 657 0004 0122     		movs	r2, #1
+ 658 0006 0DF10701 		add	r1, sp, #7
+ 659 000a FFF7FEFF 		bl	SX126xReadRegisters
+ 660              	.LVL73:
+ 174:Modules/sx1262/Src/sx126x_board.c ****     return data;
+ 661              		.loc 1 174 5 view .LVU128
+ 175:Modules/sx1262/Src/sx126x_board.c **** }
+ 662              		.loc 1 175 1 is_stmt 0 view .LVU129
+ 663 000e 9DF80700 		ldrb	r0, [sp, #7]	@ zero_extendqisi2
+ 664 0012 03B0     		add	sp, sp, #12
+ 665              	.LCFI15:
+ 666              		.cfi_def_cfa_offset 4
+ 667              		@ sp needed
+ 668 0014 5DF804FB 		ldr	pc, [sp], #4
+ 669              		.cfi_endproc
+ 670              	.LFE76:
+ 672              		.section	.text.SX126xWriteBuffer,"ax",%progbits
+ 673              		.align	1
+ 674              		.global	SX126xWriteBuffer
+ 675              		.syntax unified
+ 676              		.thumb
+ 677              		.thumb_func
+ 679              	SX126xWriteBuffer:
+ 680              	.LVL74:
+ 681              	.LFB77:
+ 176:Modules/sx1262/Src/sx126x_board.c **** 
+ 177:Modules/sx1262/Src/sx126x_board.c **** void SX126xWriteBuffer(uint8_t offset, uint8_t *buffer, uint8_t size)
+ 178:Modules/sx1262/Src/sx126x_board.c **** {
+ 682              		.loc 1 178 1 is_stmt 1 view -0
+ 683              		.cfi_startproc
+ 684              		@ args = 0, pretend = 0, frame = 0
+ 685              		@ frame_needed = 0, uses_anonymous_args = 0
+ 686              		.loc 1 178 1 is_stmt 0 view .LVU131
+ 687 0000 70B5     		push	{r4, r5, r6, lr}
+ARM GAS  C:\Users\wyx12\AppData\Local\Temp\cckM2pj5.s 			page 16
+
+
+ 688              	.LCFI16:
+ 689              		.cfi_def_cfa_offset 16
+ 690              		.cfi_offset 4, -16
+ 691              		.cfi_offset 5, -12
+ 692              		.cfi_offset 6, -8
+ 693              		.cfi_offset 14, -4
+ 694 0002 0446     		mov	r4, r0
+ 695 0004 0E46     		mov	r6, r1
+ 696 0006 1546     		mov	r5, r2
+ 179:Modules/sx1262/Src/sx126x_board.c ****     SX126xCheckDeviceReady();
+ 697              		.loc 1 179 5 is_stmt 1 view .LVU132
+ 698 0008 FFF7FEFF 		bl	SX126xCheckDeviceReady
+ 699              	.LVL75:
+ 180:Modules/sx1262/Src/sx126x_board.c **** 
+ 181:Modules/sx1262/Src/sx126x_board.c ****     Sx1276SetNSS(0);
+ 700              		.loc 1 181 5 view .LVU133
+ 701 000c 0020     		movs	r0, #0
+ 702 000e FFF7FEFF 		bl	Sx1276SetNSS
+ 703              	.LVL76:
+ 182:Modules/sx1262/Src/sx126x_board.c **** 
+ 183:Modules/sx1262/Src/sx126x_board.c ****     Sx1276SpiInOut(RADIO_WRITE_BUFFER);
+ 704              		.loc 1 183 5 view .LVU134
+ 705 0012 0E20     		movs	r0, #14
+ 706 0014 FFF7FEFF 		bl	Sx1276SpiInOut
+ 707              	.LVL77:
+ 184:Modules/sx1262/Src/sx126x_board.c ****     Sx1276SpiInOut(offset);
+ 708              		.loc 1 184 5 view .LVU135
+ 709 0018 2046     		mov	r0, r4
+ 710 001a FFF7FEFF 		bl	Sx1276SpiInOut
+ 711              	.LVL78:
+ 185:Modules/sx1262/Src/sx126x_board.c ****     for (uint16_t i = 0; i < size; i++)
+ 712              		.loc 1 185 5 view .LVU136
+ 713              	.LBB6:
+ 714              		.loc 1 185 10 view .LVU137
+ 715              		.loc 1 185 19 is_stmt 0 view .LVU138
+ 716 001e 0024     		movs	r4, #0
+ 717              		.loc 1 185 5 view .LVU139
+ 718 0020 04E0     		b	.L45
+ 719              	.LVL79:
+ 720              	.L46:
+ 186:Modules/sx1262/Src/sx126x_board.c ****     {
+ 187:Modules/sx1262/Src/sx126x_board.c ****         Sx1276SpiInOut(buffer[i]);
+ 721              		.loc 1 187 9 is_stmt 1 discriminator 3 view .LVU140
+ 722 0022 305D     		ldrb	r0, [r6, r4]	@ zero_extendqisi2
+ 723 0024 FFF7FEFF 		bl	Sx1276SpiInOut
+ 724              	.LVL80:
+ 185:Modules/sx1262/Src/sx126x_board.c ****     for (uint16_t i = 0; i < size; i++)
+ 725              		.loc 1 185 37 discriminator 3 view .LVU141
+ 726 0028 0134     		adds	r4, r4, #1
+ 727              	.LVL81:
+ 185:Modules/sx1262/Src/sx126x_board.c ****     for (uint16_t i = 0; i < size; i++)
+ 728              		.loc 1 185 37 is_stmt 0 discriminator 3 view .LVU142
+ 729 002a A4B2     		uxth	r4, r4
+ 730              	.LVL82:
+ 731              	.L45:
+ 185:Modules/sx1262/Src/sx126x_board.c ****     for (uint16_t i = 0; i < size; i++)
+ 732              		.loc 1 185 28 is_stmt 1 discriminator 1 view .LVU143
+ARM GAS  C:\Users\wyx12\AppData\Local\Temp\cckM2pj5.s 			page 17
+
+
+ 733 002c A542     		cmp	r5, r4
+ 734 002e F8D8     		bhi	.L46
+ 735              	.LBE6:
+ 188:Modules/sx1262/Src/sx126x_board.c ****     }
+ 189:Modules/sx1262/Src/sx126x_board.c **** 
+ 190:Modules/sx1262/Src/sx126x_board.c ****     Sx1276SetNSS(1);
+ 736              		.loc 1 190 5 view .LVU144
+ 737 0030 0120     		movs	r0, #1
+ 738 0032 FFF7FEFF 		bl	Sx1276SetNSS
+ 739              	.LVL83:
+ 191:Modules/sx1262/Src/sx126x_board.c **** 
+ 192:Modules/sx1262/Src/sx126x_board.c ****     SX126xWaitOnBusy();
+ 740              		.loc 1 192 5 view .LVU145
+ 741 0036 FFF7FEFF 		bl	SX126xWaitOnBusy
+ 742              	.LVL84:
+ 193:Modules/sx1262/Src/sx126x_board.c **** }
+ 743              		.loc 1 193 1 is_stmt 0 view .LVU146
+ 744 003a 70BD     		pop	{r4, r5, r6, pc}
+ 745              		.loc 1 193 1 view .LVU147
+ 746              		.cfi_endproc
+ 747              	.LFE77:
+ 749              		.section	.text.SX126xReadBuffer,"ax",%progbits
+ 750              		.align	1
+ 751              		.global	SX126xReadBuffer
+ 752              		.syntax unified
+ 753              		.thumb
+ 754              		.thumb_func
+ 756              	SX126xReadBuffer:
+ 757              	.LVL85:
+ 758              	.LFB78:
+ 194:Modules/sx1262/Src/sx126x_board.c **** 
+ 195:Modules/sx1262/Src/sx126x_board.c **** void SX126xReadBuffer(uint8_t offset, uint8_t *buffer, uint8_t size)
+ 196:Modules/sx1262/Src/sx126x_board.c **** {
+ 759              		.loc 1 196 1 is_stmt 1 view -0
+ 760              		.cfi_startproc
+ 761              		@ args = 0, pretend = 0, frame = 0
+ 762              		@ frame_needed = 0, uses_anonymous_args = 0
+ 763              		.loc 1 196 1 is_stmt 0 view .LVU149
+ 764 0000 70B5     		push	{r4, r5, r6, lr}
+ 765              	.LCFI17:
+ 766              		.cfi_def_cfa_offset 16
+ 767              		.cfi_offset 4, -16
+ 768              		.cfi_offset 5, -12
+ 769              		.cfi_offset 6, -8
+ 770              		.cfi_offset 14, -4
+ 771 0002 0446     		mov	r4, r0
+ 772 0004 0E46     		mov	r6, r1
+ 773 0006 1546     		mov	r5, r2
+ 197:Modules/sx1262/Src/sx126x_board.c ****     SX126xCheckDeviceReady();
+ 774              		.loc 1 197 5 is_stmt 1 view .LVU150
+ 775 0008 FFF7FEFF 		bl	SX126xCheckDeviceReady
+ 776              	.LVL86:
+ 198:Modules/sx1262/Src/sx126x_board.c **** 
+ 199:Modules/sx1262/Src/sx126x_board.c ****     Sx1276SetNSS(0);
+ 777              		.loc 1 199 5 view .LVU151
+ 778 000c 0020     		movs	r0, #0
+ 779 000e FFF7FEFF 		bl	Sx1276SetNSS
+ARM GAS  C:\Users\wyx12\AppData\Local\Temp\cckM2pj5.s 			page 18
+
+
+ 780              	.LVL87:
+ 200:Modules/sx1262/Src/sx126x_board.c **** 
+ 201:Modules/sx1262/Src/sx126x_board.c ****     Sx1276SpiInOut(RADIO_READ_BUFFER);
+ 781              		.loc 1 201 5 view .LVU152
+ 782 0012 1E20     		movs	r0, #30
+ 783 0014 FFF7FEFF 		bl	Sx1276SpiInOut
+ 784              	.LVL88:
+ 202:Modules/sx1262/Src/sx126x_board.c ****     Sx1276SpiInOut(offset);
+ 785              		.loc 1 202 5 view .LVU153
+ 786 0018 2046     		mov	r0, r4
+ 787 001a FFF7FEFF 		bl	Sx1276SpiInOut
+ 788              	.LVL89:
+ 203:Modules/sx1262/Src/sx126x_board.c ****     Sx1276SpiInOut(0);
+ 789              		.loc 1 203 5 view .LVU154
+ 790 001e 0020     		movs	r0, #0
+ 791 0020 FFF7FEFF 		bl	Sx1276SpiInOut
+ 792              	.LVL90:
+ 204:Modules/sx1262/Src/sx126x_board.c ****     for (uint16_t i = 0; i < size; i++)
+ 793              		.loc 1 204 5 view .LVU155
+ 794              	.LBB7:
+ 795              		.loc 1 204 10 view .LVU156
+ 796              		.loc 1 204 19 is_stmt 0 view .LVU157
+ 797 0024 0024     		movs	r4, #0
+ 798              		.loc 1 204 5 view .LVU158
+ 799 0026 05E0     		b	.L49
+ 800              	.LVL91:
+ 801              	.L50:
+ 205:Modules/sx1262/Src/sx126x_board.c ****     {
+ 206:Modules/sx1262/Src/sx126x_board.c ****         buffer[i] = Sx1276SpiInOut(0);
+ 802              		.loc 1 206 9 is_stmt 1 discriminator 3 view .LVU159
+ 803              		.loc 1 206 21 is_stmt 0 discriminator 3 view .LVU160
+ 804 0028 0020     		movs	r0, #0
+ 805 002a FFF7FEFF 		bl	Sx1276SpiInOut
+ 806              	.LVL92:
+ 807              		.loc 1 206 19 discriminator 3 view .LVU161
+ 808 002e 3055     		strb	r0, [r6, r4]
+ 204:Modules/sx1262/Src/sx126x_board.c ****     for (uint16_t i = 0; i < size; i++)
+ 809              		.loc 1 204 37 is_stmt 1 discriminator 3 view .LVU162
+ 810 0030 0134     		adds	r4, r4, #1
+ 811              	.LVL93:
+ 204:Modules/sx1262/Src/sx126x_board.c ****     for (uint16_t i = 0; i < size; i++)
+ 812              		.loc 1 204 37 is_stmt 0 discriminator 3 view .LVU163
+ 813 0032 A4B2     		uxth	r4, r4
+ 814              	.LVL94:
+ 815              	.L49:
+ 204:Modules/sx1262/Src/sx126x_board.c ****     for (uint16_t i = 0; i < size; i++)
+ 816              		.loc 1 204 28 is_stmt 1 discriminator 1 view .LVU164
+ 817 0034 A542     		cmp	r5, r4
+ 818 0036 F7D8     		bhi	.L50
+ 819              	.LBE7:
+ 207:Modules/sx1262/Src/sx126x_board.c ****     }
+ 208:Modules/sx1262/Src/sx126x_board.c **** 
+ 209:Modules/sx1262/Src/sx126x_board.c ****     Sx1276SetNSS(1);
+ 820              		.loc 1 209 5 view .LVU165
+ 821 0038 0120     		movs	r0, #1
+ 822 003a FFF7FEFF 		bl	Sx1276SetNSS
+ 823              	.LVL95:
+ARM GAS  C:\Users\wyx12\AppData\Local\Temp\cckM2pj5.s 			page 19
+
+
+ 210:Modules/sx1262/Src/sx126x_board.c **** 
+ 211:Modules/sx1262/Src/sx126x_board.c ****     SX126xWaitOnBusy();
+ 824              		.loc 1 211 5 view .LVU166
+ 825 003e FFF7FEFF 		bl	SX126xWaitOnBusy
+ 826              	.LVL96:
+ 212:Modules/sx1262/Src/sx126x_board.c **** }
+ 827              		.loc 1 212 1 is_stmt 0 view .LVU167
+ 828 0042 70BD     		pop	{r4, r5, r6, pc}
+ 829              		.loc 1 212 1 view .LVU168
+ 830              		.cfi_endproc
+ 831              	.LFE78:
+ 833              		.section	.text.SX126xSetRfTxPower,"ax",%progbits
+ 834              		.align	1
+ 835              		.global	SX126xSetRfTxPower
+ 836              		.syntax unified
+ 837              		.thumb
+ 838              		.thumb_func
+ 840              	SX126xSetRfTxPower:
+ 841              	.LVL97:
+ 842              	.LFB79:
+ 213:Modules/sx1262/Src/sx126x_board.c **** 
+ 214:Modules/sx1262/Src/sx126x_board.c **** void SX126xSetRfTxPower(int8_t power)
+ 215:Modules/sx1262/Src/sx126x_board.c **** {
+ 843              		.loc 1 215 1 is_stmt 1 view -0
+ 844              		.cfi_startproc
+ 845              		@ args = 0, pretend = 0, frame = 0
+ 846              		@ frame_needed = 0, uses_anonymous_args = 0
+ 847              		.loc 1 215 1 is_stmt 0 view .LVU170
+ 848 0000 08B5     		push	{r3, lr}
+ 849              	.LCFI18:
+ 850              		.cfi_def_cfa_offset 8
+ 851              		.cfi_offset 3, -8
+ 852              		.cfi_offset 14, -4
+ 216:Modules/sx1262/Src/sx126x_board.c ****     SX126xSetTxParams(power, RADIO_RAMP_40_US);
+ 853              		.loc 1 216 5 is_stmt 1 view .LVU171
+ 854 0002 0221     		movs	r1, #2
+ 855 0004 FFF7FEFF 		bl	SX126xSetTxParams
+ 856              	.LVL98:
+ 217:Modules/sx1262/Src/sx126x_board.c **** }
+ 857              		.loc 1 217 1 is_stmt 0 view .LVU172
+ 858 0008 08BD     		pop	{r3, pc}
+ 859              		.cfi_endproc
+ 860              	.LFE79:
+ 862              		.section	.text.SX126xGetPaSelect,"ax",%progbits
+ 863              		.align	1
+ 864              		.global	SX126xGetPaSelect
+ 865              		.syntax unified
+ 866              		.thumb
+ 867              		.thumb_func
+ 869              	SX126xGetPaSelect:
+ 870              	.LVL99:
+ 871              	.LFB80:
+ 218:Modules/sx1262/Src/sx126x_board.c **** 
+ 219:Modules/sx1262/Src/sx126x_board.c **** uint8_t SX126xGetPaSelect(uint32_t channel)
+ 220:Modules/sx1262/Src/sx126x_board.c **** {
+ 872              		.loc 1 220 1 is_stmt 1 view -0
+ 873              		.cfi_startproc
+ARM GAS  C:\Users\wyx12\AppData\Local\Temp\cckM2pj5.s 			page 20
+
+
+ 874              		@ args = 0, pretend = 0, frame = 0
+ 875              		@ frame_needed = 0, uses_anonymous_args = 0
+ 876              		@ link register save eliminated.
+ 221:Modules/sx1262/Src/sx126x_board.c ****     //    if( GpioRead( &DeviceSel ) == 1 )
+ 222:Modules/sx1262/Src/sx126x_board.c ****     //    {
+ 223:Modules/sx1262/Src/sx126x_board.c ****     //        return SX1261;
+ 224:Modules/sx1262/Src/sx126x_board.c ****     //    }
+ 225:Modules/sx1262/Src/sx126x_board.c ****     //    else
+ 226:Modules/sx1262/Src/sx126x_board.c ****     //    {
+ 227:Modules/sx1262/Src/sx126x_board.c ****     //        return SX1262;
+ 228:Modules/sx1262/Src/sx126x_board.c ****     //    }
+ 229:Modules/sx1262/Src/sx126x_board.c **** 
+ 230:Modules/sx1262/Src/sx126x_board.c ****     return SX1262;
+ 877              		.loc 1 230 5 view .LVU174
+ 231:Modules/sx1262/Src/sx126x_board.c **** }
+ 878              		.loc 1 231 1 is_stmt 0 view .LVU175
+ 879 0000 0220     		movs	r0, #2
+ 880              	.LVL100:
+ 881              		.loc 1 231 1 view .LVU176
+ 882 0002 7047     		bx	lr
+ 883              		.cfi_endproc
+ 884              	.LFE80:
+ 886              		.section	.text.SX126xAntSwOn,"ax",%progbits
+ 887              		.align	1
+ 888              		.global	SX126xAntSwOn
+ 889              		.syntax unified
+ 890              		.thumb
+ 891              		.thumb_func
+ 893              	SX126xAntSwOn:
+ 894              	.LFB81:
+ 232:Modules/sx1262/Src/sx126x_board.c **** 
+ 233:Modules/sx1262/Src/sx126x_board.c **** void SX126xAntSwOn(void)
+ 234:Modules/sx1262/Src/sx126x_board.c **** {
+ 895              		.loc 1 234 1 is_stmt 1 view -0
+ 896              		.cfi_startproc
+ 897              		@ args = 0, pretend = 0, frame = 0
+ 898              		@ frame_needed = 0, uses_anonymous_args = 0
+ 899              		@ link register save eliminated.
+ 235:Modules/sx1262/Src/sx126x_board.c ****     // GpioInit( &AntPow, ANT_SWITCH_POWER, PIN_OUTPUT, PIN_PUSH_PULL, PIN_PULL_UP, 1 );
+ 236:Modules/sx1262/Src/sx126x_board.c **** }
+ 900              		.loc 1 236 1 view .LVU178
+ 901 0000 7047     		bx	lr
+ 902              		.cfi_endproc
+ 903              	.LFE81:
+ 905              		.section	.text.SX126xAntSwOff,"ax",%progbits
+ 906              		.align	1
+ 907              		.global	SX126xAntSwOff
+ 908              		.syntax unified
+ 909              		.thumb
+ 910              		.thumb_func
+ 912              	SX126xAntSwOff:
+ 913              	.LFB82:
+ 237:Modules/sx1262/Src/sx126x_board.c **** 
+ 238:Modules/sx1262/Src/sx126x_board.c **** void SX126xAntSwOff(void)
+ 239:Modules/sx1262/Src/sx126x_board.c **** {
+ 914              		.loc 1 239 1 view -0
+ 915              		.cfi_startproc
+ARM GAS  C:\Users\wyx12\AppData\Local\Temp\cckM2pj5.s 			page 21
+
+
+ 916              		@ args = 0, pretend = 0, frame = 0
+ 917              		@ frame_needed = 0, uses_anonymous_args = 0
+ 918              		@ link register save eliminated.
+ 240:Modules/sx1262/Src/sx126x_board.c ****     // GpioInit( &AntPow, ANT_SWITCH_POWER, PIN_ANALOGIC, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
+ 241:Modules/sx1262/Src/sx126x_board.c **** }
+ 919              		.loc 1 241 1 view .LVU180
+ 920 0000 7047     		bx	lr
+ 921              		.cfi_endproc
+ 922              	.LFE82:
+ 924              		.section	.text.SX126xCheckRfFrequency,"ax",%progbits
+ 925              		.align	1
+ 926              		.global	SX126xCheckRfFrequency
+ 927              		.syntax unified
+ 928              		.thumb
+ 929              		.thumb_func
+ 931              	SX126xCheckRfFrequency:
+ 932              	.LVL101:
+ 933              	.LFB83:
+ 242:Modules/sx1262/Src/sx126x_board.c **** 
+ 243:Modules/sx1262/Src/sx126x_board.c **** bool SX126xCheckRfFrequency(uint32_t frequency)
+ 244:Modules/sx1262/Src/sx126x_board.c **** {
+ 934              		.loc 1 244 1 view -0
+ 935              		.cfi_startproc
+ 936              		@ args = 0, pretend = 0, frame = 0
+ 937              		@ frame_needed = 0, uses_anonymous_args = 0
+ 938              		@ link register save eliminated.
+ 245:Modules/sx1262/Src/sx126x_board.c ****     // Implement check. Currently all frequencies are supported
+ 246:Modules/sx1262/Src/sx126x_board.c ****     return true;
+ 939              		.loc 1 246 5 view .LVU182
+ 247:Modules/sx1262/Src/sx126x_board.c **** }
+ 940              		.loc 1 247 1 is_stmt 0 view .LVU183
+ 941 0000 0120     		movs	r0, #1
+ 942              	.LVL102:
+ 943              		.loc 1 247 1 view .LVU184
+ 944 0002 7047     		bx	lr
+ 945              		.cfi_endproc
+ 946              	.LFE83:
+ 948              		.text
+ 949              	.Letext0:
+ 950              		.file 2 "c:\\program files (x86)\\arm gnu toolchain arm-none-eabi\\12.2 rel1\\arm-none-eabi\\inclu
+ 951              		.file 3 "c:\\program files (x86)\\arm gnu toolchain arm-none-eabi\\12.2 rel1\\arm-none-eabi\\inclu
+ 952              		.file 4 "Drivers/CMSIS/Device/ST/STM32F1xx/Include/stm32f103xe.h"
+ 953              		.file 5 "Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_gpio.h"
+ 954              		.file 6 "Modules/sx1262/Inc/sx126x.h"
+ 955              		.file 7 "Core/Inc/spi.h"
+ 956              		.file 8 "Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal.h"
+ARM GAS  C:\Users\wyx12\AppData\Local\Temp\cckM2pj5.s 			page 22
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 sx126x_board.c
+C:\Users\wyx12\AppData\Local\Temp\cckM2pj5.s:19     .text.HAL_Delay_nMS:00000000 $t
+C:\Users\wyx12\AppData\Local\Temp\cckM2pj5.s:25     .text.HAL_Delay_nMS:00000000 HAL_Delay_nMS
+C:\Users\wyx12\AppData\Local\Temp\cckM2pj5.s:47     .text.SX126xReset:00000000 $t
+C:\Users\wyx12\AppData\Local\Temp\cckM2pj5.s:53     .text.SX126xReset:00000000 SX126xReset
+C:\Users\wyx12\AppData\Local\Temp\cckM2pj5.s:94     .text.SX126xReset:0000002c $d
+C:\Users\wyx12\AppData\Local\Temp\cckM2pj5.s:99     .text.Sx1276SetNSS:00000000 $t
+C:\Users\wyx12\AppData\Local\Temp\cckM2pj5.s:105    .text.Sx1276SetNSS:00000000 Sx1276SetNSS
+C:\Users\wyx12\AppData\Local\Temp\cckM2pj5.s:147    .text.Sx1276SetNSS:0000001c $d
+C:\Users\wyx12\AppData\Local\Temp\cckM2pj5.s:152    .text.Sx1276SpiInOut:00000000 $t
+C:\Users\wyx12\AppData\Local\Temp\cckM2pj5.s:158    .text.Sx1276SpiInOut:00000000 Sx1276SpiInOut
+C:\Users\wyx12\AppData\Local\Temp\cckM2pj5.s:184    .text.SX126xWaitOnBusy:00000000 $t
+C:\Users\wyx12\AppData\Local\Temp\cckM2pj5.s:190    .text.SX126xWaitOnBusy:00000000 SX126xWaitOnBusy
+C:\Users\wyx12\AppData\Local\Temp\cckM2pj5.s:216    .text.SX126xWaitOnBusy:00000010 $d
+C:\Users\wyx12\AppData\Local\Temp\cckM2pj5.s:221    .text.SX126xWakeup:00000000 $t
+C:\Users\wyx12\AppData\Local\Temp\cckM2pj5.s:227    .text.SX126xWakeup:00000000 SX126xWakeup
+C:\Users\wyx12\AppData\Local\Temp\cckM2pj5.s:263    .text.SX126xWriteCommand:00000000 $t
+C:\Users\wyx12\AppData\Local\Temp\cckM2pj5.s:269    .text.SX126xWriteCommand:00000000 SX126xWriteCommand
+C:\Users\wyx12\AppData\Local\Temp\cckM2pj5.s:346    .text.SX126xReadCommand:00000000 $t
+C:\Users\wyx12\AppData\Local\Temp\cckM2pj5.s:352    .text.SX126xReadCommand:00000000 SX126xReadCommand
+C:\Users\wyx12\AppData\Local\Temp\cckM2pj5.s:426    .text.SX126xWriteRegisters:00000000 $t
+C:\Users\wyx12\AppData\Local\Temp\cckM2pj5.s:432    .text.SX126xWriteRegisters:00000000 SX126xWriteRegisters
+C:\Users\wyx12\AppData\Local\Temp\cckM2pj5.s:507    .text.SX126xWriteRegister:00000000 $t
+C:\Users\wyx12\AppData\Local\Temp\cckM2pj5.s:513    .text.SX126xWriteRegister:00000000 SX126xWriteRegister
+C:\Users\wyx12\AppData\Local\Temp\cckM2pj5.s:546    .text.SX126xReadRegisters:00000000 $t
+C:\Users\wyx12\AppData\Local\Temp\cckM2pj5.s:552    .text.SX126xReadRegisters:00000000 SX126xReadRegisters
+C:\Users\wyx12\AppData\Local\Temp\cckM2pj5.s:634    .text.SX126xReadRegister:00000000 $t
+C:\Users\wyx12\AppData\Local\Temp\cckM2pj5.s:640    .text.SX126xReadRegister:00000000 SX126xReadRegister
+C:\Users\wyx12\AppData\Local\Temp\cckM2pj5.s:673    .text.SX126xWriteBuffer:00000000 $t
+C:\Users\wyx12\AppData\Local\Temp\cckM2pj5.s:679    .text.SX126xWriteBuffer:00000000 SX126xWriteBuffer
+C:\Users\wyx12\AppData\Local\Temp\cckM2pj5.s:750    .text.SX126xReadBuffer:00000000 $t
+C:\Users\wyx12\AppData\Local\Temp\cckM2pj5.s:756    .text.SX126xReadBuffer:00000000 SX126xReadBuffer
+C:\Users\wyx12\AppData\Local\Temp\cckM2pj5.s:834    .text.SX126xSetRfTxPower:00000000 $t
+C:\Users\wyx12\AppData\Local\Temp\cckM2pj5.s:840    .text.SX126xSetRfTxPower:00000000 SX126xSetRfTxPower
+C:\Users\wyx12\AppData\Local\Temp\cckM2pj5.s:863    .text.SX126xGetPaSelect:00000000 $t
+C:\Users\wyx12\AppData\Local\Temp\cckM2pj5.s:869    .text.SX126xGetPaSelect:00000000 SX126xGetPaSelect
+C:\Users\wyx12\AppData\Local\Temp\cckM2pj5.s:887    .text.SX126xAntSwOn:00000000 $t
+C:\Users\wyx12\AppData\Local\Temp\cckM2pj5.s:893    .text.SX126xAntSwOn:00000000 SX126xAntSwOn
+C:\Users\wyx12\AppData\Local\Temp\cckM2pj5.s:906    .text.SX126xAntSwOff:00000000 $t
+C:\Users\wyx12\AppData\Local\Temp\cckM2pj5.s:912    .text.SX126xAntSwOff:00000000 SX126xAntSwOff
+C:\Users\wyx12\AppData\Local\Temp\cckM2pj5.s:925    .text.SX126xCheckRfFrequency:00000000 $t
+C:\Users\wyx12\AppData\Local\Temp\cckM2pj5.s:931    .text.SX126xCheckRfFrequency:00000000 SX126xCheckRfFrequency
+
+UNDEFINED SYMBOLS
+HAL_Delay
+HAL_GPIO_WritePin
+SpiInOut
+HAL_GPIO_ReadPin
+SX126xCheckDeviceReady
+SX126xSetTxParams

@@ -1,0 +1,1446 @@
+ARM GAS  C:\Users\wyx12\AppData\Local\Temp\cclGCzyd.s 			page 1
+
+
+   1              		.cpu cortex-m3
+   2              		.arch armv7-m
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 1
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.file	"sx126x_Init.c"
+  14              		.text
+  15              	.Ltext0:
+  16              		.cfi_sections	.debug_frame
+  17              		.file 1 "Modules/sx1262/Src/sx126x_Init.c"
+  18              		.section	.text.SX126xOnTxDone,"ax",%progbits
+  19              		.align	1
+  20              		.syntax unified
+  21              		.thumb
+  22              		.thumb_func
+  24              	SX126xOnTxDone:
+  25              	.LFB71:
+   1:Modules/sx1262/Src/sx126x_Init.c **** #include "sx126x_Init.h"
+   2:Modules/sx1262/Src/sx126x_Init.c **** #include "gpio.h"
+   3:Modules/sx1262/Src/sx126x_Init.c **** #include "radio.h"
+   4:Modules/sx1262/Src/sx126x_Init.c **** #include "stdio.h"
+   5:Modules/sx1262/Src/sx126x_Init.c **** #include "string.h"
+   6:Modules/sx1262/Src/sx126x_Init.c **** #include "sx126x.h"
+   7:Modules/sx1262/Src/sx126x_Init.c **** 
+   8:Modules/sx1262/Src/sx126x_Init.c **** /*!
+   9:Modules/sx1262/Src/sx126x_Init.c ****  * Radio events function pointer
+  10:Modules/sx1262/Src/sx126x_Init.c ****  * 这个是传参进入其他函数中了，所以用全局变量(局部变量使用完了内存�
+  11:Modules/sx1262/Src/sx126x_Init.c ****  */
+  12:Modules/sx1262/Src/sx126x_Init.c **** 
+  13:Modules/sx1262/Src/sx126x_Init.c **** static void delay1ms(uint32_t time)
+  14:Modules/sx1262/Src/sx126x_Init.c **** {
+  15:Modules/sx1262/Src/sx126x_Init.c ****     HAL_Delay(time);
+  16:Modules/sx1262/Src/sx126x_Init.c **** }
+  17:Modules/sx1262/Src/sx126x_Init.c **** static RadioEvents_t SX126xRadioEvents;
+  18:Modules/sx1262/Src/sx126x_Init.c **** 
+  19:Modules/sx1262/Src/sx126x_Init.c **** static void SX126xOnTxDone(void);
+  20:Modules/sx1262/Src/sx126x_Init.c **** static void SX126xOnRxDone(uint8_t *payload, uint16_t size, int16_t rssi, int8_t snr);
+  21:Modules/sx1262/Src/sx126x_Init.c **** static void SX126xOnTxTimeout(void);
+  22:Modules/sx1262/Src/sx126x_Init.c **** static void SX126xOnRxTimeout(void);
+  23:Modules/sx1262/Src/sx126x_Init.c **** static void SX126xOnRxError(void);
+  24:Modules/sx1262/Src/sx126x_Init.c **** static void OnCadDone(bool channelActivityDetected);
+  25:Modules/sx1262/Src/sx126x_Init.c **** 
+  26:Modules/sx1262/Src/sx126x_Init.c **** States_t SX1262_State;
+  27:Modules/sx1262/Src/sx126x_Init.c **** uint8_t OCP_Value = 0;
+  28:Modules/sx1262/Src/sx126x_Init.c **** 
+  29:Modules/sx1262/Src/sx126x_Init.c **** // 开启一个定时发送任务，每隔1S发送一条数据
+  30:Modules/sx1262/Src/sx126x_Init.c **** 
+  31:Modules/sx1262/Src/sx126x_Init.c **** void Radio_Init_RXD(void)
+  32:Modules/sx1262/Src/sx126x_Init.c **** {
+  33:Modules/sx1262/Src/sx126x_Init.c ****     SX126xRadioEvents.TxDone = SX126xOnTxDone;
+ARM GAS  C:\Users\wyx12\AppData\Local\Temp\cclGCzyd.s 			page 2
+
+
+  34:Modules/sx1262/Src/sx126x_Init.c ****     SX126xRadioEvents.RxDone = SX126xOnRxDone;
+  35:Modules/sx1262/Src/sx126x_Init.c ****     SX126xRadioEvents.TxTimeout = SX126xOnTxTimeout;
+  36:Modules/sx1262/Src/sx126x_Init.c ****     SX126xRadioEvents.RxTimeout = SX126xOnRxTimeout;
+  37:Modules/sx1262/Src/sx126x_Init.c ****     SX126xRadioEvents.RxError = SX126xOnRxError;
+  38:Modules/sx1262/Src/sx126x_Init.c **** 
+  39:Modules/sx1262/Src/sx126x_Init.c ****     Radio.Init(&SX126xRadioEvents);
+  40:Modules/sx1262/Src/sx126x_Init.c ****     Radio.SetChannel(520000000);
+  41:Modules/sx1262/Src/sx126x_Init.c **** #if defined(USE_MODEM_LORA)
+  42:Modules/sx1262/Src/sx126x_Init.c ****     // 参数：lora模式,发射功率,fsk用的lora设置为0就可以，带宽，纠错编码率
+  43:Modules/sx1262/Src/sx126x_Init.c **** 
+  44:Modules/sx1262/Src/sx126x_Init.c ****     Radio.SetTxConfig(MODEM_LORA, 20, 0, 0, 9, LORA_CODINGRATE, LORA_PREAMBLE_LENGTH, LORA_FIX_LENG
+  45:Modules/sx1262/Src/sx126x_Init.c ****                       0, 0, LORA_IQ_INVERSION_ON, 3000);
+  46:Modules/sx1262/Src/sx126x_Init.c **** 
+  47:Modules/sx1262/Src/sx126x_Init.c ****     Radio.SetRxConfig(MODEM_LORA, 0, 9, LORA_CODINGRATE, 0, LORA_PREAMBLE_LENGTH, LORA_SX126X_SYMBO
+  48:Modules/sx1262/Src/sx126x_Init.c ****                       LORA_FIX_LENGTH_PAYLOAD_ON, 0, true, 0, 0, LORA_IQ_INVERSION_ON, true);
+  49:Modules/sx1262/Src/sx126x_Init.c **** 
+  50:Modules/sx1262/Src/sx126x_Init.c **** #elif defined(USE_MODEM_FSK)
+  51:Modules/sx1262/Src/sx126x_Init.c ****     Radio.SetTxConfig(MODEM_FSK, TX_OUTPUT_POWER, FSK_FDEV, 0, FSK_DATARATE, 0, FSK_PREAMBLE_LENGTH
+  52:Modules/sx1262/Src/sx126x_Init.c ****                       FSK_FIX_LENGTH_PAYLOAD_ON, true, 0, 0, 0, 3000);
+  53:Modules/sx1262/Src/sx126x_Init.c **** 
+  54:Modules/sx1262/Src/sx126x_Init.c ****     Radio.SetRxConfig(MODEM_FSK, FSK_BANDWIDTH, FSK_DATARATE, 0, FSK_AFC_BANDWIDTH, FSK_PREAMBLE_LE
+  55:Modules/sx1262/Src/sx126x_Init.c ****                       FSK_FIX_LENGTH_PAYLOAD_ON, 0, true, 0, 0, false, true);
+  56:Modules/sx1262/Src/sx126x_Init.c **** 
+  57:Modules/sx1262/Src/sx126x_Init.c **** #else
+  58:Modules/sx1262/Src/sx126x_Init.c **** #error "Please define a frequency band in the compiler options."
+  59:Modules/sx1262/Src/sx126x_Init.c **** #endif
+  60:Modules/sx1262/Src/sx126x_Init.c ****     OCP_Value = Radio.Read(REG_OCP);
+  61:Modules/sx1262/Src/sx126x_Init.c ****     Radio.Standby();
+  62:Modules/sx1262/Src/sx126x_Init.c ****     Radio.Rx(0);
+  63:Modules/sx1262/Src/sx126x_Init.c **** }
+  64:Modules/sx1262/Src/sx126x_Init.c **** 
+  65:Modules/sx1262/Src/sx126x_Init.c **** void Radio_Init(void)
+  66:Modules/sx1262/Src/sx126x_Init.c **** {
+  67:Modules/sx1262/Src/sx126x_Init.c ****     SX126xRadioEvents.TxDone = SX126xOnTxDone;
+  68:Modules/sx1262/Src/sx126x_Init.c ****     SX126xRadioEvents.RxDone = SX126xOnRxDone;
+  69:Modules/sx1262/Src/sx126x_Init.c ****     SX126xRadioEvents.TxTimeout = SX126xOnTxTimeout;
+  70:Modules/sx1262/Src/sx126x_Init.c ****     SX126xRadioEvents.RxTimeout = SX126xOnRxTimeout;
+  71:Modules/sx1262/Src/sx126x_Init.c ****     SX126xRadioEvents.RxError = SX126xOnRxError;
+  72:Modules/sx1262/Src/sx126x_Init.c **** 
+  73:Modules/sx1262/Src/sx126x_Init.c ****     Radio.Init(&SX126xRadioEvents);
+  74:Modules/sx1262/Src/sx126x_Init.c ****     Radio.SetChannel(LORA_TX_FRE);
+  75:Modules/sx1262/Src/sx126x_Init.c **** #if defined(USE_MODEM_LORA)
+  76:Modules/sx1262/Src/sx126x_Init.c ****     // 参数：lora模式,发射功率,fsk用的lora设置为0就可以，带宽，纠错编码率
+  77:Modules/sx1262/Src/sx126x_Init.c **** 
+  78:Modules/sx1262/Src/sx126x_Init.c ****     Radio.SetTxConfig(MODEM_LORA, LORA_TX_OUTPUT_POWER, 0, LORA_BANDWIDTH, LORA_SPREADING_FACTOR, L
+  79:Modules/sx1262/Src/sx126x_Init.c ****                       LORA_PREAMBLE_LENGTH, LORA_FIX_LENGTH_PAYLOAD_ON, true, 0, 0, LORA_IQ_INVERSI
+  80:Modules/sx1262/Src/sx126x_Init.c **** 
+  81:Modules/sx1262/Src/sx126x_Init.c ****     Radio.SetRxConfig(MODEM_LORA, 0, LORA_SPREADING_FACTOR, LORA_CODINGRATE, 0, LORA_PREAMBLE_LENGT
+  82:Modules/sx1262/Src/sx126x_Init.c ****                       LORA_SX126X_SYMBOL_TIMEOUT, LORA_FIX_LENGTH_PAYLOAD_ON, 0, true, 0, 0, LORA_I
+  83:Modules/sx1262/Src/sx126x_Init.c ****                       true);
+  84:Modules/sx1262/Src/sx126x_Init.c **** 
+  85:Modules/sx1262/Src/sx126x_Init.c **** #elif defined(USE_MODEM_FSK)
+  86:Modules/sx1262/Src/sx126x_Init.c ****     Radio.SetTxConfig(MODEM_FSK, TX_OUTPUT_POWER, FSK_FDEV, 0, FSK_DATARATE, 0, FSK_PREAMBLE_LENGTH
+  87:Modules/sx1262/Src/sx126x_Init.c ****                       FSK_FIX_LENGTH_PAYLOAD_ON, true, 0, 0, 0, 3000);
+  88:Modules/sx1262/Src/sx126x_Init.c **** 
+  89:Modules/sx1262/Src/sx126x_Init.c ****     Radio.SetRxConfig(MODEM_FSK, FSK_BANDWIDTH, FSK_DATARATE, 0, FSK_AFC_BANDWIDTH, FSK_PREAMBLE_LE
+  90:Modules/sx1262/Src/sx126x_Init.c ****                       FSK_FIX_LENGTH_PAYLOAD_ON, 0, true, 0, 0, false, true);
+ARM GAS  C:\Users\wyx12\AppData\Local\Temp\cclGCzyd.s 			page 3
+
+
+  91:Modules/sx1262/Src/sx126x_Init.c **** 
+  92:Modules/sx1262/Src/sx126x_Init.c **** #else
+  93:Modules/sx1262/Src/sx126x_Init.c **** #error "Please define a frequency band in the compiler options."
+  94:Modules/sx1262/Src/sx126x_Init.c **** #endif
+  95:Modules/sx1262/Src/sx126x_Init.c ****     OCP_Value = Radio.Read(REG_OCP);
+  96:Modules/sx1262/Src/sx126x_Init.c ****     Radio.Standby();
+  97:Modules/sx1262/Src/sx126x_Init.c ****     Radio.Rx(0);
+  98:Modules/sx1262/Src/sx126x_Init.c **** }
+  99:Modules/sx1262/Src/sx126x_Init.c **** uint8_t RF_TX_Done = 0;
+ 100:Modules/sx1262/Src/sx126x_Init.c **** static void SX126xOnTxDone(void)
+ 101:Modules/sx1262/Src/sx126x_Init.c **** {
+  26              		.loc 1 101 1 view -0
+  27              		.cfi_startproc
+  28              		@ args = 0, pretend = 0, frame = 0
+  29              		@ frame_needed = 0, uses_anonymous_args = 0
+  30 0000 10B5     		push	{r4, lr}
+  31              	.LCFI0:
+  32              		.cfi_def_cfa_offset 8
+  33              		.cfi_offset 4, -8
+  34              		.cfi_offset 14, -4
+ 102:Modules/sx1262/Src/sx126x_Init.c ****     //	Radio.Standby();
+ 103:Modules/sx1262/Src/sx126x_Init.c ****     //	Radio.Rx( LORA_RX_TIMEOUT_VALUE );
+ 104:Modules/sx1262/Src/sx126x_Init.c ****     Radio.SetChannel(LORA_RX_FRE); // 接收频率
+  35              		.loc 1 104 5 view .LVU1
+  36              		.loc 1 104 10 is_stmt 0 view .LVU2
+  37 0002 064C     		ldr	r4, .L3
+  38 0004 E368     		ldr	r3, [r4, #12]
+  39              		.loc 1 104 5 view .LVU3
+  40 0006 0648     		ldr	r0, .L3+4
+  41 0008 9847     		blx	r3
+  42              	.LVL0:
+ 105:Modules/sx1262/Src/sx126x_Init.c ****     Radio.Standby();
+  43              		.loc 1 105 5 is_stmt 1 view .LVU4
+  44              		.loc 1 105 10 is_stmt 0 view .LVU5
+  45 000a 236B     		ldr	r3, [r4, #48]
+  46              		.loc 1 105 5 view .LVU6
+  47 000c 9847     		blx	r3
+  48              	.LVL1:
+ 106:Modules/sx1262/Src/sx126x_Init.c ****     Radio.Rx(LORA_RX_TIMEOUT_VALUE);
+  49              		.loc 1 106 5 is_stmt 1 view .LVU7
+  50              		.loc 1 106 10 is_stmt 0 view .LVU8
+  51 000e 636B     		ldr	r3, [r4, #52]
+  52              		.loc 1 106 5 view .LVU9
+  53 0010 0020     		movs	r0, #0
+  54 0012 9847     		blx	r3
+  55              	.LVL2:
+ 107:Modules/sx1262/Src/sx126x_Init.c ****     SX1262_State = TX_Done;
+  56              		.loc 1 107 5 is_stmt 1 view .LVU10
+  57              		.loc 1 107 18 is_stmt 0 view .LVU11
+  58 0014 034B     		ldr	r3, .L3+8
+  59 0016 0422     		movs	r2, #4
+  60 0018 1A70     		strb	r2, [r3]
+ 108:Modules/sx1262/Src/sx126x_Init.c **** }
+  61              		.loc 1 108 1 view .LVU12
+  62 001a 10BD     		pop	{r4, pc}
+  63              	.L4:
+  64              		.align	2
+ARM GAS  C:\Users\wyx12\AppData\Local\Temp\cclGCzyd.s 			page 4
+
+
+  65              	.L3:
+  66 001c 00000000 		.word	Radio
+  67 0020 0092FE1E 		.word	520000000
+  68 0024 00000000 		.word	SX1262_State
+  69              		.cfi_endproc
+  70              	.LFE71:
+  72              		.section	.text.SX126xOnTxTimeout,"ax",%progbits
+  73              		.align	1
+  74              		.syntax unified
+  75              		.thumb
+  76              		.thumb_func
+  78              	SX126xOnTxTimeout:
+  79              	.LFB73:
+ 109:Modules/sx1262/Src/sx126x_Init.c **** 
+ 110:Modules/sx1262/Src/sx126x_Init.c **** int8_t RssiValue = 0;
+ 111:Modules/sx1262/Src/sx126x_Init.c **** int8_t SnrValue = 0;
+ 112:Modules/sx1262/Src/sx126x_Init.c **** uint16_t RF_RX_Count = 256;
+ 113:Modules/sx1262/Src/sx126x_Init.c **** unsigned char RF_RX_Buffer[256];
+ 114:Modules/sx1262/Src/sx126x_Init.c **** uint8_t RF_RX_Done = 0;
+ 115:Modules/sx1262/Src/sx126x_Init.c **** bool Cad_Done = false;
+ 116:Modules/sx1262/Src/sx126x_Init.c **** 
+ 117:Modules/sx1262/Src/sx126x_Init.c **** static void SX126xOnRxDone(uint8_t *payload, uint16_t size, int16_t rssi, int8_t snr)
+ 118:Modules/sx1262/Src/sx126x_Init.c **** {
+ 119:Modules/sx1262/Src/sx126x_Init.c ****     Radio.Standby();
+ 120:Modules/sx1262/Src/sx126x_Init.c **** 
+ 121:Modules/sx1262/Src/sx126x_Init.c ****     RF_RX_Count = size;
+ 122:Modules/sx1262/Src/sx126x_Init.c ****     memcpy(RF_RX_Buffer, payload, RF_RX_Count);
+ 123:Modules/sx1262/Src/sx126x_Init.c ****     RssiValue = rssi;
+ 124:Modules/sx1262/Src/sx126x_Init.c ****     SnrValue = snr;
+ 125:Modules/sx1262/Src/sx126x_Init.c **** 
+ 126:Modules/sx1262/Src/sx126x_Init.c ****     Radio.Rx(LORA_RX_TIMEOUT_VALUE);
+ 127:Modules/sx1262/Src/sx126x_Init.c ****     SX1262_State = RX_Done;
+ 128:Modules/sx1262/Src/sx126x_Init.c **** }
+ 129:Modules/sx1262/Src/sx126x_Init.c **** 
+ 130:Modules/sx1262/Src/sx126x_Init.c **** static void SX126xOnTxTimeout(void)
+ 131:Modules/sx1262/Src/sx126x_Init.c **** {
+  80              		.loc 1 131 1 is_stmt 1 view -0
+  81              		.cfi_startproc
+  82              		@ args = 0, pretend = 0, frame = 0
+  83              		@ frame_needed = 0, uses_anonymous_args = 0
+  84 0000 10B5     		push	{r4, lr}
+  85              	.LCFI1:
+  86              		.cfi_def_cfa_offset 8
+  87              		.cfi_offset 4, -8
+  88              		.cfi_offset 14, -4
+ 132:Modules/sx1262/Src/sx126x_Init.c ****     Radio.Standby();
+  89              		.loc 1 132 5 view .LVU14
+  90              		.loc 1 132 10 is_stmt 0 view .LVU15
+  91 0002 054C     		ldr	r4, .L7
+  92 0004 236B     		ldr	r3, [r4, #48]
+  93              		.loc 1 132 5 view .LVU16
+  94 0006 9847     		blx	r3
+  95              	.LVL3:
+ 133:Modules/sx1262/Src/sx126x_Init.c ****     Radio.Rx(LORA_RX_TIMEOUT_VALUE);
+  96              		.loc 1 133 5 is_stmt 1 view .LVU17
+  97              		.loc 1 133 10 is_stmt 0 view .LVU18
+  98 0008 636B     		ldr	r3, [r4, #52]
+ARM GAS  C:\Users\wyx12\AppData\Local\Temp\cclGCzyd.s 			page 5
+
+
+  99              		.loc 1 133 5 view .LVU19
+ 100 000a 0020     		movs	r0, #0
+ 101 000c 9847     		blx	r3
+ 102              	.LVL4:
+ 134:Modules/sx1262/Src/sx126x_Init.c **** 
+ 135:Modules/sx1262/Src/sx126x_Init.c ****     SX1262_State = TX_TIMEOUT;
+ 103              		.loc 1 135 5 is_stmt 1 view .LVU20
+ 104              		.loc 1 135 18 is_stmt 0 view .LVU21
+ 105 000e 034B     		ldr	r3, .L7+4
+ 106 0010 0522     		movs	r2, #5
+ 107 0012 1A70     		strb	r2, [r3]
+ 136:Modules/sx1262/Src/sx126x_Init.c **** }
+ 108              		.loc 1 136 1 view .LVU22
+ 109 0014 10BD     		pop	{r4, pc}
+ 110              	.L8:
+ 111 0016 00BF     		.align	2
+ 112              	.L7:
+ 113 0018 00000000 		.word	Radio
+ 114 001c 00000000 		.word	SX1262_State
+ 115              		.cfi_endproc
+ 116              	.LFE73:
+ 118              		.section	.text.SX126xOnRxTimeout,"ax",%progbits
+ 119              		.align	1
+ 120              		.syntax unified
+ 121              		.thumb
+ 122              		.thumb_func
+ 124              	SX126xOnRxTimeout:
+ 125              	.LFB74:
+ 137:Modules/sx1262/Src/sx126x_Init.c **** 
+ 138:Modules/sx1262/Src/sx126x_Init.c **** static void SX126xOnRxTimeout(void)
+ 139:Modules/sx1262/Src/sx126x_Init.c **** {
+ 126              		.loc 1 139 1 is_stmt 1 view -0
+ 127              		.cfi_startproc
+ 128              		@ args = 0, pretend = 0, frame = 0
+ 129              		@ frame_needed = 0, uses_anonymous_args = 0
+ 130 0000 10B5     		push	{r4, lr}
+ 131              	.LCFI2:
+ 132              		.cfi_def_cfa_offset 8
+ 133              		.cfi_offset 4, -8
+ 134              		.cfi_offset 14, -4
+ 140:Modules/sx1262/Src/sx126x_Init.c ****     Radio.Standby();
+ 135              		.loc 1 140 5 view .LVU24
+ 136              		.loc 1 140 10 is_stmt 0 view .LVU25
+ 137 0002 054C     		ldr	r4, .L11
+ 138 0004 236B     		ldr	r3, [r4, #48]
+ 139              		.loc 1 140 5 view .LVU26
+ 140 0006 9847     		blx	r3
+ 141              	.LVL5:
+ 141:Modules/sx1262/Src/sx126x_Init.c **** 
+ 142:Modules/sx1262/Src/sx126x_Init.c ****     Radio.Rx(LORA_RX_TIMEOUT_VALUE);
+ 142              		.loc 1 142 5 is_stmt 1 view .LVU27
+ 143              		.loc 1 142 10 is_stmt 0 view .LVU28
+ 144 0008 636B     		ldr	r3, [r4, #52]
+ 145              		.loc 1 142 5 view .LVU29
+ 146 000a 0020     		movs	r0, #0
+ 147 000c 9847     		blx	r3
+ 148              	.LVL6:
+ARM GAS  C:\Users\wyx12\AppData\Local\Temp\cclGCzyd.s 			page 6
+
+
+ 143:Modules/sx1262/Src/sx126x_Init.c ****     SX1262_State = RX_TIMEOUT;
+ 149              		.loc 1 143 5 is_stmt 1 view .LVU30
+ 150              		.loc 1 143 18 is_stmt 0 view .LVU31
+ 151 000e 034B     		ldr	r3, .L11+4
+ 152 0010 0222     		movs	r2, #2
+ 153 0012 1A70     		strb	r2, [r3]
+ 144:Modules/sx1262/Src/sx126x_Init.c **** }
+ 154              		.loc 1 144 1 view .LVU32
+ 155 0014 10BD     		pop	{r4, pc}
+ 156              	.L12:
+ 157 0016 00BF     		.align	2
+ 158              	.L11:
+ 159 0018 00000000 		.word	Radio
+ 160 001c 00000000 		.word	SX1262_State
+ 161              		.cfi_endproc
+ 162              	.LFE74:
+ 164              		.section	.text.SX126xOnRxError,"ax",%progbits
+ 165              		.align	1
+ 166              		.syntax unified
+ 167              		.thumb
+ 168              		.thumb_func
+ 170              	SX126xOnRxError:
+ 171              	.LFB75:
+ 145:Modules/sx1262/Src/sx126x_Init.c **** 
+ 146:Modules/sx1262/Src/sx126x_Init.c **** static void SX126xOnRxError(void)
+ 147:Modules/sx1262/Src/sx126x_Init.c **** {
+ 172              		.loc 1 147 1 is_stmt 1 view -0
+ 173              		.cfi_startproc
+ 174              		@ args = 0, pretend = 0, frame = 0
+ 175              		@ frame_needed = 0, uses_anonymous_args = 0
+ 176 0000 10B5     		push	{r4, lr}
+ 177              	.LCFI3:
+ 178              		.cfi_def_cfa_offset 8
+ 179              		.cfi_offset 4, -8
+ 180              		.cfi_offset 14, -4
+ 148:Modules/sx1262/Src/sx126x_Init.c ****     Radio.Standby();
+ 181              		.loc 1 148 5 view .LVU34
+ 182              		.loc 1 148 10 is_stmt 0 view .LVU35
+ 183 0002 054C     		ldr	r4, .L15
+ 184 0004 236B     		ldr	r3, [r4, #48]
+ 185              		.loc 1 148 5 view .LVU36
+ 186 0006 9847     		blx	r3
+ 187              	.LVL7:
+ 149:Modules/sx1262/Src/sx126x_Init.c **** 
+ 150:Modules/sx1262/Src/sx126x_Init.c ****     Radio.Rx(LORA_RX_TIMEOUT_VALUE);
+ 188              		.loc 1 150 5 is_stmt 1 view .LVU37
+ 189              		.loc 1 150 10 is_stmt 0 view .LVU38
+ 190 0008 636B     		ldr	r3, [r4, #52]
+ 191              		.loc 1 150 5 view .LVU39
+ 192 000a 0020     		movs	r0, #0
+ 193 000c 9847     		blx	r3
+ 194              	.LVL8:
+ 151:Modules/sx1262/Src/sx126x_Init.c ****     SX1262_State = RX_ERROR;
+ 195              		.loc 1 151 5 is_stmt 1 view .LVU40
+ 196              		.loc 1 151 18 is_stmt 0 view .LVU41
+ 197 000e 034B     		ldr	r3, .L15+4
+ 198 0010 0322     		movs	r2, #3
+ARM GAS  C:\Users\wyx12\AppData\Local\Temp\cclGCzyd.s 			page 7
+
+
+ 199 0012 1A70     		strb	r2, [r3]
+ 152:Modules/sx1262/Src/sx126x_Init.c **** }
+ 200              		.loc 1 152 1 view .LVU42
+ 201 0014 10BD     		pop	{r4, pc}
+ 202              	.L16:
+ 203 0016 00BF     		.align	2
+ 204              	.L15:
+ 205 0018 00000000 		.word	Radio
+ 206 001c 00000000 		.word	SX1262_State
+ 207              		.cfi_endproc
+ 208              	.LFE75:
+ 210              		.section	.text.SX126xOnRxDone,"ax",%progbits
+ 211              		.align	1
+ 212              		.syntax unified
+ 213              		.thumb
+ 214              		.thumb_func
+ 216              	SX126xOnRxDone:
+ 217              	.LVL9:
+ 218              	.LFB72:
+ 118:Modules/sx1262/Src/sx126x_Init.c ****     Radio.Standby();
+ 219              		.loc 1 118 1 is_stmt 1 view -0
+ 220              		.cfi_startproc
+ 221              		@ args = 0, pretend = 0, frame = 0
+ 222              		@ frame_needed = 0, uses_anonymous_args = 0
+ 118:Modules/sx1262/Src/sx126x_Init.c ****     Radio.Standby();
+ 223              		.loc 1 118 1 is_stmt 0 view .LVU44
+ 224 0000 2DE9F041 		push	{r4, r5, r6, r7, r8, lr}
+ 225              	.LCFI4:
+ 226              		.cfi_def_cfa_offset 24
+ 227              		.cfi_offset 4, -24
+ 228              		.cfi_offset 5, -20
+ 229              		.cfi_offset 6, -16
+ 230              		.cfi_offset 7, -12
+ 231              		.cfi_offset 8, -8
+ 232              		.cfi_offset 14, -4
+ 233 0004 0746     		mov	r7, r0
+ 234 0006 0C46     		mov	r4, r1
+ 235 0008 1646     		mov	r6, r2
+ 236 000a 1D46     		mov	r5, r3
+ 119:Modules/sx1262/Src/sx126x_Init.c **** 
+ 237              		.loc 1 119 5 is_stmt 1 view .LVU45
+ 119:Modules/sx1262/Src/sx126x_Init.c **** 
+ 238              		.loc 1 119 10 is_stmt 0 view .LVU46
+ 239 000c DFF83080 		ldr	r8, .L19
+ 240 0010 D8F83030 		ldr	r3, [r8, #48]
+ 241              	.LVL10:
+ 119:Modules/sx1262/Src/sx126x_Init.c **** 
+ 242              		.loc 1 119 5 view .LVU47
+ 243 0014 9847     		blx	r3
+ 244              	.LVL11:
+ 121:Modules/sx1262/Src/sx126x_Init.c ****     memcpy(RF_RX_Buffer, payload, RF_RX_Count);
+ 245              		.loc 1 121 5 is_stmt 1 view .LVU48
+ 121:Modules/sx1262/Src/sx126x_Init.c ****     memcpy(RF_RX_Buffer, payload, RF_RX_Count);
+ 246              		.loc 1 121 17 is_stmt 0 view .LVU49
+ 247 0016 0B4B     		ldr	r3, .L19+4
+ 248 0018 1C80     		strh	r4, [r3]	@ movhi
+ 122:Modules/sx1262/Src/sx126x_Init.c ****     RssiValue = rssi;
+ARM GAS  C:\Users\wyx12\AppData\Local\Temp\cclGCzyd.s 			page 8
+
+
+ 249              		.loc 1 122 5 is_stmt 1 view .LVU50
+ 250 001a 2246     		mov	r2, r4
+ 251 001c 3946     		mov	r1, r7
+ 252 001e 0A48     		ldr	r0, .L19+8
+ 253 0020 FFF7FEFF 		bl	memcpy
+ 254              	.LVL12:
+ 123:Modules/sx1262/Src/sx126x_Init.c ****     SnrValue = snr;
+ 255              		.loc 1 123 5 view .LVU51
+ 123:Modules/sx1262/Src/sx126x_Init.c ****     SnrValue = snr;
+ 256              		.loc 1 123 15 is_stmt 0 view .LVU52
+ 257 0024 094B     		ldr	r3, .L19+12
+ 258 0026 1E70     		strb	r6, [r3]
+ 124:Modules/sx1262/Src/sx126x_Init.c **** 
+ 259              		.loc 1 124 5 is_stmt 1 view .LVU53
+ 124:Modules/sx1262/Src/sx126x_Init.c **** 
+ 260              		.loc 1 124 14 is_stmt 0 view .LVU54
+ 261 0028 094B     		ldr	r3, .L19+16
+ 262 002a 1D70     		strb	r5, [r3]
+ 126:Modules/sx1262/Src/sx126x_Init.c ****     SX1262_State = RX_Done;
+ 263              		.loc 1 126 5 is_stmt 1 view .LVU55
+ 126:Modules/sx1262/Src/sx126x_Init.c ****     SX1262_State = RX_Done;
+ 264              		.loc 1 126 10 is_stmt 0 view .LVU56
+ 265 002c D8F83430 		ldr	r3, [r8, #52]
+ 126:Modules/sx1262/Src/sx126x_Init.c ****     SX1262_State = RX_Done;
+ 266              		.loc 1 126 5 view .LVU57
+ 267 0030 0020     		movs	r0, #0
+ 268 0032 9847     		blx	r3
+ 269              	.LVL13:
+ 127:Modules/sx1262/Src/sx126x_Init.c **** }
+ 270              		.loc 1 127 5 is_stmt 1 view .LVU58
+ 127:Modules/sx1262/Src/sx126x_Init.c **** }
+ 271              		.loc 1 127 18 is_stmt 0 view .LVU59
+ 272 0034 074B     		ldr	r3, .L19+20
+ 273 0036 0122     		movs	r2, #1
+ 274 0038 1A70     		strb	r2, [r3]
+ 128:Modules/sx1262/Src/sx126x_Init.c **** 
+ 275              		.loc 1 128 1 view .LVU60
+ 276 003a BDE8F081 		pop	{r4, r5, r6, r7, r8, pc}
+ 277              	.LVL14:
+ 278              	.L20:
+ 128:Modules/sx1262/Src/sx126x_Init.c **** 
+ 279              		.loc 1 128 1 view .LVU61
+ 280 003e 00BF     		.align	2
+ 281              	.L19:
+ 282 0040 00000000 		.word	Radio
+ 283 0044 00000000 		.word	RF_RX_Count
+ 284 0048 00000000 		.word	RF_RX_Buffer
+ 285 004c 00000000 		.word	RssiValue
+ 286 0050 00000000 		.word	SnrValue
+ 287 0054 00000000 		.word	SX1262_State
+ 288              		.cfi_endproc
+ 289              	.LFE72:
+ 291              		.section	.text.delay1ms,"ax",%progbits
+ 292              		.align	1
+ 293              		.syntax unified
+ 294              		.thumb
+ 295              		.thumb_func
+ARM GAS  C:\Users\wyx12\AppData\Local\Temp\cclGCzyd.s 			page 9
+
+
+ 297              	delay1ms:
+ 298              	.LVL15:
+ 299              	.LFB68:
+  14:Modules/sx1262/Src/sx126x_Init.c ****     HAL_Delay(time);
+ 300              		.loc 1 14 1 is_stmt 1 view -0
+ 301              		.cfi_startproc
+ 302              		@ args = 0, pretend = 0, frame = 0
+ 303              		@ frame_needed = 0, uses_anonymous_args = 0
+  14:Modules/sx1262/Src/sx126x_Init.c ****     HAL_Delay(time);
+ 304              		.loc 1 14 1 is_stmt 0 view .LVU63
+ 305 0000 08B5     		push	{r3, lr}
+ 306              	.LCFI5:
+ 307              		.cfi_def_cfa_offset 8
+ 308              		.cfi_offset 3, -8
+ 309              		.cfi_offset 14, -4
+  15:Modules/sx1262/Src/sx126x_Init.c **** }
+ 310              		.loc 1 15 5 is_stmt 1 view .LVU64
+ 311 0002 FFF7FEFF 		bl	HAL_Delay
+ 312              	.LVL16:
+  16:Modules/sx1262/Src/sx126x_Init.c **** static RadioEvents_t SX126xRadioEvents;
+ 313              		.loc 1 16 1 is_stmt 0 view .LVU65
+ 314 0006 08BD     		pop	{r3, pc}
+ 315              		.cfi_endproc
+ 316              	.LFE68:
+ 318              		.section	.text.Radio_Init_RXD,"ax",%progbits
+ 319              		.align	1
+ 320              		.global	Radio_Init_RXD
+ 321              		.syntax unified
+ 322              		.thumb
+ 323              		.thumb_func
+ 325              	Radio_Init_RXD:
+ 326              	.LFB69:
+  32:Modules/sx1262/Src/sx126x_Init.c ****     SX126xRadioEvents.TxDone = SX126xOnTxDone;
+ 327              		.loc 1 32 1 is_stmt 1 view -0
+ 328              		.cfi_startproc
+ 329              		@ args = 0, pretend = 0, frame = 0
+ 330              		@ frame_needed = 0, uses_anonymous_args = 0
+ 331 0000 2DE9F041 		push	{r4, r5, r6, r7, r8, lr}
+ 332              	.LCFI6:
+ 333              		.cfi_def_cfa_offset 24
+ 334              		.cfi_offset 4, -24
+ 335              		.cfi_offset 5, -20
+ 336              		.cfi_offset 6, -16
+ 337              		.cfi_offset 7, -12
+ 338              		.cfi_offset 8, -8
+ 339              		.cfi_offset 14, -4
+ 340 0004 8AB0     		sub	sp, sp, #40
+ 341              	.LCFI7:
+ 342              		.cfi_def_cfa_offset 64
+  33:Modules/sx1262/Src/sx126x_Init.c ****     SX126xRadioEvents.RxDone = SX126xOnRxDone;
+ 343              		.loc 1 33 5 view .LVU67
+  33:Modules/sx1262/Src/sx126x_Init.c ****     SX126xRadioEvents.RxDone = SX126xOnRxDone;
+ 344              		.loc 1 33 30 is_stmt 0 view .LVU68
+ 345 0006 2448     		ldr	r0, .L25
+ 346 0008 244B     		ldr	r3, .L25+4
+ 347 000a 0360     		str	r3, [r0]
+  34:Modules/sx1262/Src/sx126x_Init.c ****     SX126xRadioEvents.TxTimeout = SX126xOnTxTimeout;
+ARM GAS  C:\Users\wyx12\AppData\Local\Temp\cclGCzyd.s 			page 10
+
+
+ 348              		.loc 1 34 5 is_stmt 1 view .LVU69
+  34:Modules/sx1262/Src/sx126x_Init.c ****     SX126xRadioEvents.TxTimeout = SX126xOnTxTimeout;
+ 349              		.loc 1 34 30 is_stmt 0 view .LVU70
+ 350 000c 244B     		ldr	r3, .L25+8
+ 351 000e 8360     		str	r3, [r0, #8]
+  35:Modules/sx1262/Src/sx126x_Init.c ****     SX126xRadioEvents.RxTimeout = SX126xOnRxTimeout;
+ 352              		.loc 1 35 5 is_stmt 1 view .LVU71
+  35:Modules/sx1262/Src/sx126x_Init.c ****     SX126xRadioEvents.RxTimeout = SX126xOnRxTimeout;
+ 353              		.loc 1 35 33 is_stmt 0 view .LVU72
+ 354 0010 244B     		ldr	r3, .L25+12
+ 355 0012 4360     		str	r3, [r0, #4]
+  36:Modules/sx1262/Src/sx126x_Init.c ****     SX126xRadioEvents.RxError = SX126xOnRxError;
+ 356              		.loc 1 36 5 is_stmt 1 view .LVU73
+  36:Modules/sx1262/Src/sx126x_Init.c ****     SX126xRadioEvents.RxError = SX126xOnRxError;
+ 357              		.loc 1 36 33 is_stmt 0 view .LVU74
+ 358 0014 244B     		ldr	r3, .L25+16
+ 359 0016 C360     		str	r3, [r0, #12]
+  37:Modules/sx1262/Src/sx126x_Init.c **** 
+ 360              		.loc 1 37 5 is_stmt 1 view .LVU75
+  37:Modules/sx1262/Src/sx126x_Init.c **** 
+ 361              		.loc 1 37 31 is_stmt 0 view .LVU76
+ 362 0018 244B     		ldr	r3, .L25+20
+ 363 001a 0361     		str	r3, [r0, #16]
+  39:Modules/sx1262/Src/sx126x_Init.c ****     Radio.SetChannel(520000000);
+ 364              		.loc 1 39 5 is_stmt 1 view .LVU77
+  39:Modules/sx1262/Src/sx126x_Init.c ****     Radio.SetChannel(520000000);
+ 365              		.loc 1 39 10 is_stmt 0 view .LVU78
+ 366 001c 244D     		ldr	r5, .L25+24
+ 367 001e 2B68     		ldr	r3, [r5]
+  39:Modules/sx1262/Src/sx126x_Init.c ****     Radio.SetChannel(520000000);
+ 368              		.loc 1 39 5 view .LVU79
+ 369 0020 9847     		blx	r3
+ 370              	.LVL17:
+  40:Modules/sx1262/Src/sx126x_Init.c **** #if defined(USE_MODEM_LORA)
+ 371              		.loc 1 40 5 is_stmt 1 view .LVU80
+  40:Modules/sx1262/Src/sx126x_Init.c **** #if defined(USE_MODEM_LORA)
+ 372              		.loc 1 40 10 is_stmt 0 view .LVU81
+ 373 0022 EB68     		ldr	r3, [r5, #12]
+  40:Modules/sx1262/Src/sx126x_Init.c **** #if defined(USE_MODEM_LORA)
+ 374              		.loc 1 40 5 view .LVU82
+ 375 0024 2348     		ldr	r0, .L25+28
+ 376 0026 9847     		blx	r3
+ 377              	.LVL18:
+  44:Modules/sx1262/Src/sx126x_Init.c ****                       0, 0, LORA_IQ_INVERSION_ON, 3000);
+ 378              		.loc 1 44 5 is_stmt 1 view .LVU83
+ 379 0028 40F6B833 		movw	r3, #3000
+ 380 002c 0893     		str	r3, [sp, #32]
+ 381 002e 0024     		movs	r4, #0
+ 382 0030 0794     		str	r4, [sp, #28]
+ 383 0032 0694     		str	r4, [sp, #24]
+ 384 0034 0594     		str	r4, [sp, #20]
+ 385 0036 0126     		movs	r6, #1
+ 386 0038 0496     		str	r6, [sp, #16]
+ 387 003a 0394     		str	r4, [sp, #12]
+ 388 003c 4FF00808 		mov	r8, #8
+ 389 0040 CDF80880 		str	r8, [sp, #8]
+ 390 0044 0196     		str	r6, [sp, #4]
+ARM GAS  C:\Users\wyx12\AppData\Local\Temp\cclGCzyd.s 			page 11
+
+
+ 391 0046 0927     		movs	r7, #9
+ 392 0048 0097     		str	r7, [sp]
+ 393 004a 2346     		mov	r3, r4
+ 394 004c 2246     		mov	r2, r4
+ 395 004e 1421     		movs	r1, #20
+ 396 0050 3046     		mov	r0, r6
+ 397 0052 D5F81CC0 		ldr	ip, [r5, #28]
+ 398 0056 E047     		blx	ip
+ 399              	.LVL19:
+  47:Modules/sx1262/Src/sx126x_Init.c ****                       LORA_FIX_LENGTH_PAYLOAD_ON, 0, true, 0, 0, LORA_IQ_INVERSION_ON, true);
+ 400              		.loc 1 47 5 view .LVU84
+ 401 0058 0996     		str	r6, [sp, #36]
+ 402 005a 0894     		str	r4, [sp, #32]
+ 403 005c 0794     		str	r4, [sp, #28]
+ 404 005e 0694     		str	r4, [sp, #24]
+ 405 0060 0596     		str	r6, [sp, #20]
+ 406 0062 0494     		str	r4, [sp, #16]
+ 407 0064 0394     		str	r4, [sp, #12]
+ 408 0066 0294     		str	r4, [sp, #8]
+ 409 0068 CDF80480 		str	r8, [sp, #4]
+ 410 006c 0094     		str	r4, [sp]
+ 411 006e 3346     		mov	r3, r6
+ 412 0070 3A46     		mov	r2, r7
+ 413 0072 2146     		mov	r1, r4
+ 414 0074 3046     		mov	r0, r6
+ 415 0076 AE69     		ldr	r6, [r5, #24]
+ 416 0078 B047     		blx	r6
+ 417              	.LVL20:
+  60:Modules/sx1262/Src/sx126x_Init.c ****     Radio.Standby();
+ 418              		.loc 1 60 5 view .LVU85
+  60:Modules/sx1262/Src/sx126x_Init.c ****     Radio.Standby();
+ 419              		.loc 1 60 22 is_stmt 0 view .LVU86
+ 420 007a AB6C     		ldr	r3, [r5, #72]
+  60:Modules/sx1262/Src/sx126x_Init.c ****     Radio.Standby();
+ 421              		.loc 1 60 17 view .LVU87
+ 422 007c 40F6E700 		movw	r0, #2279
+ 423 0080 9847     		blx	r3
+ 424              	.LVL21:
+  60:Modules/sx1262/Src/sx126x_Init.c ****     Radio.Standby();
+ 425              		.loc 1 60 15 view .LVU88
+ 426 0082 0D4B     		ldr	r3, .L25+32
+ 427 0084 1870     		strb	r0, [r3]
+  61:Modules/sx1262/Src/sx126x_Init.c ****     Radio.Rx(0);
+ 428              		.loc 1 61 5 is_stmt 1 view .LVU89
+  61:Modules/sx1262/Src/sx126x_Init.c ****     Radio.Rx(0);
+ 429              		.loc 1 61 10 is_stmt 0 view .LVU90
+ 430 0086 2B6B     		ldr	r3, [r5, #48]
+  61:Modules/sx1262/Src/sx126x_Init.c ****     Radio.Rx(0);
+ 431              		.loc 1 61 5 view .LVU91
+ 432 0088 9847     		blx	r3
+ 433              	.LVL22:
+  62:Modules/sx1262/Src/sx126x_Init.c **** }
+ 434              		.loc 1 62 5 is_stmt 1 view .LVU92
+  62:Modules/sx1262/Src/sx126x_Init.c **** }
+ 435              		.loc 1 62 10 is_stmt 0 view .LVU93
+ 436 008a 6B6B     		ldr	r3, [r5, #52]
+  62:Modules/sx1262/Src/sx126x_Init.c **** }
+ARM GAS  C:\Users\wyx12\AppData\Local\Temp\cclGCzyd.s 			page 12
+
+
+ 437              		.loc 1 62 5 view .LVU94
+ 438 008c 2046     		mov	r0, r4
+ 439 008e 9847     		blx	r3
+ 440              	.LVL23:
+  63:Modules/sx1262/Src/sx126x_Init.c **** 
+ 441              		.loc 1 63 1 view .LVU95
+ 442 0090 0AB0     		add	sp, sp, #40
+ 443              	.LCFI8:
+ 444              		.cfi_def_cfa_offset 24
+ 445              		@ sp needed
+ 446 0092 BDE8F081 		pop	{r4, r5, r6, r7, r8, pc}
+ 447              	.L26:
+ 448 0096 00BF     		.align	2
+ 449              	.L25:
+ 450 0098 00000000 		.word	SX126xRadioEvents
+ 451 009c 00000000 		.word	SX126xOnTxDone
+ 452 00a0 00000000 		.word	SX126xOnRxDone
+ 453 00a4 00000000 		.word	SX126xOnTxTimeout
+ 454 00a8 00000000 		.word	SX126xOnRxTimeout
+ 455 00ac 00000000 		.word	SX126xOnRxError
+ 456 00b0 00000000 		.word	Radio
+ 457 00b4 0092FE1E 		.word	520000000
+ 458 00b8 00000000 		.word	OCP_Value
+ 459              		.cfi_endproc
+ 460              	.LFE69:
+ 462              		.section	.text.Radio_Init,"ax",%progbits
+ 463              		.align	1
+ 464              		.global	Radio_Init
+ 465              		.syntax unified
+ 466              		.thumb
+ 467              		.thumb_func
+ 469              	Radio_Init:
+ 470              	.LFB70:
+  66:Modules/sx1262/Src/sx126x_Init.c ****     SX126xRadioEvents.TxDone = SX126xOnTxDone;
+ 471              		.loc 1 66 1 is_stmt 1 view -0
+ 472              		.cfi_startproc
+ 473              		@ args = 0, pretend = 0, frame = 0
+ 474              		@ frame_needed = 0, uses_anonymous_args = 0
+ 475 0000 2DE9F041 		push	{r4, r5, r6, r7, r8, lr}
+ 476              	.LCFI9:
+ 477              		.cfi_def_cfa_offset 24
+ 478              		.cfi_offset 4, -24
+ 479              		.cfi_offset 5, -20
+ 480              		.cfi_offset 6, -16
+ 481              		.cfi_offset 7, -12
+ 482              		.cfi_offset 8, -8
+ 483              		.cfi_offset 14, -4
+ 484 0004 8AB0     		sub	sp, sp, #40
+ 485              	.LCFI10:
+ 486              		.cfi_def_cfa_offset 64
+  67:Modules/sx1262/Src/sx126x_Init.c ****     SX126xRadioEvents.RxDone = SX126xOnRxDone;
+ 487              		.loc 1 67 5 view .LVU97
+  67:Modules/sx1262/Src/sx126x_Init.c ****     SX126xRadioEvents.RxDone = SX126xOnRxDone;
+ 488              		.loc 1 67 30 is_stmt 0 view .LVU98
+ 489 0006 2448     		ldr	r0, .L29
+ 490 0008 244B     		ldr	r3, .L29+4
+ 491 000a 0360     		str	r3, [r0]
+ARM GAS  C:\Users\wyx12\AppData\Local\Temp\cclGCzyd.s 			page 13
+
+
+  68:Modules/sx1262/Src/sx126x_Init.c ****     SX126xRadioEvents.TxTimeout = SX126xOnTxTimeout;
+ 492              		.loc 1 68 5 is_stmt 1 view .LVU99
+  68:Modules/sx1262/Src/sx126x_Init.c ****     SX126xRadioEvents.TxTimeout = SX126xOnTxTimeout;
+ 493              		.loc 1 68 30 is_stmt 0 view .LVU100
+ 494 000c 244B     		ldr	r3, .L29+8
+ 495 000e 8360     		str	r3, [r0, #8]
+  69:Modules/sx1262/Src/sx126x_Init.c ****     SX126xRadioEvents.RxTimeout = SX126xOnRxTimeout;
+ 496              		.loc 1 69 5 is_stmt 1 view .LVU101
+  69:Modules/sx1262/Src/sx126x_Init.c ****     SX126xRadioEvents.RxTimeout = SX126xOnRxTimeout;
+ 497              		.loc 1 69 33 is_stmt 0 view .LVU102
+ 498 0010 244B     		ldr	r3, .L29+12
+ 499 0012 4360     		str	r3, [r0, #4]
+  70:Modules/sx1262/Src/sx126x_Init.c ****     SX126xRadioEvents.RxError = SX126xOnRxError;
+ 500              		.loc 1 70 5 is_stmt 1 view .LVU103
+  70:Modules/sx1262/Src/sx126x_Init.c ****     SX126xRadioEvents.RxError = SX126xOnRxError;
+ 501              		.loc 1 70 33 is_stmt 0 view .LVU104
+ 502 0014 244B     		ldr	r3, .L29+16
+ 503 0016 C360     		str	r3, [r0, #12]
+  71:Modules/sx1262/Src/sx126x_Init.c **** 
+ 504              		.loc 1 71 5 is_stmt 1 view .LVU105
+  71:Modules/sx1262/Src/sx126x_Init.c **** 
+ 505              		.loc 1 71 31 is_stmt 0 view .LVU106
+ 506 0018 244B     		ldr	r3, .L29+20
+ 507 001a 0361     		str	r3, [r0, #16]
+  73:Modules/sx1262/Src/sx126x_Init.c ****     Radio.SetChannel(LORA_TX_FRE);
+ 508              		.loc 1 73 5 is_stmt 1 view .LVU107
+  73:Modules/sx1262/Src/sx126x_Init.c ****     Radio.SetChannel(LORA_TX_FRE);
+ 509              		.loc 1 73 10 is_stmt 0 view .LVU108
+ 510 001c 244D     		ldr	r5, .L29+24
+ 511 001e 2B68     		ldr	r3, [r5]
+  73:Modules/sx1262/Src/sx126x_Init.c ****     Radio.SetChannel(LORA_TX_FRE);
+ 512              		.loc 1 73 5 view .LVU109
+ 513 0020 9847     		blx	r3
+ 514              	.LVL24:
+  74:Modules/sx1262/Src/sx126x_Init.c **** #if defined(USE_MODEM_LORA)
+ 515              		.loc 1 74 5 is_stmt 1 view .LVU110
+  74:Modules/sx1262/Src/sx126x_Init.c **** #if defined(USE_MODEM_LORA)
+ 516              		.loc 1 74 10 is_stmt 0 view .LVU111
+ 517 0022 EB68     		ldr	r3, [r5, #12]
+  74:Modules/sx1262/Src/sx126x_Init.c **** #if defined(USE_MODEM_LORA)
+ 518              		.loc 1 74 5 view .LVU112
+ 519 0024 2348     		ldr	r0, .L29+28
+ 520 0026 9847     		blx	r3
+ 521              	.LVL25:
+  78:Modules/sx1262/Src/sx126x_Init.c ****                       LORA_PREAMBLE_LENGTH, LORA_FIX_LENGTH_PAYLOAD_ON, true, 0, 0, LORA_IQ_INVERSI
+ 522              		.loc 1 78 5 is_stmt 1 view .LVU113
+ 523 0028 40F6B833 		movw	r3, #3000
+ 524 002c 0893     		str	r3, [sp, #32]
+ 525 002e 0024     		movs	r4, #0
+ 526 0030 0794     		str	r4, [sp, #28]
+ 527 0032 0694     		str	r4, [sp, #24]
+ 528 0034 0594     		str	r4, [sp, #20]
+ 529 0036 0126     		movs	r6, #1
+ 530 0038 0496     		str	r6, [sp, #16]
+ 531 003a 0394     		str	r4, [sp, #12]
+ 532 003c 4FF00808 		mov	r8, #8
+ 533 0040 CDF80880 		str	r8, [sp, #8]
+ARM GAS  C:\Users\wyx12\AppData\Local\Temp\cclGCzyd.s 			page 14
+
+
+ 534 0044 0196     		str	r6, [sp, #4]
+ 535 0046 0727     		movs	r7, #7
+ 536 0048 0097     		str	r7, [sp]
+ 537 004a 0223     		movs	r3, #2
+ 538 004c 2246     		mov	r2, r4
+ 539 004e 1421     		movs	r1, #20
+ 540 0050 3046     		mov	r0, r6
+ 541 0052 D5F81CC0 		ldr	ip, [r5, #28]
+ 542 0056 E047     		blx	ip
+ 543              	.LVL26:
+  81:Modules/sx1262/Src/sx126x_Init.c ****                       LORA_SX126X_SYMBOL_TIMEOUT, LORA_FIX_LENGTH_PAYLOAD_ON, 0, true, 0, 0, LORA_I
+ 544              		.loc 1 81 5 view .LVU114
+ 545 0058 0996     		str	r6, [sp, #36]
+ 546 005a 0894     		str	r4, [sp, #32]
+ 547 005c 0794     		str	r4, [sp, #28]
+ 548 005e 0694     		str	r4, [sp, #24]
+ 549 0060 0596     		str	r6, [sp, #20]
+ 550 0062 0494     		str	r4, [sp, #16]
+ 551 0064 0394     		str	r4, [sp, #12]
+ 552 0066 0294     		str	r4, [sp, #8]
+ 553 0068 CDF80480 		str	r8, [sp, #4]
+ 554 006c 0094     		str	r4, [sp]
+ 555 006e 3346     		mov	r3, r6
+ 556 0070 3A46     		mov	r2, r7
+ 557 0072 2146     		mov	r1, r4
+ 558 0074 3046     		mov	r0, r6
+ 559 0076 AE69     		ldr	r6, [r5, #24]
+ 560 0078 B047     		blx	r6
+ 561              	.LVL27:
+  95:Modules/sx1262/Src/sx126x_Init.c ****     Radio.Standby();
+ 562              		.loc 1 95 5 view .LVU115
+  95:Modules/sx1262/Src/sx126x_Init.c ****     Radio.Standby();
+ 563              		.loc 1 95 22 is_stmt 0 view .LVU116
+ 564 007a AB6C     		ldr	r3, [r5, #72]
+  95:Modules/sx1262/Src/sx126x_Init.c ****     Radio.Standby();
+ 565              		.loc 1 95 17 view .LVU117
+ 566 007c 40F6E700 		movw	r0, #2279
+ 567 0080 9847     		blx	r3
+ 568              	.LVL28:
+  95:Modules/sx1262/Src/sx126x_Init.c ****     Radio.Standby();
+ 569              		.loc 1 95 15 view .LVU118
+ 570 0082 0D4B     		ldr	r3, .L29+32
+ 571 0084 1870     		strb	r0, [r3]
+  96:Modules/sx1262/Src/sx126x_Init.c ****     Radio.Rx(0);
+ 572              		.loc 1 96 5 is_stmt 1 view .LVU119
+  96:Modules/sx1262/Src/sx126x_Init.c ****     Radio.Rx(0);
+ 573              		.loc 1 96 10 is_stmt 0 view .LVU120
+ 574 0086 2B6B     		ldr	r3, [r5, #48]
+  96:Modules/sx1262/Src/sx126x_Init.c ****     Radio.Rx(0);
+ 575              		.loc 1 96 5 view .LVU121
+ 576 0088 9847     		blx	r3
+ 577              	.LVL29:
+  97:Modules/sx1262/Src/sx126x_Init.c **** }
+ 578              		.loc 1 97 5 is_stmt 1 view .LVU122
+  97:Modules/sx1262/Src/sx126x_Init.c **** }
+ 579              		.loc 1 97 10 is_stmt 0 view .LVU123
+ 580 008a 6B6B     		ldr	r3, [r5, #52]
+ARM GAS  C:\Users\wyx12\AppData\Local\Temp\cclGCzyd.s 			page 15
+
+
+  97:Modules/sx1262/Src/sx126x_Init.c **** }
+ 581              		.loc 1 97 5 view .LVU124
+ 582 008c 2046     		mov	r0, r4
+ 583 008e 9847     		blx	r3
+ 584              	.LVL30:
+  98:Modules/sx1262/Src/sx126x_Init.c **** uint8_t RF_TX_Done = 0;
+ 585              		.loc 1 98 1 view .LVU125
+ 586 0090 0AB0     		add	sp, sp, #40
+ 587              	.LCFI11:
+ 588              		.cfi_def_cfa_offset 24
+ 589              		@ sp needed
+ 590 0092 BDE8F081 		pop	{r4, r5, r6, r7, r8, pc}
+ 591              	.L30:
+ 592 0096 00BF     		.align	2
+ 593              	.L29:
+ 594 0098 00000000 		.word	SX126xRadioEvents
+ 595 009c 00000000 		.word	SX126xOnTxDone
+ 596 00a0 00000000 		.word	SX126xOnRxDone
+ 597 00a4 00000000 		.word	SX126xOnTxTimeout
+ 598 00a8 00000000 		.word	SX126xOnRxTimeout
+ 599 00ac 00000000 		.word	SX126xOnRxError
+ 600 00b0 00000000 		.word	Radio
+ 601 00b4 C0E3121C 		.word	471000000
+ 602 00b8 00000000 		.word	OCP_Value
+ 603              		.cfi_endproc
+ 604              	.LFE70:
+ 606              		.section	.text.SX126xDelayMs,"ax",%progbits
+ 607              		.align	1
+ 608              		.global	SX126xDelayMs
+ 609              		.syntax unified
+ 610              		.thumb
+ 611              		.thumb_func
+ 613              	SX126xDelayMs:
+ 614              	.LFB77:
+ 153:Modules/sx1262/Src/sx126x_Init.c **** 
+ 154:Modules/sx1262/Src/sx126x_Init.c **** static void OnCadDone(bool channelActivityDetected)
+ 155:Modules/sx1262/Src/sx126x_Init.c **** {
+ 156:Modules/sx1262/Src/sx126x_Init.c ****     Cad_Done = channelActivityDetected;
+ 157:Modules/sx1262/Src/sx126x_Init.c **** }
+ 158:Modules/sx1262/Src/sx126x_Init.c **** 
+ 159:Modules/sx1262/Src/sx126x_Init.c **** void SX126xDelayMs(void)
+ 160:Modules/sx1262/Src/sx126x_Init.c **** {
+ 615              		.loc 1 160 1 is_stmt 1 view -0
+ 616              		.cfi_startproc
+ 617              		@ args = 0, pretend = 0, frame = 0
+ 618              		@ frame_needed = 0, uses_anonymous_args = 0
+ 619 0000 08B5     		push	{r3, lr}
+ 620              	.LCFI12:
+ 621              		.cfi_def_cfa_offset 8
+ 622              		.cfi_offset 3, -8
+ 623              		.cfi_offset 14, -4
+ 161:Modules/sx1262/Src/sx126x_Init.c ****     delay1ms(1);
+ 624              		.loc 1 161 5 view .LVU127
+ 625 0002 0120     		movs	r0, #1
+ 626 0004 FFF7FEFF 		bl	delay1ms
+ 627              	.LVL31:
+ 162:Modules/sx1262/Src/sx126x_Init.c **** }
+ARM GAS  C:\Users\wyx12\AppData\Local\Temp\cclGCzyd.s 			page 16
+
+
+ 628              		.loc 1 162 1 is_stmt 0 view .LVU128
+ 629 0008 08BD     		pop	{r3, pc}
+ 630              		.cfi_endproc
+ 631              	.LFE77:
+ 633              		.section	.text.Radio_IrqProcess,"ax",%progbits
+ 634              		.align	1
+ 635              		.global	Radio_IrqProcess
+ 636              		.syntax unified
+ 637              		.thumb
+ 638              		.thumb_func
+ 640              	Radio_IrqProcess:
+ 641              	.LFB80:
+ 163:Modules/sx1262/Src/sx126x_Init.c **** 
+ 164:Modules/sx1262/Src/sx126x_Init.c **** // 射频发送函数//
+ 165:Modules/sx1262/Src/sx126x_Init.c **** void Radio_Send(uint8_t *pData, unsigned char len, uint16_t time_out)
+ 166:Modules/sx1262/Src/sx126x_Init.c **** {
+ 167:Modules/sx1262/Src/sx126x_Init.c ****     Radio.Send(pData, len);
+ 168:Modules/sx1262/Src/sx126x_Init.c ****     SX1262_State = Null;
+ 169:Modules/sx1262/Src/sx126x_Init.c ****     while ((SX1262_State != TX_Done) && (time_out > 1))
+ 170:Modules/sx1262/Src/sx126x_Init.c ****     {
+ 171:Modules/sx1262/Src/sx126x_Init.c ****         delay1ms(1);
+ 172:Modules/sx1262/Src/sx126x_Init.c ****         time_out--;
+ 173:Modules/sx1262/Src/sx126x_Init.c ****         if (IS_RF_NIRQ == 1)
+ 174:Modules/sx1262/Src/sx126x_Init.c ****         {
+ 175:Modules/sx1262/Src/sx126x_Init.c ****             Radio_IrqProcess();
+ 176:Modules/sx1262/Src/sx126x_Init.c ****         }
+ 177:Modules/sx1262/Src/sx126x_Init.c ****     }
+ 178:Modules/sx1262/Src/sx126x_Init.c **** }
+ 179:Modules/sx1262/Src/sx126x_Init.c **** 
+ 180:Modules/sx1262/Src/sx126x_Init.c **** // 射频接收函数//
+ 181:Modules/sx1262/Src/sx126x_Init.c **** void Radio_Recev(uint16_t time_out)
+ 182:Modules/sx1262/Src/sx126x_Init.c **** {
+ 183:Modules/sx1262/Src/sx126x_Init.c ****     Radio.Standby();
+ 184:Modules/sx1262/Src/sx126x_Init.c ****     Radio.Rx(0);
+ 185:Modules/sx1262/Src/sx126x_Init.c ****     SX1262_State = Null;
+ 186:Modules/sx1262/Src/sx126x_Init.c ****     while ((SX1262_State != RX_Done) && (time_out > 1))
+ 187:Modules/sx1262/Src/sx126x_Init.c ****     {
+ 188:Modules/sx1262/Src/sx126x_Init.c ****         delay1ms(1);
+ 189:Modules/sx1262/Src/sx126x_Init.c ****         time_out--;
+ 190:Modules/sx1262/Src/sx126x_Init.c ****         Radio_IrqProcess();
+ 191:Modules/sx1262/Src/sx126x_Init.c ****     }
+ 192:Modules/sx1262/Src/sx126x_Init.c **** }
+ 193:Modules/sx1262/Src/sx126x_Init.c **** 
+ 194:Modules/sx1262/Src/sx126x_Init.c **** void Radio_IrqProcess(void)
+ 195:Modules/sx1262/Src/sx126x_Init.c **** {
+ 642              		.loc 1 195 1 is_stmt 1 view -0
+ 643              		.cfi_startproc
+ 644              		@ args = 0, pretend = 0, frame = 0
+ 645              		@ frame_needed = 0, uses_anonymous_args = 0
+ 646 0000 08B5     		push	{r3, lr}
+ 647              	.LCFI13:
+ 648              		.cfi_def_cfa_offset 8
+ 649              		.cfi_offset 3, -8
+ 650              		.cfi_offset 14, -4
+ 196:Modules/sx1262/Src/sx126x_Init.c ****     Radio.IrqProcess();
+ 651              		.loc 1 196 5 view .LVU130
+ 652              		.loc 1 196 10 is_stmt 0 view .LVU131
+ARM GAS  C:\Users\wyx12\AppData\Local\Temp\cclGCzyd.s 			page 17
+
+
+ 653 0002 024B     		ldr	r3, .L35
+ 654 0004 1B6E     		ldr	r3, [r3, #96]
+ 655              		.loc 1 196 5 view .LVU132
+ 656 0006 9847     		blx	r3
+ 657              	.LVL32:
+ 197:Modules/sx1262/Src/sx126x_Init.c **** }
+ 658              		.loc 1 197 1 view .LVU133
+ 659 0008 08BD     		pop	{r3, pc}
+ 660              	.L36:
+ 661 000a 00BF     		.align	2
+ 662              	.L35:
+ 663 000c 00000000 		.word	Radio
+ 664              		.cfi_endproc
+ 665              	.LFE80:
+ 667              		.section	.text.Radio_Send,"ax",%progbits
+ 668              		.align	1
+ 669              		.global	Radio_Send
+ 670              		.syntax unified
+ 671              		.thumb
+ 672              		.thumb_func
+ 674              	Radio_Send:
+ 675              	.LVL33:
+ 676              	.LFB78:
+ 166:Modules/sx1262/Src/sx126x_Init.c ****     Radio.Send(pData, len);
+ 677              		.loc 1 166 1 is_stmt 1 view -0
+ 678              		.cfi_startproc
+ 679              		@ args = 0, pretend = 0, frame = 0
+ 680              		@ frame_needed = 0, uses_anonymous_args = 0
+ 166:Modules/sx1262/Src/sx126x_Init.c ****     Radio.Send(pData, len);
+ 681              		.loc 1 166 1 is_stmt 0 view .LVU135
+ 682 0000 10B5     		push	{r4, lr}
+ 683              	.LCFI14:
+ 684              		.cfi_def_cfa_offset 8
+ 685              		.cfi_offset 4, -8
+ 686              		.cfi_offset 14, -4
+ 687 0002 1446     		mov	r4, r2
+ 167:Modules/sx1262/Src/sx126x_Init.c ****     SX1262_State = Null;
+ 688              		.loc 1 167 5 is_stmt 1 view .LVU136
+ 167:Modules/sx1262/Src/sx126x_Init.c ****     SX1262_State = Null;
+ 689              		.loc 1 167 10 is_stmt 0 view .LVU137
+ 690 0004 0D4B     		ldr	r3, .L43
+ 691 0006 9B6A     		ldr	r3, [r3, #40]
+ 167:Modules/sx1262/Src/sx126x_Init.c ****     SX1262_State = Null;
+ 692              		.loc 1 167 5 view .LVU138
+ 693 0008 9847     		blx	r3
+ 694              	.LVL34:
+ 168:Modules/sx1262/Src/sx126x_Init.c ****     while ((SX1262_State != TX_Done) && (time_out > 1))
+ 695              		.loc 1 168 5 is_stmt 1 view .LVU139
+ 168:Modules/sx1262/Src/sx126x_Init.c ****     while ((SX1262_State != TX_Done) && (time_out > 1))
+ 696              		.loc 1 168 18 is_stmt 0 view .LVU140
+ 697 000a 0D4B     		ldr	r3, .L43+4
+ 698 000c 0622     		movs	r2, #6
+ 699 000e 1A70     		strb	r2, [r3]
+ 169:Modules/sx1262/Src/sx126x_Init.c ****     {
+ 700              		.loc 1 169 5 is_stmt 1 view .LVU141
+ 701              	.LVL35:
+ 702              	.L38:
+ARM GAS  C:\Users\wyx12\AppData\Local\Temp\cclGCzyd.s 			page 18
+
+
+ 169:Modules/sx1262/Src/sx126x_Init.c ****     {
+ 703              		.loc 1 169 38 view .LVU142
+ 169:Modules/sx1262/Src/sx126x_Init.c ****     {
+ 704              		.loc 1 169 26 is_stmt 0 view .LVU143
+ 705 0010 0B4B     		ldr	r3, .L43+4
+ 706 0012 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 169:Modules/sx1262/Src/sx126x_Init.c ****     {
+ 707              		.loc 1 169 38 view .LVU144
+ 708 0014 042B     		cmp	r3, #4
+ 709 0016 0FD0     		beq	.L37
+ 169:Modules/sx1262/Src/sx126x_Init.c ****     {
+ 710              		.loc 1 169 38 discriminator 1 view .LVU145
+ 711 0018 012C     		cmp	r4, #1
+ 712 001a 0DD9     		bls	.L37
+ 171:Modules/sx1262/Src/sx126x_Init.c ****         time_out--;
+ 713              		.loc 1 171 9 is_stmt 1 view .LVU146
+ 714 001c 0120     		movs	r0, #1
+ 715 001e FFF7FEFF 		bl	delay1ms
+ 716              	.LVL36:
+ 172:Modules/sx1262/Src/sx126x_Init.c ****         if (IS_RF_NIRQ == 1)
+ 717              		.loc 1 172 9 view .LVU147
+ 172:Modules/sx1262/Src/sx126x_Init.c ****         if (IS_RF_NIRQ == 1)
+ 718              		.loc 1 172 17 is_stmt 0 view .LVU148
+ 719 0022 013C     		subs	r4, r4, #1
+ 720              	.LVL37:
+ 172:Modules/sx1262/Src/sx126x_Init.c ****         if (IS_RF_NIRQ == 1)
+ 721              		.loc 1 172 17 view .LVU149
+ 722 0024 A4B2     		uxth	r4, r4
+ 723              	.LVL38:
+ 173:Modules/sx1262/Src/sx126x_Init.c ****         {
+ 724              		.loc 1 173 9 is_stmt 1 view .LVU150
+ 173:Modules/sx1262/Src/sx126x_Init.c ****         {
+ 725              		.loc 1 173 13 is_stmt 0 view .LVU151
+ 726 0026 0821     		movs	r1, #8
+ 727 0028 0648     		ldr	r0, .L43+8
+ 728 002a FFF7FEFF 		bl	HAL_GPIO_ReadPin
+ 729              	.LVL39:
+ 173:Modules/sx1262/Src/sx126x_Init.c ****         {
+ 730              		.loc 1 173 12 view .LVU152
+ 731 002e 0128     		cmp	r0, #1
+ 732 0030 EED1     		bne	.L38
+ 175:Modules/sx1262/Src/sx126x_Init.c ****         }
+ 733              		.loc 1 175 13 is_stmt 1 view .LVU153
+ 734 0032 FFF7FEFF 		bl	Radio_IrqProcess
+ 735              	.LVL40:
+ 736 0036 EBE7     		b	.L38
+ 737              	.L37:
+ 178:Modules/sx1262/Src/sx126x_Init.c **** 
+ 738              		.loc 1 178 1 is_stmt 0 view .LVU154
+ 739 0038 10BD     		pop	{r4, pc}
+ 740              	.LVL41:
+ 741              	.L44:
+ 178:Modules/sx1262/Src/sx126x_Init.c **** 
+ 742              		.loc 1 178 1 view .LVU155
+ 743 003a 00BF     		.align	2
+ 744              	.L43:
+ 745 003c 00000000 		.word	Radio
+ARM GAS  C:\Users\wyx12\AppData\Local\Temp\cclGCzyd.s 			page 19
+
+
+ 746 0040 00000000 		.word	SX1262_State
+ 747 0044 00100140 		.word	1073811456
+ 748              		.cfi_endproc
+ 749              	.LFE78:
+ 751              		.section	.text.Radio_Recev,"ax",%progbits
+ 752              		.align	1
+ 753              		.global	Radio_Recev
+ 754              		.syntax unified
+ 755              		.thumb
+ 756              		.thumb_func
+ 758              	Radio_Recev:
+ 759              	.LVL42:
+ 760              	.LFB79:
+ 182:Modules/sx1262/Src/sx126x_Init.c ****     Radio.Standby();
+ 761              		.loc 1 182 1 is_stmt 1 view -0
+ 762              		.cfi_startproc
+ 763              		@ args = 0, pretend = 0, frame = 0
+ 764              		@ frame_needed = 0, uses_anonymous_args = 0
+ 182:Modules/sx1262/Src/sx126x_Init.c ****     Radio.Standby();
+ 765              		.loc 1 182 1 is_stmt 0 view .LVU157
+ 766 0000 38B5     		push	{r3, r4, r5, lr}
+ 767              	.LCFI15:
+ 768              		.cfi_def_cfa_offset 16
+ 769              		.cfi_offset 3, -16
+ 770              		.cfi_offset 4, -12
+ 771              		.cfi_offset 5, -8
+ 772              		.cfi_offset 14, -4
+ 773 0002 0446     		mov	r4, r0
+ 183:Modules/sx1262/Src/sx126x_Init.c ****     Radio.Rx(0);
+ 774              		.loc 1 183 5 is_stmt 1 view .LVU158
+ 183:Modules/sx1262/Src/sx126x_Init.c ****     Radio.Rx(0);
+ 775              		.loc 1 183 10 is_stmt 0 view .LVU159
+ 776 0004 0B4D     		ldr	r5, .L50
+ 777 0006 2B6B     		ldr	r3, [r5, #48]
+ 183:Modules/sx1262/Src/sx126x_Init.c ****     Radio.Rx(0);
+ 778              		.loc 1 183 5 view .LVU160
+ 779 0008 9847     		blx	r3
+ 780              	.LVL43:
+ 184:Modules/sx1262/Src/sx126x_Init.c ****     SX1262_State = Null;
+ 781              		.loc 1 184 5 is_stmt 1 view .LVU161
+ 184:Modules/sx1262/Src/sx126x_Init.c ****     SX1262_State = Null;
+ 782              		.loc 1 184 10 is_stmt 0 view .LVU162
+ 783 000a 6B6B     		ldr	r3, [r5, #52]
+ 184:Modules/sx1262/Src/sx126x_Init.c ****     SX1262_State = Null;
+ 784              		.loc 1 184 5 view .LVU163
+ 785 000c 0020     		movs	r0, #0
+ 786 000e 9847     		blx	r3
+ 787              	.LVL44:
+ 185:Modules/sx1262/Src/sx126x_Init.c ****     while ((SX1262_State != RX_Done) && (time_out > 1))
+ 788              		.loc 1 185 5 is_stmt 1 view .LVU164
+ 185:Modules/sx1262/Src/sx126x_Init.c ****     while ((SX1262_State != RX_Done) && (time_out > 1))
+ 789              		.loc 1 185 18 is_stmt 0 view .LVU165
+ 790 0010 094B     		ldr	r3, .L50+4
+ 791 0012 0622     		movs	r2, #6
+ 792 0014 1A70     		strb	r2, [r3]
+ 186:Modules/sx1262/Src/sx126x_Init.c ****     {
+ 793              		.loc 1 186 5 is_stmt 1 view .LVU166
+ARM GAS  C:\Users\wyx12\AppData\Local\Temp\cclGCzyd.s 			page 20
+
+
+ 186:Modules/sx1262/Src/sx126x_Init.c ****     {
+ 794              		.loc 1 186 11 is_stmt 0 view .LVU167
+ 795 0016 06E0     		b	.L46
+ 796              	.LVL45:
+ 797              	.L48:
+ 188:Modules/sx1262/Src/sx126x_Init.c ****         time_out--;
+ 798              		.loc 1 188 9 is_stmt 1 view .LVU168
+ 799 0018 0120     		movs	r0, #1
+ 800 001a FFF7FEFF 		bl	delay1ms
+ 801              	.LVL46:
+ 189:Modules/sx1262/Src/sx126x_Init.c ****         Radio_IrqProcess();
+ 802              		.loc 1 189 9 view .LVU169
+ 189:Modules/sx1262/Src/sx126x_Init.c ****         Radio_IrqProcess();
+ 803              		.loc 1 189 17 is_stmt 0 view .LVU170
+ 804 001e 013C     		subs	r4, r4, #1
+ 805              	.LVL47:
+ 189:Modules/sx1262/Src/sx126x_Init.c ****         Radio_IrqProcess();
+ 806              		.loc 1 189 17 view .LVU171
+ 807 0020 A4B2     		uxth	r4, r4
+ 808              	.LVL48:
+ 190:Modules/sx1262/Src/sx126x_Init.c ****     }
+ 809              		.loc 1 190 9 is_stmt 1 view .LVU172
+ 810 0022 FFF7FEFF 		bl	Radio_IrqProcess
+ 811              	.LVL49:
+ 812              	.L46:
+ 186:Modules/sx1262/Src/sx126x_Init.c ****     {
+ 813              		.loc 1 186 38 view .LVU173
+ 186:Modules/sx1262/Src/sx126x_Init.c ****     {
+ 814              		.loc 1 186 26 is_stmt 0 view .LVU174
+ 815 0026 044B     		ldr	r3, .L50+4
+ 816 0028 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 186:Modules/sx1262/Src/sx126x_Init.c ****     {
+ 817              		.loc 1 186 38 view .LVU175
+ 818 002a 012B     		cmp	r3, #1
+ 819 002c 01D0     		beq	.L45
+ 186:Modules/sx1262/Src/sx126x_Init.c ****     {
+ 820              		.loc 1 186 38 discriminator 1 view .LVU176
+ 821 002e 012C     		cmp	r4, #1
+ 822 0030 F2D8     		bhi	.L48
+ 823              	.L45:
+ 192:Modules/sx1262/Src/sx126x_Init.c **** 
+ 824              		.loc 1 192 1 view .LVU177
+ 825 0032 38BD     		pop	{r3, r4, r5, pc}
+ 826              	.LVL50:
+ 827              	.L51:
+ 192:Modules/sx1262/Src/sx126x_Init.c **** 
+ 828              		.loc 1 192 1 view .LVU178
+ 829              		.align	2
+ 830              	.L50:
+ 831 0034 00000000 		.word	Radio
+ 832 0038 00000000 		.word	SX1262_State
+ 833              		.cfi_endproc
+ 834              	.LFE79:
+ 836              		.section	.text.Radio_startCad,"ax",%progbits
+ 837              		.align	1
+ 838              		.global	Radio_startCad
+ 839              		.syntax unified
+ARM GAS  C:\Users\wyx12\AppData\Local\Temp\cclGCzyd.s 			page 21
+
+
+ 840              		.thumb
+ 841              		.thumb_func
+ 843              	Radio_startCad:
+ 844              	.LVL51:
+ 845              	.LFB81:
+ 198:Modules/sx1262/Src/sx126x_Init.c **** 
+ 199:Modules/sx1262/Src/sx126x_Init.c **** void Radio_startCad(uint16_t count)
+ 200:Modules/sx1262/Src/sx126x_Init.c **** {
+ 846              		.loc 1 200 1 is_stmt 1 view -0
+ 847              		.cfi_startproc
+ 848              		@ args = 0, pretend = 0, frame = 0
+ 849              		@ frame_needed = 0, uses_anonymous_args = 0
+ 850              		.loc 1 200 1 is_stmt 0 view .LVU180
+ 851 0000 10B5     		push	{r4, lr}
+ 852              	.LCFI16:
+ 853              		.cfi_def_cfa_offset 8
+ 854              		.cfi_offset 4, -8
+ 855              		.cfi_offset 14, -4
+ 856 0002 0446     		mov	r4, r0
+ 201:Modules/sx1262/Src/sx126x_Init.c ****     while (count > 1)
+ 857              		.loc 1 201 5 is_stmt 1 view .LVU181
+ 858              		.loc 1 201 11 is_stmt 0 view .LVU182
+ 859 0004 04E0     		b	.L53
+ 860              	.LVL52:
+ 861              	.L57:
+ 202:Modules/sx1262/Src/sx126x_Init.c ****     {
+ 203:Modules/sx1262/Src/sx126x_Init.c ****         Radio.StartCad(); // 开启CAD模式
+ 204:Modules/sx1262/Src/sx126x_Init.c ****         delay1ms(50);
+ 205:Modules/sx1262/Src/sx126x_Init.c **** 
+ 206:Modules/sx1262/Src/sx126x_Init.c ****         Radio_IrqProcess(); // 检测CAD
+ 207:Modules/sx1262/Src/sx126x_Init.c **** 
+ 208:Modules/sx1262/Src/sx126x_Init.c ****         if (Cad_Done == false) // 检测完成,信道空闲
+ 209:Modules/sx1262/Src/sx126x_Init.c ****         {
+ 210:Modules/sx1262/Src/sx126x_Init.c ****             count = 0;
+ 211:Modules/sx1262/Src/sx126x_Init.c ****         }
+ 212:Modules/sx1262/Src/sx126x_Init.c ****         else // 信道忙
+ 213:Modules/sx1262/Src/sx126x_Init.c ****         {
+ 214:Modules/sx1262/Src/sx126x_Init.c ****             delay1ms(10);
+ 862              		.loc 1 214 13 is_stmt 1 view .LVU183
+ 863 0006 0A20     		movs	r0, #10
+ 864 0008 FFF7FEFF 		bl	delay1ms
+ 865              	.LVL53:
+ 215:Modules/sx1262/Src/sx126x_Init.c ****             count--;
+ 866              		.loc 1 215 13 view .LVU184
+ 867              		.loc 1 215 18 is_stmt 0 view .LVU185
+ 868 000c 013C     		subs	r4, r4, #1
+ 869              	.LVL54:
+ 870              		.loc 1 215 18 view .LVU186
+ 871 000e A4B2     		uxth	r4, r4
+ 872              	.LVL55:
+ 873              	.L53:
+ 201:Modules/sx1262/Src/sx126x_Init.c ****     while (count > 1)
+ 874              		.loc 1 201 18 is_stmt 1 view .LVU187
+ 875 0010 012C     		cmp	r4, #1
+ 876 0012 0BD9     		bls	.L52
+ 203:Modules/sx1262/Src/sx126x_Init.c ****         delay1ms(50);
+ 877              		.loc 1 203 9 view .LVU188
+ARM GAS  C:\Users\wyx12\AppData\Local\Temp\cclGCzyd.s 			page 22
+
+
+ 203:Modules/sx1262/Src/sx126x_Init.c ****         delay1ms(50);
+ 878              		.loc 1 203 14 is_stmt 0 view .LVU189
+ 879 0014 064B     		ldr	r3, .L58
+ 880 0016 9B6B     		ldr	r3, [r3, #56]
+ 203:Modules/sx1262/Src/sx126x_Init.c ****         delay1ms(50);
+ 881              		.loc 1 203 9 view .LVU190
+ 882 0018 9847     		blx	r3
+ 883              	.LVL56:
+ 204:Modules/sx1262/Src/sx126x_Init.c **** 
+ 884              		.loc 1 204 9 is_stmt 1 view .LVU191
+ 885 001a 3220     		movs	r0, #50
+ 886 001c FFF7FEFF 		bl	delay1ms
+ 887              	.LVL57:
+ 206:Modules/sx1262/Src/sx126x_Init.c **** 
+ 888              		.loc 1 206 9 view .LVU192
+ 889 0020 FFF7FEFF 		bl	Radio_IrqProcess
+ 890              	.LVL58:
+ 208:Modules/sx1262/Src/sx126x_Init.c ****         {
+ 891              		.loc 1 208 9 view .LVU193
+ 208:Modules/sx1262/Src/sx126x_Init.c ****         {
+ 892              		.loc 1 208 22 is_stmt 0 view .LVU194
+ 893 0024 034B     		ldr	r3, .L58+4
+ 894 0026 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 208:Modules/sx1262/Src/sx126x_Init.c ****         {
+ 895              		.loc 1 208 12 view .LVU195
+ 896 0028 002B     		cmp	r3, #0
+ 897 002a ECD1     		bne	.L57
+ 898              	.L52:
+ 216:Modules/sx1262/Src/sx126x_Init.c ****         }
+ 217:Modules/sx1262/Src/sx126x_Init.c ****     }
+ 218:Modules/sx1262/Src/sx126x_Init.c **** }
+ 899              		.loc 1 218 1 view .LVU196
+ 900 002c 10BD     		pop	{r4, pc}
+ 901              	.LVL59:
+ 902              	.L59:
+ 903              		.loc 1 218 1 view .LVU197
+ 904 002e 00BF     		.align	2
+ 905              	.L58:
+ 906 0030 00000000 		.word	Radio
+ 907 0034 00000000 		.word	Cad_Done
+ 908              		.cfi_endproc
+ 909              	.LFE81:
+ 911              		.global	RF_NIRQ
+ 912              		.section	.bss.RF_NIRQ,"aw",%nobits
+ 915              	RF_NIRQ:
+ 916 0000 00       		.space	1
+ 917              		.global	Cad_Done
+ 918              		.section	.bss.Cad_Done,"aw",%nobits
+ 921              	Cad_Done:
+ 922 0000 00       		.space	1
+ 923              		.global	RF_RX_Done
+ 924              		.section	.bss.RF_RX_Done,"aw",%nobits
+ 927              	RF_RX_Done:
+ 928 0000 00       		.space	1
+ 929              		.global	RF_RX_Buffer
+ 930              		.section	.bss.RF_RX_Buffer,"aw",%nobits
+ 931              		.align	2
+ARM GAS  C:\Users\wyx12\AppData\Local\Temp\cclGCzyd.s 			page 23
+
+
+ 934              	RF_RX_Buffer:
+ 935 0000 00000000 		.space	256
+ 935      00000000 
+ 935      00000000 
+ 935      00000000 
+ 935      00000000 
+ 936              		.global	RF_RX_Count
+ 937              		.section	.data.RF_RX_Count,"aw"
+ 938              		.align	1
+ 941              	RF_RX_Count:
+ 942 0000 0001     		.short	256
+ 943              		.global	SnrValue
+ 944              		.section	.bss.SnrValue,"aw",%nobits
+ 947              	SnrValue:
+ 948 0000 00       		.space	1
+ 949              		.global	RssiValue
+ 950              		.section	.bss.RssiValue,"aw",%nobits
+ 953              	RssiValue:
+ 954 0000 00       		.space	1
+ 955              		.global	RF_TX_Done
+ 956              		.section	.bss.RF_TX_Done,"aw",%nobits
+ 959              	RF_TX_Done:
+ 960 0000 00       		.space	1
+ 961              		.global	OCP_Value
+ 962              		.section	.bss.OCP_Value,"aw",%nobits
+ 965              	OCP_Value:
+ 966 0000 00       		.space	1
+ 967              		.global	SX1262_State
+ 968              		.section	.bss.SX1262_State,"aw",%nobits
+ 971              	SX1262_State:
+ 972 0000 00       		.space	1
+ 973              		.section	.bss.SX126xRadioEvents,"aw",%nobits
+ 974              		.align	2
+ 977              	SX126xRadioEvents:
+ 978 0000 00000000 		.space	28
+ 978      00000000 
+ 978      00000000 
+ 978      00000000 
+ 978      00000000 
+ 979              		.text
+ 980              	.Letext0:
+ 981              		.file 2 "c:\\program files (x86)\\arm gnu toolchain arm-none-eabi\\12.2 rel1\\lib\\gcc\\arm-none-e
+ 982              		.file 3 "Modules/sx1262/Inc/sx126x_Init.h"
+ 983              		.file 4 "Drivers/CMSIS/Device/ST/STM32F1xx/Include/stm32f103xe.h"
+ 984              		.file 5 "c:\\program files (x86)\\arm gnu toolchain arm-none-eabi\\12.2 rel1\\lib\\gcc\\arm-none-e
+ 985              		.file 6 "Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_gpio.h"
+ 986              		.file 7 "Modules/sx1262/Inc/radio.h"
+ 987              		.file 8 "c:\\program files (x86)\\arm gnu toolchain arm-none-eabi\\12.2 rel1\\arm-none-eabi\\inclu
+ 988              		.file 9 "Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal.h"
+ 989              		.file 10 "<built-in>"
+ARM GAS  C:\Users\wyx12\AppData\Local\Temp\cclGCzyd.s 			page 24
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 sx126x_Init.c
+C:\Users\wyx12\AppData\Local\Temp\cclGCzyd.s:19     .text.SX126xOnTxDone:00000000 $t
+C:\Users\wyx12\AppData\Local\Temp\cclGCzyd.s:24     .text.SX126xOnTxDone:00000000 SX126xOnTxDone
+C:\Users\wyx12\AppData\Local\Temp\cclGCzyd.s:66     .text.SX126xOnTxDone:0000001c $d
+C:\Users\wyx12\AppData\Local\Temp\cclGCzyd.s:971    .bss.SX1262_State:00000000 SX1262_State
+C:\Users\wyx12\AppData\Local\Temp\cclGCzyd.s:73     .text.SX126xOnTxTimeout:00000000 $t
+C:\Users\wyx12\AppData\Local\Temp\cclGCzyd.s:78     .text.SX126xOnTxTimeout:00000000 SX126xOnTxTimeout
+C:\Users\wyx12\AppData\Local\Temp\cclGCzyd.s:113    .text.SX126xOnTxTimeout:00000018 $d
+C:\Users\wyx12\AppData\Local\Temp\cclGCzyd.s:119    .text.SX126xOnRxTimeout:00000000 $t
+C:\Users\wyx12\AppData\Local\Temp\cclGCzyd.s:124    .text.SX126xOnRxTimeout:00000000 SX126xOnRxTimeout
+C:\Users\wyx12\AppData\Local\Temp\cclGCzyd.s:159    .text.SX126xOnRxTimeout:00000018 $d
+C:\Users\wyx12\AppData\Local\Temp\cclGCzyd.s:165    .text.SX126xOnRxError:00000000 $t
+C:\Users\wyx12\AppData\Local\Temp\cclGCzyd.s:170    .text.SX126xOnRxError:00000000 SX126xOnRxError
+C:\Users\wyx12\AppData\Local\Temp\cclGCzyd.s:205    .text.SX126xOnRxError:00000018 $d
+C:\Users\wyx12\AppData\Local\Temp\cclGCzyd.s:211    .text.SX126xOnRxDone:00000000 $t
+C:\Users\wyx12\AppData\Local\Temp\cclGCzyd.s:216    .text.SX126xOnRxDone:00000000 SX126xOnRxDone
+C:\Users\wyx12\AppData\Local\Temp\cclGCzyd.s:282    .text.SX126xOnRxDone:00000040 $d
+C:\Users\wyx12\AppData\Local\Temp\cclGCzyd.s:941    .data.RF_RX_Count:00000000 RF_RX_Count
+C:\Users\wyx12\AppData\Local\Temp\cclGCzyd.s:934    .bss.RF_RX_Buffer:00000000 RF_RX_Buffer
+C:\Users\wyx12\AppData\Local\Temp\cclGCzyd.s:953    .bss.RssiValue:00000000 RssiValue
+C:\Users\wyx12\AppData\Local\Temp\cclGCzyd.s:947    .bss.SnrValue:00000000 SnrValue
+C:\Users\wyx12\AppData\Local\Temp\cclGCzyd.s:292    .text.delay1ms:00000000 $t
+C:\Users\wyx12\AppData\Local\Temp\cclGCzyd.s:297    .text.delay1ms:00000000 delay1ms
+C:\Users\wyx12\AppData\Local\Temp\cclGCzyd.s:319    .text.Radio_Init_RXD:00000000 $t
+C:\Users\wyx12\AppData\Local\Temp\cclGCzyd.s:325    .text.Radio_Init_RXD:00000000 Radio_Init_RXD
+C:\Users\wyx12\AppData\Local\Temp\cclGCzyd.s:450    .text.Radio_Init_RXD:00000098 $d
+C:\Users\wyx12\AppData\Local\Temp\cclGCzyd.s:977    .bss.SX126xRadioEvents:00000000 SX126xRadioEvents
+C:\Users\wyx12\AppData\Local\Temp\cclGCzyd.s:965    .bss.OCP_Value:00000000 OCP_Value
+C:\Users\wyx12\AppData\Local\Temp\cclGCzyd.s:463    .text.Radio_Init:00000000 $t
+C:\Users\wyx12\AppData\Local\Temp\cclGCzyd.s:469    .text.Radio_Init:00000000 Radio_Init
+C:\Users\wyx12\AppData\Local\Temp\cclGCzyd.s:594    .text.Radio_Init:00000098 $d
+C:\Users\wyx12\AppData\Local\Temp\cclGCzyd.s:607    .text.SX126xDelayMs:00000000 $t
+C:\Users\wyx12\AppData\Local\Temp\cclGCzyd.s:613    .text.SX126xDelayMs:00000000 SX126xDelayMs
+C:\Users\wyx12\AppData\Local\Temp\cclGCzyd.s:634    .text.Radio_IrqProcess:00000000 $t
+C:\Users\wyx12\AppData\Local\Temp\cclGCzyd.s:640    .text.Radio_IrqProcess:00000000 Radio_IrqProcess
+C:\Users\wyx12\AppData\Local\Temp\cclGCzyd.s:663    .text.Radio_IrqProcess:0000000c $d
+C:\Users\wyx12\AppData\Local\Temp\cclGCzyd.s:668    .text.Radio_Send:00000000 $t
+C:\Users\wyx12\AppData\Local\Temp\cclGCzyd.s:674    .text.Radio_Send:00000000 Radio_Send
+C:\Users\wyx12\AppData\Local\Temp\cclGCzyd.s:745    .text.Radio_Send:0000003c $d
+C:\Users\wyx12\AppData\Local\Temp\cclGCzyd.s:752    .text.Radio_Recev:00000000 $t
+C:\Users\wyx12\AppData\Local\Temp\cclGCzyd.s:758    .text.Radio_Recev:00000000 Radio_Recev
+C:\Users\wyx12\AppData\Local\Temp\cclGCzyd.s:831    .text.Radio_Recev:00000034 $d
+C:\Users\wyx12\AppData\Local\Temp\cclGCzyd.s:837    .text.Radio_startCad:00000000 $t
+C:\Users\wyx12\AppData\Local\Temp\cclGCzyd.s:843    .text.Radio_startCad:00000000 Radio_startCad
+C:\Users\wyx12\AppData\Local\Temp\cclGCzyd.s:906    .text.Radio_startCad:00000030 $d
+C:\Users\wyx12\AppData\Local\Temp\cclGCzyd.s:921    .bss.Cad_Done:00000000 Cad_Done
+C:\Users\wyx12\AppData\Local\Temp\cclGCzyd.s:915    .bss.RF_NIRQ:00000000 RF_NIRQ
+C:\Users\wyx12\AppData\Local\Temp\cclGCzyd.s:916    .bss.RF_NIRQ:00000000 $d
+C:\Users\wyx12\AppData\Local\Temp\cclGCzyd.s:922    .bss.Cad_Done:00000000 $d
+C:\Users\wyx12\AppData\Local\Temp\cclGCzyd.s:927    .bss.RF_RX_Done:00000000 RF_RX_Done
+C:\Users\wyx12\AppData\Local\Temp\cclGCzyd.s:928    .bss.RF_RX_Done:00000000 $d
+C:\Users\wyx12\AppData\Local\Temp\cclGCzyd.s:931    .bss.RF_RX_Buffer:00000000 $d
+C:\Users\wyx12\AppData\Local\Temp\cclGCzyd.s:938    .data.RF_RX_Count:00000000 $d
+C:\Users\wyx12\AppData\Local\Temp\cclGCzyd.s:948    .bss.SnrValue:00000000 $d
+C:\Users\wyx12\AppData\Local\Temp\cclGCzyd.s:954    .bss.RssiValue:00000000 $d
+C:\Users\wyx12\AppData\Local\Temp\cclGCzyd.s:959    .bss.RF_TX_Done:00000000 RF_TX_Done
+ARM GAS  C:\Users\wyx12\AppData\Local\Temp\cclGCzyd.s 			page 25
+
+
+C:\Users\wyx12\AppData\Local\Temp\cclGCzyd.s:960    .bss.RF_TX_Done:00000000 $d
+C:\Users\wyx12\AppData\Local\Temp\cclGCzyd.s:966    .bss.OCP_Value:00000000 $d
+C:\Users\wyx12\AppData\Local\Temp\cclGCzyd.s:972    .bss.SX1262_State:00000000 $d
+C:\Users\wyx12\AppData\Local\Temp\cclGCzyd.s:974    .bss.SX126xRadioEvents:00000000 $d
+
+UNDEFINED SYMBOLS
+Radio
+memcpy
+HAL_Delay
+HAL_GPIO_ReadPin

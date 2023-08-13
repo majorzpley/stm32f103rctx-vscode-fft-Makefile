@@ -1,0 +1,30 @@
+{
+	"folders": [
+		{
+			"path": "."
+		}
+	],
+	"settings": {
+		"files.associations": {
+			"spi.h": "c",
+			"main.h": "c",
+			"gpio.h": "c",
+			"usart.h": "c",
+			"windowcoeff.h": "c",
+			"arm_const_structs.h": "c",
+			"double_integral.h": "c",
+			"arm_math.h": "c",
+			"arm_common_tables.h": "c",
+			"core_cm3.h": "c",
+			"stm32f1xx.h": "c",
+			"stm32f1xx_hal_conf.h": "c",
+			"stm32f1xx_hal_rtc.h": "c",
+			"stm32f1xx_hal_pwr.h": "c",
+			"stm32f1xx_hal.h": "c",
+			"sx126x_init.h": "c",
+			"adc.h": "c",
+			"stm32f1xx_ll_adc.h": "c"
+		},
+		"cortex-debug.variableUseNaturalFormat": false
+	}
+}

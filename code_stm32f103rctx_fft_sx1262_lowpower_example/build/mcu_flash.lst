@@ -1,0 +1,648 @@
+ARM GAS  C:\Users\wyx12\AppData\Local\Temp\ccKS2Eid.s 			page 1
+
+
+   1              		.cpu cortex-m3
+   2              		.arch armv7-m
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 1
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.file	"mcu_flash.c"
+  14              		.text
+  15              	.Ltext0:
+  16              		.cfi_sections	.debug_frame
+  17              		.file 1 "Modules/mcu/Src/mcu_flash.c"
+  18              		.section	.text.STMFLASH_ReadHalfWord,"ax",%progbits
+  19              		.align	1
+  20              		.global	STMFLASH_ReadHalfWord
+  21              		.syntax unified
+  22              		.thumb
+  23              		.thumb_func
+  25              	STMFLASH_ReadHalfWord:
+  26              	.LVL0:
+  27              	.LFB65:
+   1:Modules/mcu/Src/mcu_flash.c **** #include "mcu_flash.h"
+   2:Modules/mcu/Src/mcu_flash.c **** extern void FLASH_PageErase(uint32_t PageAddress);
+   3:Modules/mcu/Src/mcu_flash.c **** typedef __IO uint16_t vu16;
+   4:Modules/mcu/Src/mcu_flash.c **** // 读取指定地址的半字(16位数据)
+   5:Modules/mcu/Src/mcu_flash.c **** // faddr:读地址
+   6:Modules/mcu/Src/mcu_flash.c **** // 返回值:对应数据.
+   7:Modules/mcu/Src/mcu_flash.c **** uint16_t STMFLASH_ReadHalfWord(uint32_t faddr)
+   8:Modules/mcu/Src/mcu_flash.c **** {
+  28              		.loc 1 8 1 view -0
+  29              		.cfi_startproc
+  30              		@ args = 0, pretend = 0, frame = 0
+  31              		@ frame_needed = 0, uses_anonymous_args = 0
+  32              		@ link register save eliminated.
+   9:Modules/mcu/Src/mcu_flash.c ****     return *(vu16 *)faddr;
+  33              		.loc 1 9 5 view .LVU1
+  34              		.loc 1 9 12 is_stmt 0 view .LVU2
+  35 0000 0088     		ldrh	r0, [r0]
+  36              	.LVL1:
+  10:Modules/mcu/Src/mcu_flash.c **** }
+  37              		.loc 1 10 1 view .LVU3
+  38 0002 80B2     		uxth	r0, r0
+  39 0004 7047     		bx	lr
+  40              		.cfi_endproc
+  41              	.LFE65:
+  43              		.section	.text.STMFLASH_Write_NoCheck,"ax",%progbits
+  44              		.align	1
+  45              		.global	STMFLASH_Write_NoCheck
+  46              		.syntax unified
+  47              		.thumb
+  48              		.thumb_func
+  50              	STMFLASH_Write_NoCheck:
+ARM GAS  C:\Users\wyx12\AppData\Local\Temp\ccKS2Eid.s 			page 2
+
+
+  51              	.LVL2:
+  52              	.LFB66:
+  11:Modules/mcu/Src/mcu_flash.c **** 
+  12:Modules/mcu/Src/mcu_flash.c **** void STMFLASH_Write_NoCheck(uint32_t WriteAddr, uint16_t *pBuffer, uint16_t NumToWrite)
+  13:Modules/mcu/Src/mcu_flash.c **** {
+  53              		.loc 1 13 1 is_stmt 1 view -0
+  54              		.cfi_startproc
+  55              		@ args = 0, pretend = 0, frame = 0
+  56              		@ frame_needed = 0, uses_anonymous_args = 0
+  57              		.loc 1 13 1 is_stmt 0 view .LVU5
+  58 0000 F8B5     		push	{r3, r4, r5, r6, r7, lr}
+  59              	.LCFI0:
+  60              		.cfi_def_cfa_offset 24
+  61              		.cfi_offset 3, -24
+  62              		.cfi_offset 4, -20
+  63              		.cfi_offset 5, -16
+  64              		.cfi_offset 6, -12
+  65              		.cfi_offset 7, -8
+  66              		.cfi_offset 14, -4
+  67 0002 0546     		mov	r5, r0
+  68 0004 0F46     		mov	r7, r1
+  69 0006 1646     		mov	r6, r2
+  14:Modules/mcu/Src/mcu_flash.c ****     uint16_t i;
+  70              		.loc 1 14 5 is_stmt 1 view .LVU6
+  15:Modules/mcu/Src/mcu_flash.c ****     for (i = 0; i < NumToWrite; i++)
+  71              		.loc 1 15 5 view .LVU7
+  72              	.LVL3:
+  73              		.loc 1 15 12 is_stmt 0 view .LVU8
+  74 0008 0024     		movs	r4, #0
+  75              		.loc 1 15 5 view .LVU9
+  76 000a 09E0     		b	.L3
+  77              	.LVL4:
+  78              	.L4:
+  16:Modules/mcu/Src/mcu_flash.c ****     {
+  17:Modules/mcu/Src/mcu_flash.c ****         HAL_FLASH_Program(FLASH_TYPEPROGRAM_HALFWORD, WriteAddr, pBuffer[i]);
+  79              		.loc 1 17 9 is_stmt 1 discriminator 3 view .LVU10
+  80 000c 37F81420 		ldrh	r2, [r7, r4, lsl #1]
+  81 0010 0023     		movs	r3, #0
+  82 0012 2946     		mov	r1, r5
+  83 0014 0120     		movs	r0, #1
+  84 0016 FFF7FEFF 		bl	HAL_FLASH_Program
+  85              	.LVL5:
+  18:Modules/mcu/Src/mcu_flash.c ****         WriteAddr += 2;
+  86              		.loc 1 18 9 discriminator 3 view .LVU11
+  87              		.loc 1 18 19 is_stmt 0 discriminator 3 view .LVU12
+  88 001a 0235     		adds	r5, r5, #2
+  89              	.LVL6:
+  15:Modules/mcu/Src/mcu_flash.c ****     for (i = 0; i < NumToWrite; i++)
+  90              		.loc 1 15 34 is_stmt 1 discriminator 3 view .LVU13
+  91 001c 0134     		adds	r4, r4, #1
+  92              	.LVL7:
+  15:Modules/mcu/Src/mcu_flash.c ****     for (i = 0; i < NumToWrite; i++)
+  93              		.loc 1 15 34 is_stmt 0 discriminator 3 view .LVU14
+  94 001e A4B2     		uxth	r4, r4
+  95              	.LVL8:
+  96              	.L3:
+  15:Modules/mcu/Src/mcu_flash.c ****     for (i = 0; i < NumToWrite; i++)
+ARM GAS  C:\Users\wyx12\AppData\Local\Temp\ccKS2Eid.s 			page 3
+
+
+  97              		.loc 1 15 19 is_stmt 1 discriminator 1 view .LVU15
+  98 0020 B442     		cmp	r4, r6
+  99 0022 F3D3     		bcc	.L4
+  19:Modules/mcu/Src/mcu_flash.c ****     }
+  20:Modules/mcu/Src/mcu_flash.c **** }
+ 100              		.loc 1 20 1 is_stmt 0 view .LVU16
+ 101 0024 F8BD     		pop	{r3, r4, r5, r6, r7, pc}
+ 102              		.loc 1 20 1 view .LVU17
+ 103              		.cfi_endproc
+ 104              	.LFE66:
+ 106              		.section	.text.FlashRead,"ax",%progbits
+ 107              		.align	1
+ 108              		.global	FlashRead
+ 109              		.syntax unified
+ 110              		.thumb
+ 111              		.thumb_func
+ 113              	FlashRead:
+ 114              	.LVL9:
+ 115              	.LFB68:
+  21:Modules/mcu/Src/mcu_flash.c **** // 从指定地址开始写入指定长度的数据
+  22:Modules/mcu/Src/mcu_flash.c **** // WriteAddr:起始地址(此地址必须为 2 的倍数!!)
+  23:Modules/mcu/Src/mcu_flash.c **** // pBuffer:数据指针
+  24:Modules/mcu/Src/mcu_flash.c **** // NumToWrite:半字(16 位)数(就是要写入的 16 位数据的个数.)
+  25:Modules/mcu/Src/mcu_flash.c **** 
+  26:Modules/mcu/Src/mcu_flash.c **** #if STM32_FLASH_SIZE < 256
+  27:Modules/mcu/Src/mcu_flash.c **** #define STM_SECTOR_SIZE 1024 // 字节
+  28:Modules/mcu/Src/mcu_flash.c **** #else
+  29:Modules/mcu/Src/mcu_flash.c **** #define STM_SECTOR_SIZE 2048
+  30:Modules/mcu/Src/mcu_flash.c **** #endif
+  31:Modules/mcu/Src/mcu_flash.c **** 
+  32:Modules/mcu/Src/mcu_flash.c **** void FlashWrite(uint32_t WriteAddr, uint16_t *pBuffer, uint16_t NumToWrite)
+  33:Modules/mcu/Src/mcu_flash.c **** {
+  34:Modules/mcu/Src/mcu_flash.c ****     uint16_t STMFLASH_BUF[STM_SECTOR_SIZE / 2]; // 一页<=2K字节
+  35:Modules/mcu/Src/mcu_flash.c ****     uint32_t secpos;                            // 扇区地址
+  36:Modules/mcu/Src/mcu_flash.c ****     uint16_t secoff;                            // 扇区内偏移地址
+  37:Modules/mcu/Src/mcu_flash.c ****     uint16_t secremain;                         // 扇区剩余地址
+  38:Modules/mcu/Src/mcu_flash.c ****     uint16_t i;
+  39:Modules/mcu/Src/mcu_flash.c ****     uint32_t offaddr; // 去掉0x8000000地址
+  40:Modules/mcu/Src/mcu_flash.c ****     if (WriteAddr < STM32_FLASH_BASE || (WriteAddr >= (STM32_FLASH_BASE + 1024 * STM32_FLASH_SIZE))
+  41:Modules/mcu/Src/mcu_flash.c ****         return; // 非法地址
+  42:Modules/mcu/Src/mcu_flash.c **** 
+  43:Modules/mcu/Src/mcu_flash.c ****     HAL_FLASH_Unlock();                       // 解锁
+  44:Modules/mcu/Src/mcu_flash.c ****     offaddr = WriteAddr - STM32_FLASH_BASE;   // 实际偏移地址.
+  45:Modules/mcu/Src/mcu_flash.c ****     secpos = offaddr / STM_SECTOR_SIZE;       // 扇区地址  0~127 for STM32F103RBT6
+  46:Modules/mcu/Src/mcu_flash.c ****     secoff = (offaddr % STM_SECTOR_SIZE) / 2; // 在扇区内的偏移(2个字节为基本单位.)
+  47:Modules/mcu/Src/mcu_flash.c ****     secremain = STM_SECTOR_SIZE / 2 - secoff; // 扇区剩余空间大小
+  48:Modules/mcu/Src/mcu_flash.c ****     if (NumToWrite <= secremain)
+  49:Modules/mcu/Src/mcu_flash.c ****         secremain = NumToWrite; // 不大于该扇区范围
+  50:Modules/mcu/Src/mcu_flash.c ****     while (1)
+  51:Modules/mcu/Src/mcu_flash.c ****     {
+  52:Modules/mcu/Src/mcu_flash.c ****         FlashRead(secpos * STM_SECTOR_SIZE + STM32_FLASH_BASE, STMFLASH_BUF, STM_SECTOR_SIZE / 2); 
+  53:Modules/mcu/Src/mcu_flash.c ****         for (i = 0; i < secremain; i++)                                                            
+  54:Modules/mcu/Src/mcu_flash.c ****         {
+  55:Modules/mcu/Src/mcu_flash.c ****             if (STMFLASH_BUF[secoff + i] != 0XFFFF)
+  56:Modules/mcu/Src/mcu_flash.c ****                 break; // 需要擦除
+  57:Modules/mcu/Src/mcu_flash.c ****         }
+  58:Modules/mcu/Src/mcu_flash.c ****         if (i < secremain) // 需要擦除
+ARM GAS  C:\Users\wyx12\AppData\Local\Temp\ccKS2Eid.s 			page 4
+
+
+  59:Modules/mcu/Src/mcu_flash.c ****         {
+  60:Modules/mcu/Src/mcu_flash.c ****             FLASH_PageErase(secpos * STM_SECTOR_SIZE + STM32_FLASH_BASE); // 擦除这个扇区
+  61:Modules/mcu/Src/mcu_flash.c ****             FLASH_WaitForLastOperation(FLASH_WAITETIME);                  // 等待上次操作完�
+  62:Modules/mcu/Src/mcu_flash.c ****             CLEAR_BIT(FLASH->CR, FLASH_CR_PER);                           // 清除CR寄存器的PE
+  63:Modules/mcu/Src/mcu_flash.c ****                                                                           // 但是HAL库里面并�
+  64:Modules/mcu/Src/mcu_flash.c ****             for (i = 0; i < secremain; i++)                               // 复制
+  65:Modules/mcu/Src/mcu_flash.c ****             {
+  66:Modules/mcu/Src/mcu_flash.c ****                 STMFLASH_BUF[i + secoff] = pBuffer[i];
+  67:Modules/mcu/Src/mcu_flash.c ****             }
+  68:Modules/mcu/Src/mcu_flash.c ****             STMFLASH_Write_NoCheck(secpos * STM_SECTOR_SIZE + STM32_FLASH_BASE, STMFLASH_BUF, STM_S
+  69:Modules/mcu/Src/mcu_flash.c ****         }
+  70:Modules/mcu/Src/mcu_flash.c ****         else
+  71:Modules/mcu/Src/mcu_flash.c ****         {
+  72:Modules/mcu/Src/mcu_flash.c ****             FLASH_WaitForLastOperation(FLASH_WAITETIME);           // 等待上次操作完成
+  73:Modules/mcu/Src/mcu_flash.c ****             STMFLASH_Write_NoCheck(WriteAddr, pBuffer, secremain); // 写已经擦除了的,直接�
+  74:Modules/mcu/Src/mcu_flash.c ****         }
+  75:Modules/mcu/Src/mcu_flash.c ****         if (NumToWrite == secremain)
+  76:Modules/mcu/Src/mcu_flash.c ****             break; // 写入结束了
+  77:Modules/mcu/Src/mcu_flash.c ****         else       // 写入未结束
+  78:Modules/mcu/Src/mcu_flash.c ****         {
+  79:Modules/mcu/Src/mcu_flash.c ****             secpos++;                   // 扇区地址增1
+  80:Modules/mcu/Src/mcu_flash.c ****             secoff = 0;                 // 偏移位置为0
+  81:Modules/mcu/Src/mcu_flash.c ****             pBuffer += secremain;       // 指针偏移
+  82:Modules/mcu/Src/mcu_flash.c ****             WriteAddr += secremain * 2; // 写地址偏移(16位数据地址,需要*2)
+  83:Modules/mcu/Src/mcu_flash.c ****             NumToWrite -= secremain;    // 字节(16位)数递减
+  84:Modules/mcu/Src/mcu_flash.c ****             if (NumToWrite > (STM_SECTOR_SIZE / 2))
+  85:Modules/mcu/Src/mcu_flash.c ****                 secremain = STM_SECTOR_SIZE / 2; // 下一个扇区还是写不完
+  86:Modules/mcu/Src/mcu_flash.c ****             else
+  87:Modules/mcu/Src/mcu_flash.c ****                 secremain = NumToWrite; // 下一个扇区可以写完了
+  88:Modules/mcu/Src/mcu_flash.c ****         }
+  89:Modules/mcu/Src/mcu_flash.c ****     };
+  90:Modules/mcu/Src/mcu_flash.c ****     HAL_FLASH_Lock(); // 上锁
+  91:Modules/mcu/Src/mcu_flash.c **** }
+  92:Modules/mcu/Src/mcu_flash.c **** 
+  93:Modules/mcu/Src/mcu_flash.c **** // 从指定地址开始读出指定长度的数据
+  94:Modules/mcu/Src/mcu_flash.c **** // ReadAddr:起始地址
+  95:Modules/mcu/Src/mcu_flash.c **** // pBuffer:数据指针
+  96:Modules/mcu/Src/mcu_flash.c **** // NumToWrite:半字(16位)数
+  97:Modules/mcu/Src/mcu_flash.c **** void FlashRead(uint32_t ReadAddr, uint16_t *pBuffer, uint16_t NumToRead)
+  98:Modules/mcu/Src/mcu_flash.c **** {
+ 116              		.loc 1 98 1 is_stmt 1 view -0
+ 117              		.cfi_startproc
+ 118              		@ args = 0, pretend = 0, frame = 0
+ 119              		@ frame_needed = 0, uses_anonymous_args = 0
+ 120              		.loc 1 98 1 is_stmt 0 view .LVU19
+ 121 0000 F8B5     		push	{r3, r4, r5, r6, r7, lr}
+ 122              	.LCFI1:
+ 123              		.cfi_def_cfa_offset 24
+ 124              		.cfi_offset 3, -24
+ 125              		.cfi_offset 4, -20
+ 126              		.cfi_offset 5, -16
+ 127              		.cfi_offset 6, -12
+ 128              		.cfi_offset 7, -8
+ 129              		.cfi_offset 14, -4
+ 130 0002 0546     		mov	r5, r0
+ 131 0004 0F46     		mov	r7, r1
+ 132 0006 1646     		mov	r6, r2
+ARM GAS  C:\Users\wyx12\AppData\Local\Temp\ccKS2Eid.s 			page 5
+
+
+  99:Modules/mcu/Src/mcu_flash.c ****     uint16_t i;
+ 133              		.loc 1 99 5 is_stmt 1 view .LVU20
+ 100:Modules/mcu/Src/mcu_flash.c ****     for (i = 0; i < NumToRead; i++)
+ 134              		.loc 1 100 5 view .LVU21
+ 135              	.LVL10:
+ 136              		.loc 1 100 12 is_stmt 0 view .LVU22
+ 137 0008 0024     		movs	r4, #0
+ 138              		.loc 1 100 5 view .LVU23
+ 139 000a 07E0     		b	.L7
+ 140              	.LVL11:
+ 141              	.L8:
+ 101:Modules/mcu/Src/mcu_flash.c ****     {
+ 102:Modules/mcu/Src/mcu_flash.c ****         pBuffer[i] = STMFLASH_ReadHalfWord(ReadAddr); // 读取2个字节.
+ 142              		.loc 1 102 9 is_stmt 1 discriminator 3 view .LVU24
+ 143              		.loc 1 102 22 is_stmt 0 discriminator 3 view .LVU25
+ 144 000c 2846     		mov	r0, r5
+ 145 000e FFF7FEFF 		bl	STMFLASH_ReadHalfWord
+ 146              	.LVL12:
+ 147              		.loc 1 102 20 discriminator 3 view .LVU26
+ 148 0012 27F81400 		strh	r0, [r7, r4, lsl #1]	@ movhi
+ 103:Modules/mcu/Src/mcu_flash.c ****         ReadAddr += 2;                                // 偏移2个字节.
+ 149              		.loc 1 103 9 is_stmt 1 discriminator 3 view .LVU27
+ 150              		.loc 1 103 18 is_stmt 0 discriminator 3 view .LVU28
+ 151 0016 0235     		adds	r5, r5, #2
+ 152              	.LVL13:
+ 100:Modules/mcu/Src/mcu_flash.c ****     for (i = 0; i < NumToRead; i++)
+ 153              		.loc 1 100 33 is_stmt 1 discriminator 3 view .LVU29
+ 154 0018 0134     		adds	r4, r4, #1
+ 155              	.LVL14:
+ 100:Modules/mcu/Src/mcu_flash.c ****     for (i = 0; i < NumToRead; i++)
+ 156              		.loc 1 100 33 is_stmt 0 discriminator 3 view .LVU30
+ 157 001a A4B2     		uxth	r4, r4
+ 158              	.LVL15:
+ 159              	.L7:
+ 100:Modules/mcu/Src/mcu_flash.c ****     for (i = 0; i < NumToRead; i++)
+ 160              		.loc 1 100 19 is_stmt 1 discriminator 1 view .LVU31
+ 161 001c B442     		cmp	r4, r6
+ 162 001e F5D3     		bcc	.L8
+ 104:Modules/mcu/Src/mcu_flash.c ****     }
+ 105:Modules/mcu/Src/mcu_flash.c **** }...
+ 163              		.loc 1 105 1 is_stmt 0 view .LVU32
+ 164 0020 F8BD     		pop	{r3, r4, r5, r6, r7, pc}
+ 165              		.loc 1 105 1 view .LVU33
+ 166              		.cfi_endproc
+ 167              	.LFE68:
+ 169              		.section	.text.FlashWrite,"ax",%progbits
+ 170              		.align	1
+ 171              		.global	FlashWrite
+ 172              		.syntax unified
+ 173              		.thumb
+ 174              		.thumb_func
+ 176              	FlashWrite:
+ 177              	.LVL16:
+ 178              	.LFB67:
+  33:Modules/mcu/Src/mcu_flash.c **** {
+ 179              		.loc 1 33 1 is_stmt 1 view -0
+ 180              		.cfi_startproc
+ARM GAS  C:\Users\wyx12\AppData\Local\Temp\ccKS2Eid.s 			page 6
+
+
+ 181              		@ args = 0, pretend = 0, frame = 2048
+ 182              		@ frame_needed = 0, uses_anonymous_args = 0
+  33:Modules/mcu/Src/mcu_flash.c **** {
+ 183              		.loc 1 33 1 is_stmt 0 view .LVU35
+ 184 0000 2DE9F047 		push	{r4, r5, r6, r7, r8, r9, r10, lr}
+ 185              	.LCFI2:
+ 186              		.cfi_def_cfa_offset 32
+ 187              		.cfi_offset 4, -32
+ 188              		.cfi_offset 5, -28
+ 189              		.cfi_offset 6, -24
+ 190              		.cfi_offset 7, -20
+ 191              		.cfi_offset 8, -16
+ 192              		.cfi_offset 9, -12
+ 193              		.cfi_offset 10, -8
+ 194              		.cfi_offset 14, -4
+ 195 0004 ADF5006D 		sub	sp, sp, #2048
+ 196              	.LCFI3:
+ 197              		.cfi_def_cfa_offset 2080
+  34:Modules/mcu/Src/mcu_flash.c ****     uint16_t STMFLASH_BUF[STM_SECTOR_SIZE / 2]; // 一页<=2K字节
+ 198              		.loc 1 34 5 is_stmt 1 view .LVU36
+  35:Modules/mcu/Src/mcu_flash.c ****     uint32_t secpos;                            // 扇区地址
+ 199              		.loc 1 35 5 view .LVU37
+  36:Modules/mcu/Src/mcu_flash.c ****     uint16_t secoff;                            // 扇区内偏移地址
+ 200              		.loc 1 36 5 view .LVU38
+  37:Modules/mcu/Src/mcu_flash.c ****     uint16_t secremain;                         // 扇区剩余地址
+ 201              		.loc 1 37 5 view .LVU39
+  38:Modules/mcu/Src/mcu_flash.c ****     uint16_t i;
+ 202              		.loc 1 38 5 view .LVU40
+  39:Modules/mcu/Src/mcu_flash.c ****     uint32_t offaddr; // 去掉0x8000000地址
+ 203              		.loc 1 39 5 view .LVU41
+  40:Modules/mcu/Src/mcu_flash.c ****     if (WriteAddr < STM32_FLASH_BASE || (WriteAddr >= (STM32_FLASH_BASE + 1024 * STM32_FLASH_SIZE))
+ 204              		.loc 1 40 5 view .LVU42
+  40:Modules/mcu/Src/mcu_flash.c ****     if (WriteAddr < STM32_FLASH_BASE || (WriteAddr >= (STM32_FLASH_BASE + 1024 * STM32_FLASH_SIZE))
+ 205              		.loc 1 40 38 is_stmt 0 view .LVU43
+ 206 0008 00F17845 		add	r5, r0, #-134217728
+  40:Modules/mcu/Src/mcu_flash.c ****     if (WriteAddr < STM32_FLASH_BASE || (WriteAddr >= (STM32_FLASH_BASE + 1024 * STM32_FLASH_SIZE))
+ 207              		.loc 1 40 8 view .LVU44
+ 208 000c B5F5802F 		cmp	r5, #262144
+ 209 0010 03D3     		bcc	.L27
+ 210              	.LVL17:
+ 211              	.L10:
+  91:Modules/mcu/Src/mcu_flash.c **** }
+ 212              		.loc 1 91 1 view .LVU45
+ 213 0012 0DF5006D 		add	sp, sp, #2048
+ 214              	.LCFI4:
+ 215              		.cfi_remember_state
+ 216              		.cfi_def_cfa_offset 32
+ 217              		@ sp needed
+ 218 0016 BDE8F087 		pop	{r4, r5, r6, r7, r8, r9, r10, pc}
+ 219              	.LVL18:
+ 220              	.L27:
+ 221              	.LCFI5:
+ 222              		.cfi_restore_state
+  91:Modules/mcu/Src/mcu_flash.c **** }
+ 223              		.loc 1 91 1 view .LVU46
+ 224 001a 8146     		mov	r9, r0
+ 225 001c 0E46     		mov	r6, r1
+ARM GAS  C:\Users\wyx12\AppData\Local\Temp\ccKS2Eid.s 			page 7
+
+
+ 226 001e 1746     		mov	r7, r2
+  43:Modules/mcu/Src/mcu_flash.c ****     HAL_FLASH_Unlock();                       // 解锁
+ 227              		.loc 1 43 5 is_stmt 1 view .LVU47
+ 228 0020 FFF7FEFF 		bl	HAL_FLASH_Unlock
+ 229              	.LVL19:
+  44:Modules/mcu/Src/mcu_flash.c ****     offaddr = WriteAddr - STM32_FLASH_BASE;   // 实际偏移地址.
+ 230              		.loc 1 44 5 view .LVU48
+  45:Modules/mcu/Src/mcu_flash.c ****     secpos = offaddr / STM_SECTOR_SIZE;       // 扇区地址  0~127 for STM32F103RBT6
+ 231              		.loc 1 45 5 view .LVU49
+  45:Modules/mcu/Src/mcu_flash.c ****     secpos = offaddr / STM_SECTOR_SIZE;       // 扇区地址  0~127 for STM32F103RBT6
+ 232              		.loc 1 45 12 is_stmt 0 view .LVU50
+ 233 0024 4FEAD52A 		lsr	r10, r5, #11
+ 234              	.LVL20:
+  46:Modules/mcu/Src/mcu_flash.c ****     secoff = (offaddr % STM_SECTOR_SIZE) / 2; // 在扇区内的偏移(2个字节为基本单位.)
+ 235              		.loc 1 46 5 is_stmt 1 view .LVU51
+  46:Modules/mcu/Src/mcu_flash.c ****     secoff = (offaddr % STM_SECTOR_SIZE) / 2; // 在扇区内的偏移(2个字节为基本单位.)
+ 236              		.loc 1 46 12 is_stmt 0 view .LVU52
+ 237 0028 C5F34905 		ubfx	r5, r5, #1, #10
+ 238              	.LVL21:
+  47:Modules/mcu/Src/mcu_flash.c ****     secremain = STM_SECTOR_SIZE / 2 - secoff; // 扇区剩余空间大小
+ 239              		.loc 1 47 5 is_stmt 1 view .LVU53
+  47:Modules/mcu/Src/mcu_flash.c ****     secremain = STM_SECTOR_SIZE / 2 - secoff; // 扇区剩余空间大小
+ 240              		.loc 1 47 15 is_stmt 0 view .LVU54
+ 241 002c C5F58064 		rsb	r4, r5, #1024
+ 242 0030 A4B2     		uxth	r4, r4
+ 243              	.LVL22:
+  48:Modules/mcu/Src/mcu_flash.c ****     if (NumToWrite <= secremain)
+ 244              		.loc 1 48 5 is_stmt 1 view .LVU55
+  48:Modules/mcu/Src/mcu_flash.c ****     if (NumToWrite <= secremain)
+ 245              		.loc 1 48 8 is_stmt 0 view .LVU56
+ 246 0032 BC42     		cmp	r4, r7
+ 247 0034 04D3     		bcc	.L14
+  49:Modules/mcu/Src/mcu_flash.c ****         secremain = NumToWrite; // 不大于该扇区范围
+ 248              		.loc 1 49 19 view .LVU57
+ 249 0036 3C46     		mov	r4, r7
+ 250              	.LVL23:
+  49:Modules/mcu/Src/mcu_flash.c ****         secremain = NumToWrite; // 不大于该扇区范围
+ 251              		.loc 1 49 19 view .LVU58
+ 252 0038 02E0     		b	.L14
+ 253              	.LVL24:
+ 254              	.L23:
+  85:Modules/mcu/Src/mcu_flash.c ****                 secremain = STM_SECTOR_SIZE / 2; // 下一个扇区还是写不完
+ 255              		.loc 1 85 27 view .LVU59
+ 256 003a 4FF48064 		mov	r4, #1024
+ 257              	.L24:
+ 258              	.LVL25:
+  87:Modules/mcu/Src/mcu_flash.c ****                 secremain = NumToWrite; // 下一个扇区可以写完了
+ 259              		.loc 1 87 27 view .LVU60
+ 260 003e 0025     		movs	r5, #0
+ 261              	.LVL26:
+ 262              	.L14:
+  50:Modules/mcu/Src/mcu_flash.c ****     while (1)
+ 263              		.loc 1 50 5 is_stmt 1 view .LVU61
+  52:Modules/mcu/Src/mcu_flash.c ****         FlashRead(secpos * STM_SECTOR_SIZE + STM32_FLASH_BASE, STMFLASH_BUF, STM_SECTOR_SIZE / 2); 
+ 264              		.loc 1 52 9 view .LVU62
+  52:Modules/mcu/Src/mcu_flash.c ****         FlashRead(secpos * STM_SECTOR_SIZE + STM32_FLASH_BASE, STMFLASH_BUF, STM_SECTOR_SIZE / 2); 
+ 265              		.loc 1 52 44 is_stmt 0 view .LVU63
+ARM GAS  C:\Users\wyx12\AppData\Local\Temp\ccKS2Eid.s 			page 8
+
+
+ 266 0040 0AF58038 		add	r8, r10, #65536
+  52:Modules/mcu/Src/mcu_flash.c ****         FlashRead(secpos * STM_SECTOR_SIZE + STM32_FLASH_BASE, STMFLASH_BUF, STM_SECTOR_SIZE / 2); 
+ 267              		.loc 1 52 9 view .LVU64
+ 268 0044 4FEAC828 		lsl	r8, r8, #11
+ 269 0048 4FF48062 		mov	r2, #1024
+ 270 004c 6946     		mov	r1, sp
+ 271 004e 4046     		mov	r0, r8
+ 272 0050 FFF7FEFF 		bl	FlashRead
+ 273              	.LVL27:
+  53:Modules/mcu/Src/mcu_flash.c ****         for (i = 0; i < secremain; i++)                                                            
+ 274              		.loc 1 53 9 is_stmt 1 view .LVU65
+  53:Modules/mcu/Src/mcu_flash.c ****         for (i = 0; i < secremain; i++)                                                            
+ 275              		.loc 1 53 16 is_stmt 0 view .LVU66
+ 276 0054 0023     		movs	r3, #0
+ 277              	.LVL28:
+ 278              	.L15:
+  53:Modules/mcu/Src/mcu_flash.c ****         for (i = 0; i < secremain; i++)                                                            
+ 279              		.loc 1 53 23 is_stmt 1 discriminator 1 view .LVU67
+ 280 0056 9C42     		cmp	r4, r3
+ 281 0058 09D9     		bls	.L16
+  55:Modules/mcu/Src/mcu_flash.c ****             if (STMFLASH_BUF[secoff + i] != 0XFFFF)
+ 282              		.loc 1 55 13 view .LVU68
+  55:Modules/mcu/Src/mcu_flash.c ****             if (STMFLASH_BUF[secoff + i] != 0XFFFF)
+ 283              		.loc 1 55 37 is_stmt 0 view .LVU69
+ 284 005a EA18     		adds	r2, r5, r3
+  55:Modules/mcu/Src/mcu_flash.c ****             if (STMFLASH_BUF[secoff + i] != 0XFFFF)
+ 285              		.loc 1 55 29 view .LVU70
+ 286 005c 3DF81210 		ldrh	r1, [sp, r2, lsl #1]
+  55:Modules/mcu/Src/mcu_flash.c ****             if (STMFLASH_BUF[secoff + i] != 0XFFFF)
+ 287              		.loc 1 55 16 view .LVU71
+ 288 0060 4FF6FF72 		movw	r2, #65535
+ 289 0064 9142     		cmp	r1, r2
+ 290 0066 02D1     		bne	.L16
+  53:Modules/mcu/Src/mcu_flash.c ****         for (i = 0; i < secremain; i++)                                                            
+ 291              		.loc 1 53 37 is_stmt 1 discriminator 2 view .LVU72
+ 292 0068 0133     		adds	r3, r3, #1
+ 293              	.LVL29:
+  53:Modules/mcu/Src/mcu_flash.c ****         for (i = 0; i < secremain; i++)                                                            
+ 294              		.loc 1 53 37 is_stmt 0 discriminator 2 view .LVU73
+ 295 006a 9BB2     		uxth	r3, r3
+ 296              	.LVL30:
+  53:Modules/mcu/Src/mcu_flash.c ****         for (i = 0; i < secremain; i++)                                                            
+ 297              		.loc 1 53 37 discriminator 2 view .LVU74
+ 298 006c F3E7     		b	.L15
+ 299              	.L16:
+  58:Modules/mcu/Src/mcu_flash.c ****         if (i < secremain) // 需要擦除
+ 300              		.loc 1 58 9 is_stmt 1 view .LVU75
+  58:Modules/mcu/Src/mcu_flash.c ****         if (i < secremain) // 需要擦除
+ 301              		.loc 1 58 12 is_stmt 0 view .LVU76
+ 302 006e 9C42     		cmp	r4, r3
+ 303 0070 17D8     		bhi	.L28
+  72:Modules/mcu/Src/mcu_flash.c ****             FLASH_WaitForLastOperation(FLASH_WAITETIME);           // 等待上次操作完成
+ 304              		.loc 1 72 13 is_stmt 1 view .LVU77
+ 305 0072 4CF25030 		movw	r0, #50000
+ 306 0076 FFF7FEFF 		bl	FLASH_WaitForLastOperation
+ 307              	.LVL31:
+  73:Modules/mcu/Src/mcu_flash.c ****             STMFLASH_Write_NoCheck(WriteAddr, pBuffer, secremain); // 写已经擦除了的,直接�
+ARM GAS  C:\Users\wyx12\AppData\Local\Temp\ccKS2Eid.s 			page 9
+
+
+ 308              		.loc 1 73 13 view .LVU78
+ 309 007a 2246     		mov	r2, r4
+ 310 007c 3146     		mov	r1, r6
+ 311 007e 4846     		mov	r0, r9
+ 312 0080 FFF7FEFF 		bl	STMFLASH_Write_NoCheck
+ 313              	.LVL32:
+ 314              	.L21:
+  75:Modules/mcu/Src/mcu_flash.c ****         if (NumToWrite == secremain)
+ 315              		.loc 1 75 9 view .LVU79
+  75:Modules/mcu/Src/mcu_flash.c ****         if (NumToWrite == secremain)
+ 316              		.loc 1 75 12 is_stmt 0 view .LVU80
+ 317 0084 A742     		cmp	r7, r4
+ 318 0086 2AD0     		beq	.L22
+  79:Modules/mcu/Src/mcu_flash.c ****             secpos++;                   // 扇区地址增1
+ 319              		.loc 1 79 13 is_stmt 1 view .LVU81
+  79:Modules/mcu/Src/mcu_flash.c ****             secpos++;                   // 扇区地址增1
+ 320              		.loc 1 79 19 is_stmt 0 view .LVU82
+ 321 0088 0AF1010A 		add	r10, r10, #1
+ 322              	.LVL33:
+  80:Modules/mcu/Src/mcu_flash.c ****             secoff = 0;                 // 偏移位置为0
+ 323              		.loc 1 80 13 is_stmt 1 view .LVU83
+  81:Modules/mcu/Src/mcu_flash.c ****             pBuffer += secremain;       // 指针偏移
+ 324              		.loc 1 81 13 view .LVU84
+  81:Modules/mcu/Src/mcu_flash.c ****             pBuffer += secremain;       // 指针偏移
+ 325              		.loc 1 81 21 is_stmt 0 view .LVU85
+ 326 008c 06EB4406 		add	r6, r6, r4, lsl #1
+ 327              	.LVL34:
+  82:Modules/mcu/Src/mcu_flash.c ****             WriteAddr += secremain * 2; // 写地址偏移(16位数据地址,需要*2)
+ 328              		.loc 1 82 13 is_stmt 1 view .LVU86
+  82:Modules/mcu/Src/mcu_flash.c ****             WriteAddr += secremain * 2; // 写地址偏移(16位数据地址,需要*2)
+ 329              		.loc 1 82 23 is_stmt 0 view .LVU87
+ 330 0090 09EB4409 		add	r9, r9, r4, lsl #1
+ 331              	.LVL35:
+  83:Modules/mcu/Src/mcu_flash.c ****             NumToWrite -= secremain;    // 字节(16位)数递减
+ 332              		.loc 1 83 13 is_stmt 1 view .LVU88
+  83:Modules/mcu/Src/mcu_flash.c ****             NumToWrite -= secremain;    // 字节(16位)数递减
+ 333              		.loc 1 83 24 is_stmt 0 view .LVU89
+ 334 0094 3C1B     		subs	r4, r7, r4
+ 335              	.LVL36:
+  83:Modules/mcu/Src/mcu_flash.c ****             NumToWrite -= secremain;    // 字节(16位)数递减
+ 336              		.loc 1 83 24 view .LVU90
+ 337 0096 A7B2     		uxth	r7, r4
+ 338              	.LVL37:
+  84:Modules/mcu/Src/mcu_flash.c ****             if (NumToWrite > (STM_SECTOR_SIZE / 2))
+ 339              		.loc 1 84 13 is_stmt 1 view .LVU91
+  84:Modules/mcu/Src/mcu_flash.c ****             if (NumToWrite > (STM_SECTOR_SIZE / 2))
+ 340              		.loc 1 84 16 is_stmt 0 view .LVU92
+ 341 0098 B7F5806F 		cmp	r7, #1024
+ 342 009c CDD8     		bhi	.L23
+  87:Modules/mcu/Src/mcu_flash.c ****                 secremain = NumToWrite; // 下一个扇区可以写完了
+ 343              		.loc 1 87 27 view .LVU93
+ 344 009e 3C46     		mov	r4, r7
+ 345 00a0 CDE7     		b	.L24
+ 346              	.LVL38:
+ 347              	.L28:
+  60:Modules/mcu/Src/mcu_flash.c ****             FLASH_PageErase(secpos * STM_SECTOR_SIZE + STM32_FLASH_BASE); // 擦除这个扇区
+ 348              		.loc 1 60 13 is_stmt 1 view .LVU94
+ARM GAS  C:\Users\wyx12\AppData\Local\Temp\ccKS2Eid.s 			page 10
+
+
+ 349 00a2 4046     		mov	r0, r8
+ 350 00a4 FFF7FEFF 		bl	FLASH_PageErase
+ 351              	.LVL39:
+  61:Modules/mcu/Src/mcu_flash.c ****             FLASH_WaitForLastOperation(FLASH_WAITETIME);                  // 等待上次操作完�
+ 352              		.loc 1 61 13 view .LVU95
+ 353 00a8 4CF25030 		movw	r0, #50000
+ 354 00ac FFF7FEFF 		bl	FLASH_WaitForLastOperation
+ 355              	.LVL40:
+  62:Modules/mcu/Src/mcu_flash.c ****             CLEAR_BIT(FLASH->CR, FLASH_CR_PER);                           // 清除CR寄存器的PE
+ 356              		.loc 1 62 13 view .LVU96
+ 357 00b0 0C4A     		ldr	r2, .L29
+ 358 00b2 1369     		ldr	r3, [r2, #16]
+ 359 00b4 23F00203 		bic	r3, r3, #2
+ 360 00b8 1361     		str	r3, [r2, #16]
+  64:Modules/mcu/Src/mcu_flash.c ****             for (i = 0; i < secremain; i++)                               // 复制
+ 361              		.loc 1 64 13 view .LVU97
+ 362              	.LVL41:
+  64:Modules/mcu/Src/mcu_flash.c ****             for (i = 0; i < secremain; i++)                               // 复制
+ 363              		.loc 1 64 20 is_stmt 0 view .LVU98
+ 364 00ba 0023     		movs	r3, #0
+  64:Modules/mcu/Src/mcu_flash.c ****             for (i = 0; i < secremain; i++)                               // 复制
+ 365              		.loc 1 64 13 view .LVU99
+ 366 00bc 06E0     		b	.L19
+ 367              	.LVL42:
+ 368              	.L20:
+  66:Modules/mcu/Src/mcu_flash.c ****                 STMFLASH_BUF[i + secoff] = pBuffer[i];
+ 369              		.loc 1 66 17 is_stmt 1 discriminator 3 view .LVU100
+  66:Modules/mcu/Src/mcu_flash.c ****                 STMFLASH_BUF[i + secoff] = pBuffer[i];
+ 370              		.loc 1 66 32 is_stmt 0 discriminator 3 view .LVU101
+ 371 00be 5A19     		adds	r2, r3, r5
+  66:Modules/mcu/Src/mcu_flash.c ****                 STMFLASH_BUF[i + secoff] = pBuffer[i];
+ 372              		.loc 1 66 51 discriminator 3 view .LVU102
+ 373 00c0 36F81310 		ldrh	r1, [r6, r3, lsl #1]
+  66:Modules/mcu/Src/mcu_flash.c ****                 STMFLASH_BUF[i + secoff] = pBuffer[i];
+ 374              		.loc 1 66 42 discriminator 3 view .LVU103
+ 375 00c4 2DF81210 		strh	r1, [sp, r2, lsl #1]	@ movhi
+  64:Modules/mcu/Src/mcu_flash.c ****             for (i = 0; i < secremain; i++)                               // 复制
+ 376              		.loc 1 64 41 is_stmt 1 discriminator 3 view .LVU104
+ 377 00c8 0133     		adds	r3, r3, #1
+ 378              	.LVL43:
+  64:Modules/mcu/Src/mcu_flash.c ****             for (i = 0; i < secremain; i++)                               // 复制
+ 379              		.loc 1 64 41 is_stmt 0 discriminator 3 view .LVU105
+ 380 00ca 9BB2     		uxth	r3, r3
+ 381              	.LVL44:
+ 382              	.L19:
+  64:Modules/mcu/Src/mcu_flash.c ****             for (i = 0; i < secremain; i++)                               // 复制
+ 383              		.loc 1 64 27 is_stmt 1 discriminator 1 view .LVU106
+ 384 00cc 9C42     		cmp	r4, r3
+ 385 00ce F6D8     		bhi	.L20
+  68:Modules/mcu/Src/mcu_flash.c ****             STMFLASH_Write_NoCheck(secpos * STM_SECTOR_SIZE + STM32_FLASH_BASE, STMFLASH_BUF, STM_S
+ 386              		.loc 1 68 13 view .LVU107
+ 387 00d0 4FF48062 		mov	r2, #1024
+ 388 00d4 6946     		mov	r1, sp
+ 389 00d6 4046     		mov	r0, r8
+ 390 00d8 FFF7FEFF 		bl	STMFLASH_Write_NoCheck
+ 391              	.LVL45:
+  68:Modules/mcu/Src/mcu_flash.c ****             STMFLASH_Write_NoCheck(secpos * STM_SECTOR_SIZE + STM32_FLASH_BASE, STMFLASH_BUF, STM_S
+ARM GAS  C:\Users\wyx12\AppData\Local\Temp\ccKS2Eid.s 			page 11
+
+
+ 392              		.loc 1 68 13 is_stmt 0 view .LVU108
+ 393 00dc D2E7     		b	.L21
+ 394              	.LVL46:
+ 395              	.L22:
+  89:Modules/mcu/Src/mcu_flash.c ****     };
+ 396              		.loc 1 89 6 is_stmt 1 view .LVU109
+  90:Modules/mcu/Src/mcu_flash.c ****     HAL_FLASH_Lock(); // 上锁
+ 397              		.loc 1 90 5 view .LVU110
+ 398 00de FFF7FEFF 		bl	HAL_FLASH_Lock
+ 399              	.LVL47:
+ 400 00e2 96E7     		b	.L10
+ 401              	.L30:
+ 402              		.align	2
+ 403              	.L29:
+ 404 00e4 00200240 		.word	1073881088
+ 405              		.cfi_endproc
+ 406              	.LFE67:
+ 408              		.text
+ 409              	.Letext0:
+ 410              		.file 2 "c:\\program files (x86)\\arm gnu toolchain arm-none-eabi\\12.2 rel1\\arm-none-eabi\\inclu
+ 411              		.file 3 "c:\\program files (x86)\\arm gnu toolchain arm-none-eabi\\12.2 rel1\\arm-none-eabi\\inclu
+ 412              		.file 4 "Drivers/CMSIS/Device/ST/STM32F1xx/Include/stm32f103xe.h"
+ 413              		.file 5 "Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_def.h"
+ 414              		.file 6 "Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_flash.h"
+ARM GAS  C:\Users\wyx12\AppData\Local\Temp\ccKS2Eid.s 			page 12
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 mcu_flash.c
+C:\Users\wyx12\AppData\Local\Temp\ccKS2Eid.s:19     .text.STMFLASH_ReadHalfWord:00000000 $t
+C:\Users\wyx12\AppData\Local\Temp\ccKS2Eid.s:25     .text.STMFLASH_ReadHalfWord:00000000 STMFLASH_ReadHalfWord
+C:\Users\wyx12\AppData\Local\Temp\ccKS2Eid.s:44     .text.STMFLASH_Write_NoCheck:00000000 $t
+C:\Users\wyx12\AppData\Local\Temp\ccKS2Eid.s:50     .text.STMFLASH_Write_NoCheck:00000000 STMFLASH_Write_NoCheck
+C:\Users\wyx12\AppData\Local\Temp\ccKS2Eid.s:107    .text.FlashRead:00000000 $t
+C:\Users\wyx12\AppData\Local\Temp\ccKS2Eid.s:113    .text.FlashRead:00000000 FlashRead
+C:\Users\wyx12\AppData\Local\Temp\ccKS2Eid.s:170    .text.FlashWrite:00000000 $t
+C:\Users\wyx12\AppData\Local\Temp\ccKS2Eid.s:176    .text.FlashWrite:00000000 FlashWrite
+C:\Users\wyx12\AppData\Local\Temp\ccKS2Eid.s:404    .text.FlashWrite:000000e4 $d
+
+UNDEFINED SYMBOLS
+HAL_FLASH_Program
+HAL_FLASH_Unlock
+FLASH_WaitForLastOperation
+FLASH_PageErase
+HAL_FLASH_Lock

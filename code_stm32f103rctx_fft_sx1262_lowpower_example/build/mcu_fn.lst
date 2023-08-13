@@ -1,0 +1,1981 @@
+ARM GAS  C:\Users\wyx12\AppData\Local\Temp\ccdYKey1.s 			page 1
+
+
+   1              		.cpu cortex-m3
+   2              		.arch armv7-m
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 1
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.file	"mcu_fn.c"
+  14              		.text
+  15              	.Ltext0:
+  16              		.cfi_sections	.debug_frame
+  17              		.file 1 "Modules/mcu/Src/mcu_fn.c"
+  18              		.section	.rodata.ArrayToStr.str1.4,"aMS",%progbits,1
+  19              		.align	2
+  20              	.LC0:
+  21 0000 25303278 		.ascii	"%02x\000"
+  21      00
+  22              		.section	.text.ArrayToStr,"ax",%progbits
+  23              		.align	1
+  24              		.syntax unified
+  25              		.thumb
+  26              		.thumb_func
+  28              	ArrayToStr:
+  29              	.LVL0:
+  30              	.LFB70:
+   1:Modules/mcu/Src/mcu_fn.c **** /*
+   2:Modules/mcu/Src/mcu_fn.c ****  * @Author: MajorZpley
+   3:Modules/mcu/Src/mcu_fn.c ****  * @Date: 2023-08-03 17:51:01
+   4:Modules/mcu/Src/mcu_fn.c ****  * @LastEditTime: 2023-08-03 18:20:05
+   5:Modules/mcu/Src/mcu_fn.c ****  * @LastEditors: your name
+   6:Modules/mcu/Src/mcu_fn.c ****  * @Description:
+   7:Modules/mcu/Src/mcu_fn.c ****  * @FilePath: \stm32f103rctx+sx1262+sound2\Modules\mcu\Src\mcu_fn.c
+   8:Modules/mcu/Src/mcu_fn.c ****  * practice makes perfect!
+   9:Modules/mcu/Src/mcu_fn.c ****  */
+  10:Modules/mcu/Src/mcu_fn.c **** #include "mcu_fn.h"
+  11:Modules/mcu/Src/mcu_fn.c **** #include "string.h"
+  12:Modules/mcu/Src/mcu_fn.c **** #include "stdio.h"
+  13:Modules/mcu/Src/mcu_fn.c **** #include "mcu_flash.h"
+  14:Modules/mcu/Src/mcu_fn.c **** // 初始化lora对象
+  15:Modules/mcu/Src/mcu_fn.c **** _MCU_LORA_OBJECT loraObject = {
+  16:Modules/mcu/Src/mcu_fn.c ****     .txFrame = {0},
+  17:Modules/mcu/Src/mcu_fn.c **** };
+  18:Modules/mcu/Src/mcu_fn.c **** 
+  19:Modules/mcu/Src/mcu_fn.c **** _ConfigInfo info = {
+  20:Modules/mcu/Src/mcu_fn.c ****     .ampThreshold = 100,  // 100微米
+  21:Modules/mcu/Src/mcu_fn.c ****     .freqThreshold = 100, // 100Hz
+  22:Modules/mcu/Src/mcu_fn.c ****     .highSendTime = 60,   // 60S
+  23:Modules/mcu/Src/mcu_fn.c ****     .lowSendTime = 120,   // 120S
+  24:Modules/mcu/Src/mcu_fn.c ****     .sampleTime = 10,     // 10S
+  25:Modules/mcu/Src/mcu_fn.c **** };
+  26:Modules/mcu/Src/mcu_fn.c **** 
+  27:Modules/mcu/Src/mcu_fn.c **** _ConfigInfo debug = {
+ARM GAS  C:\Users\wyx12\AppData\Local\Temp\ccdYKey1.s 			page 2
+
+
+  28:Modules/mcu/Src/mcu_fn.c ****     .ampThreshold = 10000,  // 100微米
+  29:Modules/mcu/Src/mcu_fn.c ****     .freqThreshold = 10000, // 100Hz
+  30:Modules/mcu/Src/mcu_fn.c ****     .highSendTime = 60,     // 60S
+  31:Modules/mcu/Src/mcu_fn.c ****     .lowSendTime = 120,     // 120S
+  32:Modules/mcu/Src/mcu_fn.c ****     .sampleTime = 10,       // 10S
+  33:Modules/mcu/Src/mcu_fn.c **** };
+  34:Modules/mcu/Src/mcu_fn.c **** 
+  35:Modules/mcu/Src/mcu_fn.c **** _RTCBKP_STORAGE_VALUE stackValue = {
+  36:Modules/mcu/Src/mcu_fn.c ****     .ampl = 0,
+  37:Modules/mcu/Src/mcu_fn.c ****     .freq = 0,
+  38:Modules/mcu/Src/mcu_fn.c ****     .sampleSec = 0,
+  39:Modules/mcu/Src/mcu_fn.c ****     .sendSec = 0,
+  40:Modules/mcu/Src/mcu_fn.c ****     .record = writeRtcBKP,
+  41:Modules/mcu/Src/mcu_fn.c ****     .copy = readRtcBKP,
+  42:Modules/mcu/Src/mcu_fn.c **** };
+  43:Modules/mcu/Src/mcu_fn.c **** 
+  44:Modules/mcu/Src/mcu_fn.c **** void mcu_into_standbyMode(void)
+  45:Modules/mcu/Src/mcu_fn.c **** {
+  46:Modules/mcu/Src/mcu_fn.c ****     __HAL_PWR_CLEAR_FLAG(PWR_FLAG_WU);
+  47:Modules/mcu/Src/mcu_fn.c ****     HAL_SuspendTick();
+  48:Modules/mcu/Src/mcu_fn.c ****     HAL_PWR_EnterSTANDBYMode();
+  49:Modules/mcu/Src/mcu_fn.c **** }
+  50:Modules/mcu/Src/mcu_fn.c **** 
+  51:Modules/mcu/Src/mcu_fn.c **** void mcu_gpio_into_mode_analog(void)
+  52:Modules/mcu/Src/mcu_fn.c **** {
+  53:Modules/mcu/Src/mcu_fn.c ****     GPIO_InitTypeDef gpioStructure;
+  54:Modules/mcu/Src/mcu_fn.c ****     __HAL_RCC_GPIOC_CLK_ENABLE();
+  55:Modules/mcu/Src/mcu_fn.c ****     __HAL_RCC_GPIOD_CLK_ENABLE();
+  56:Modules/mcu/Src/mcu_fn.c ****     __HAL_RCC_GPIOA_CLK_ENABLE();
+  57:Modules/mcu/Src/mcu_fn.c ****     __HAL_RCC_GPIOB_CLK_ENABLE();
+  58:Modules/mcu/Src/mcu_fn.c ****     gpioStructure.Pin = GPIO_PIN_All;
+  59:Modules/mcu/Src/mcu_fn.c ****     gpioStructure.Mode = GPIO_MODE_ANALOG;
+  60:Modules/mcu/Src/mcu_fn.c ****     gpioStructure.Pull = GPIO_NOPULL;
+  61:Modules/mcu/Src/mcu_fn.c ****     HAL_GPIO_Init(GPIOA, &gpioStructure);
+  62:Modules/mcu/Src/mcu_fn.c ****     HAL_GPIO_Init(GPIOB, &gpioStructure);
+  63:Modules/mcu/Src/mcu_fn.c ****     HAL_GPIO_Init(GPIOC, &gpioStructure);
+  64:Modules/mcu/Src/mcu_fn.c ****     HAL_GPIO_Init(GPIOD, &gpioStructure);
+  65:Modules/mcu/Src/mcu_fn.c **** }
+  66:Modules/mcu/Src/mcu_fn.c **** 
+  67:Modules/mcu/Src/mcu_fn.c **** /// @brief 将16进制的数组转换成字符串，如0x12345678->"12345678"
+  68:Modules/mcu/Src/mcu_fn.c **** /// @param Buff 输入的数组
+  69:Modules/mcu/Src/mcu_fn.c **** /// @param BuffLen 输入的数组长度
+  70:Modules/mcu/Src/mcu_fn.c **** /// @param OutputStr 输出的字符串
+  71:Modules/mcu/Src/mcu_fn.c **** /// @return 字符串字节数
+  72:Modules/mcu/Src/mcu_fn.c **** static int ArrayToStr(unsigned char *Buff, unsigned int BuffLen, char *OutputStr)
+  73:Modules/mcu/Src/mcu_fn.c **** {
+  31              		.loc 1 73 1 view -0
+  32              		.cfi_startproc
+  33              		@ args = 0, pretend = 0, frame = 384
+  34              		@ frame_needed = 0, uses_anonymous_args = 0
+  35              		.loc 1 73 1 is_stmt 0 view .LVU1
+  36 0000 F0B5     		push	{r4, r5, r6, r7, lr}
+  37              	.LCFI0:
+  38              		.cfi_def_cfa_offset 20
+  39              		.cfi_offset 4, -20
+  40              		.cfi_offset 5, -16
+  41              		.cfi_offset 6, -12
+ARM GAS  C:\Users\wyx12\AppData\Local\Temp\ccdYKey1.s 			page 3
+
+
+  42              		.cfi_offset 7, -8
+  43              		.cfi_offset 14, -4
+  44 0002 E1B0     		sub	sp, sp, #388
+  45              	.LCFI1:
+  46              		.cfi_def_cfa_offset 408
+  47 0004 0646     		mov	r6, r0
+  48 0006 0D46     		mov	r5, r1
+  49 0008 1746     		mov	r7, r2
+  74:Modules/mcu/Src/mcu_fn.c ****     int i = 0;
+  50              		.loc 1 74 5 is_stmt 1 view .LVU2
+  51              	.LVL1:
+  75:Modules/mcu/Src/mcu_fn.c ****     char TempBuff[128] = {0};
+  52              		.loc 1 75 5 view .LVU3
+  53              		.loc 1 75 10 is_stmt 0 view .LVU4
+  54 000a 0024     		movs	r4, #0
+  55 000c 4094     		str	r4, [sp, #256]
+  56 000e 7C22     		movs	r2, #124
+  57              	.LVL2:
+  58              		.loc 1 75 10 view .LVU5
+  59 0010 2146     		mov	r1, r4
+  60              	.LVL3:
+  61              		.loc 1 75 10 view .LVU6
+  62 0012 41A8     		add	r0, sp, #260
+  63              	.LVL4:
+  64              		.loc 1 75 10 view .LVU7
+  65 0014 FFF7FEFF 		bl	memset
+  66              	.LVL5:
+  76:Modules/mcu/Src/mcu_fn.c ****     char strBuff[256] = {0};
+  67              		.loc 1 76 5 is_stmt 1 view .LVU8
+  68              		.loc 1 76 10 is_stmt 0 view .LVU9
+  69 0018 0094     		str	r4, [sp]
+  70 001a FC22     		movs	r2, #252
+  71 001c 2146     		mov	r1, r4
+  72 001e 01A8     		add	r0, sp, #4
+  73 0020 FFF7FEFF 		bl	memset
+  74              	.LVL6:
+  77:Modules/mcu/Src/mcu_fn.c **** 
+  78:Modules/mcu/Src/mcu_fn.c ****     for (i = 0; i < BuffLen; i++)
+  75              		.loc 1 78 5 is_stmt 1 view .LVU10
+  76              		.loc 1 78 5 is_stmt 0 view .LVU11
+  77 0024 0AE0     		b	.L2
+  78              	.LVL7:
+  79              	.L3:
+  79:Modules/mcu/Src/mcu_fn.c ****     {
+  80:Modules/mcu/Src/mcu_fn.c ****         sprintf(TempBuff, "%02x", Buff[i]);      // 以十六进制格式输出到TempBuff，宽度
+  80              		.loc 1 80 9 is_stmt 1 discriminator 3 view .LVU12
+  81 0026 325D     		ldrb	r2, [r6, r4]	@ zero_extendqisi2
+  82 0028 0A49     		ldr	r1, .L5
+  83 002a 40A8     		add	r0, sp, #256
+  84 002c FFF7FEFF 		bl	sprintf
+  85              	.LVL8:
+  81:Modules/mcu/Src/mcu_fn.c ****         strncat(strBuff, TempBuff, BuffLen * 2); // 将TempBuff追加到strBuff结尾
+  86              		.loc 1 81 9 discriminator 3 view .LVU13
+  87 0030 6A00     		lsls	r2, r5, #1
+  88 0032 40A9     		add	r1, sp, #256
+  89 0034 6846     		mov	r0, sp
+  90 0036 FFF7FEFF 		bl	strncat
+ARM GAS  C:\Users\wyx12\AppData\Local\Temp\ccdYKey1.s 			page 4
+
+
+  91              	.LVL9:
+  78:Modules/mcu/Src/mcu_fn.c ****     {
+  92              		.loc 1 78 31 discriminator 3 view .LVU14
+  93 003a 0134     		adds	r4, r4, #1
+  94              	.LVL10:
+  95              	.L2:
+  78:Modules/mcu/Src/mcu_fn.c ****     {
+  96              		.loc 1 78 19 discriminator 1 view .LVU15
+  97 003c AC42     		cmp	r4, r5
+  98 003e F2D3     		bcc	.L3
+  82:Modules/mcu/Src/mcu_fn.c ****     }
+  83:Modules/mcu/Src/mcu_fn.c ****     strncpy(OutputStr, strBuff, BuffLen * 2); // 将strBuff复制到OutputStr
+  99              		.loc 1 83 5 view .LVU16
+ 100 0040 6D00     		lsls	r5, r5, #1
+ 101              	.LVL11:
+ 102              		.loc 1 83 5 is_stmt 0 view .LVU17
+ 103 0042 2A46     		mov	r2, r5
+ 104 0044 6946     		mov	r1, sp
+ 105 0046 3846     		mov	r0, r7
+ 106 0048 FFF7FEFF 		bl	strncpy
+ 107              	.LVL12:
+  84:Modules/mcu/Src/mcu_fn.c ****     return BuffLen * 2;
+ 108              		.loc 1 84 5 is_stmt 1 view .LVU18
+  85:Modules/mcu/Src/mcu_fn.c **** }
+ 109              		.loc 1 85 1 is_stmt 0 view .LVU19
+ 110 004c 2846     		mov	r0, r5
+ 111 004e 61B0     		add	sp, sp, #388
+ 112              	.LCFI2:
+ 113              		.cfi_def_cfa_offset 20
+ 114              		@ sp needed
+ 115 0050 F0BD     		pop	{r4, r5, r6, r7, pc}
+ 116              	.LVL13:
+ 117              	.L6:
+ 118              		.loc 1 85 1 view .LVU20
+ 119 0052 00BF     		.align	2
+ 120              	.L5:
+ 121 0054 00000000 		.word	.LC0
+ 122              		.cfi_endproc
+ 123              	.LFE70:
+ 125              		.section	.text.string2hex,"ax",%progbits
+ 126              		.align	1
+ 127              		.syntax unified
+ 128              		.thumb
+ 129              		.thumb_func
+ 131              	string2hex:
+ 132              	.LVL14:
+ 133              	.LFB73:
+  86:Modules/mcu/Src/mcu_fn.c **** 
+  87:Modules/mcu/Src/mcu_fn.c **** uint8_t mcu_wait_get_userinfo(int timeout)
+  88:Modules/mcu/Src/mcu_fn.c **** {
+  89:Modules/mcu/Src/mcu_fn.c ****     uint16_t cnt = 0;
+  90:Modules/mcu/Src/mcu_fn.c ****     uint8_t result = 0;
+  91:Modules/mcu/Src/mcu_fn.c ****     while (cnt <= (timeout / 200))
+  92:Modules/mcu/Src/mcu_fn.c ****     {
+  93:Modules/mcu/Src/mcu_fn.c ****         WDOG_FEED;
+  94:Modules/mcu/Src/mcu_fn.c ****         Radio.IrqProcess();
+  95:Modules/mcu/Src/mcu_fn.c ****         LED_ON;
+ARM GAS  C:\Users\wyx12\AppData\Local\Temp\ccdYKey1.s 			page 5
+
+
+  96:Modules/mcu/Src/mcu_fn.c ****         HAL_Delay(100);
+  97:Modules/mcu/Src/mcu_fn.c ****         LED_OFF;
+  98:Modules/mcu/Src/mcu_fn.c ****         HAL_Delay(100);
+  99:Modules/mcu/Src/mcu_fn.c ****         cnt++;
+ 100:Modules/mcu/Src/mcu_fn.c ****         if (SX1262_State == RX_Done)
+ 101:Modules/mcu/Src/mcu_fn.c ****         {
+ 102:Modules/mcu/Src/mcu_fn.c ****             if (RF_RX_Buffer[0] == 0xbb)
+ 103:Modules/mcu/Src/mcu_fn.c ****             {
+ 104:Modules/mcu/Src/mcu_fn.c ****                 char get_sn[10] = {0};
+ 105:Modules/mcu/Src/mcu_fn.c ****                 ArrayToStr(&RF_RX_Buffer[1], 5, get_sn);
+ 106:Modules/mcu/Src/mcu_fn.c ****                 if (!strcmp(get_sn, SN))
+ 107:Modules/mcu/Src/mcu_fn.c ****                 {
+ 108:Modules/mcu/Src/mcu_fn.c ****                     result = 1;
+ 109:Modules/mcu/Src/mcu_fn.c ****                     break;
+ 110:Modules/mcu/Src/mcu_fn.c ****                 }
+ 111:Modules/mcu/Src/mcu_fn.c ****             }
+ 112:Modules/mcu/Src/mcu_fn.c ****         }
+ 113:Modules/mcu/Src/mcu_fn.c ****     }
+ 114:Modules/mcu/Src/mcu_fn.c ****     HAL_Delay(100); // 此延时绝不可删去,否则解析可能出错
+ 115:Modules/mcu/Src/mcu_fn.c ****     if (result)
+ 116:Modules/mcu/Src/mcu_fn.c ****     {
+ 117:Modules/mcu/Src/mcu_fn.c ****         /*TODO:处理数据*/
+ 118:Modules/mcu/Src/mcu_fn.c ****         info.ampThreshold = RF_RX_Buffer[6] << 8 | RF_RX_Buffer[7];
+ 119:Modules/mcu/Src/mcu_fn.c ****         info.freqThreshold = RF_RX_Buffer[8] << 8 | RF_RX_Buffer[9];
+ 120:Modules/mcu/Src/mcu_fn.c ****         info.sampleTime = RF_RX_Buffer[10] << 24 | RF_RX_Buffer[11] << 16 | RF_RX_Buffer[12] << 8 |
+ 121:Modules/mcu/Src/mcu_fn.c ****         info.lowSendTime = RF_RX_Buffer[14] << 24 | RF_RX_Buffer[15] << 16 | RF_RX_Buffer[16] << 8 
+ 122:Modules/mcu/Src/mcu_fn.c ****         info.highSendTime = RF_RX_Buffer[18] << 24 | RF_RX_Buffer[19] << 16 | RF_RX_Buffer[20] << 8
+ 123:Modules/mcu/Src/mcu_fn.c ****         FlashWrite(FLASH_SAVE_ADDR, (uint16_t *)&info, sizeof(info)); // 读取flash中的配置信
+ 124:Modules/mcu/Src/mcu_fn.c ****         return 1;
+ 125:Modules/mcu/Src/mcu_fn.c ****     }
+ 126:Modules/mcu/Src/mcu_fn.c ****     else
+ 127:Modules/mcu/Src/mcu_fn.c ****     {
+ 128:Modules/mcu/Src/mcu_fn.c ****         return 0;
+ 129:Modules/mcu/Src/mcu_fn.c ****     }
+ 130:Modules/mcu/Src/mcu_fn.c **** }
+ 131:Modules/mcu/Src/mcu_fn.c **** 
+ 132:Modules/mcu/Src/mcu_fn.c **** /*************************************************
+ 133:Modules/mcu/Src/mcu_fn.c **** Function: 		hex2string
+ 134:Modules/mcu/Src/mcu_fn.c **** Description: 	hex字符数组转换成string字符串，用于printf显示等
+ 135:Modules/mcu/Src/mcu_fn.c **** Input: 			hex:原字符数组
+ 136:Modules/mcu/Src/mcu_fn.c ****                 len:hex数组的长度
+ 137:Modules/mcu/Src/mcu_fn.c **** Output: 		ascII:输出的字符串
+ 138:Modules/mcu/Src/mcu_fn.c ****                 newlen:输出的字符串长度
+ 139:Modules/mcu/Src/mcu_fn.c **** Return:
+ 140:Modules/mcu/Src/mcu_fn.c **** *************************************************/
+ 141:Modules/mcu/Src/mcu_fn.c **** static void hex2string(char *hex, char *ascII, int len, int *newlen)
+ 142:Modules/mcu/Src/mcu_fn.c **** {
+ 143:Modules/mcu/Src/mcu_fn.c ****     int i = 0;
+ 144:Modules/mcu/Src/mcu_fn.c ****     char newchar[100] = {0};
+ 145:Modules/mcu/Src/mcu_fn.c ****     *newlen = len * 3;
+ 146:Modules/mcu/Src/mcu_fn.c ****     for (i = 0; i < len; i++)
+ 147:Modules/mcu/Src/mcu_fn.c ****     {
+ 148:Modules/mcu/Src/mcu_fn.c ****         sprintf(newchar, "%02X ", hex[i]);
+ 149:Modules/mcu/Src/mcu_fn.c ****         strcat(ascII, newchar);
+ 150:Modules/mcu/Src/mcu_fn.c ****     }
+ 151:Modules/mcu/Src/mcu_fn.c **** }
+ 152:Modules/mcu/Src/mcu_fn.c **** /*************************************************
+ARM GAS  C:\Users\wyx12\AppData\Local\Temp\ccdYKey1.s 			page 6
+
+
+ 153:Modules/mcu/Src/mcu_fn.c **** Function: 		string2hex
+ 154:Modules/mcu/Src/mcu_fn.c **** Description: 	字符串转换成hex,要求str只能是大写字母ABCDEF和数字
+ 155:Modules/mcu/Src/mcu_fn.c **** Input: 			str:要转换的字符串
+ 156:Modules/mcu/Src/mcu_fn.c **** Output: 		hex:转换后的hex字符数组
+ 157:Modules/mcu/Src/mcu_fn.c **** Return: 		0 成功
+ 158:Modules/mcu/Src/mcu_fn.c ****                 1 不符合规则，失败
+ 159:Modules/mcu/Src/mcu_fn.c **** *************************************************/
+ 160:Modules/mcu/Src/mcu_fn.c **** static int string2hex(char *str, char *hex)
+ 161:Modules/mcu/Src/mcu_fn.c **** {
+ 134              		.loc 1 161 1 is_stmt 1 view -0
+ 135              		.cfi_startproc
+ 136              		@ args = 0, pretend = 0, frame = 104
+ 137              		@ frame_needed = 0, uses_anonymous_args = 0
+ 138              		.loc 1 161 1 is_stmt 0 view .LVU22
+ 139 0000 30B5     		push	{r4, r5, lr}
+ 140              	.LCFI3:
+ 141              		.cfi_def_cfa_offset 12
+ 142              		.cfi_offset 4, -12
+ 143              		.cfi_offset 5, -8
+ 144              		.cfi_offset 14, -4
+ 145 0002 9BB0     		sub	sp, sp, #108
+ 146              	.LCFI4:
+ 147              		.cfi_def_cfa_offset 120
+ 148 0004 0546     		mov	r5, r0
+ 149 0006 0C46     		mov	r4, r1
+ 162:Modules/mcu/Src/mcu_fn.c ****     int i = 0;
+ 150              		.loc 1 162 5 is_stmt 1 view .LVU23
+ 151              	.LVL15:
+ 163:Modules/mcu/Src/mcu_fn.c ****     int j = 0;
+ 152              		.loc 1 163 5 view .LVU24
+ 164:Modules/mcu/Src/mcu_fn.c ****     unsigned char temp = 0;
+ 153              		.loc 1 164 5 view .LVU25
+ 165:Modules/mcu/Src/mcu_fn.c ****     int str_len = 0;
+ 154              		.loc 1 165 5 view .LVU26
+ 166:Modules/mcu/Src/mcu_fn.c ****     char str_cpy[100] = {'0'};
+ 155              		.loc 1 166 5 view .LVU27
+ 156              		.loc 1 166 10 is_stmt 0 view .LVU28
+ 157 0008 3023     		movs	r3, #48
+ 158 000a 0193     		str	r3, [sp, #4]
+ 159 000c 6022     		movs	r2, #96
+ 160 000e 0021     		movs	r1, #0
+ 161              	.LVL16:
+ 162              		.loc 1 166 10 view .LVU29
+ 163 0010 02A8     		add	r0, sp, #8
+ 164              	.LVL17:
+ 165              		.loc 1 166 10 view .LVU30
+ 166 0012 FFF7FEFF 		bl	memset
+ 167              	.LVL18:
+ 167:Modules/mcu/Src/mcu_fn.c ****     strcpy(str_cpy, str);
+ 168              		.loc 1 167 5 is_stmt 1 view .LVU31
+ 169 0016 2946     		mov	r1, r5
+ 170 0018 01A8     		add	r0, sp, #4
+ 171 001a FFF7FEFF 		bl	strcpy
+ 172              	.LVL19:
+ 168:Modules/mcu/Src/mcu_fn.c ****     str_len = strlen(str_cpy);
+ 173              		.loc 1 168 5 view .LVU32
+ 174              		.loc 1 168 15 is_stmt 0 view .LVU33
+ARM GAS  C:\Users\wyx12\AppData\Local\Temp\ccdYKey1.s 			page 7
+
+
+ 175 001e 01A8     		add	r0, sp, #4
+ 176 0020 FFF7FEFF 		bl	strlen
+ 177              	.LVL20:
+ 169:Modules/mcu/Src/mcu_fn.c ****     if (str_len == 0)
+ 178              		.loc 1 169 5 is_stmt 1 view .LVU34
+ 179              		.loc 1 169 8 is_stmt 0 view .LVU35
+ 180 0024 0028     		cmp	r0, #0
+ 181 0026 3FD0     		beq	.L15
+ 182 0028 8446     		mov	ip, r0
+ 163:Modules/mcu/Src/mcu_fn.c ****     unsigned char temp = 0;
+ 183              		.loc 1 163 9 view .LVU36
+ 184 002a 0020     		movs	r0, #0
+ 185              	.LVL21:
+ 162:Modules/mcu/Src/mcu_fn.c ****     int j = 0;
+ 186              		.loc 1 162 9 view .LVU37
+ 187 002c 0146     		mov	r1, r0
+ 188 002e 16E0     		b	.L9
+ 189              	.LVL22:
+ 190              	.L10:
+ 170:Modules/mcu/Src/mcu_fn.c ****     {
+ 171:Modules/mcu/Src/mcu_fn.c ****         return 1;
+ 172:Modules/mcu/Src/mcu_fn.c ****     }
+ 173:Modules/mcu/Src/mcu_fn.c ****     while (i < str_len)
+ 174:Modules/mcu/Src/mcu_fn.c ****     {
+ 175:Modules/mcu/Src/mcu_fn.c ****         if (str_cpy[i] >= '0' && str_cpy[i] <= 'F')
+ 176:Modules/mcu/Src/mcu_fn.c ****         {
+ 177:Modules/mcu/Src/mcu_fn.c ****             if ((str_cpy[i] >= '0' && str_cpy[i] <= '9'))
+ 178:Modules/mcu/Src/mcu_fn.c ****             {
+ 179:Modules/mcu/Src/mcu_fn.c ****                 temp = (str_cpy[i] & 0x0f) << 4;
+ 180:Modules/mcu/Src/mcu_fn.c ****             }
+ 181:Modules/mcu/Src/mcu_fn.c ****             else if (str_cpy[i] >= 'A' && str_cpy[i] <= 'F')
+ 191              		.loc 1 181 18 is_stmt 1 view .LVU38
+ 192              		.loc 1 181 40 is_stmt 0 view .LVU39
+ 193 0030 A3F14102 		sub	r2, r3, #65
+ 194 0034 D2B2     		uxtb	r2, r2
+ 195              		.loc 1 181 21 view .LVU40
+ 196 0036 052A     		cmp	r2, #5
+ 197 0038 3BD8     		bhi	.L17
+ 182:Modules/mcu/Src/mcu_fn.c ****             {
+ 183:Modules/mcu/Src/mcu_fn.c ****                 temp = ((str_cpy[i] + 0x09) & 0x0f) << 4;
+ 198              		.loc 1 183 17 is_stmt 1 view .LVU41
+ 199              		.loc 1 183 37 is_stmt 0 view .LVU42
+ 200 003a 0933     		adds	r3, r3, #9
+ 201              		.loc 1 183 53 view .LVU43
+ 202 003c 1B01     		lsls	r3, r3, #4
+ 203              		.loc 1 183 22 view .LVU44
+ 204 003e DBB2     		uxtb	r3, r3
+ 205              	.LVL23:
+ 206              		.loc 1 183 22 view .LVU45
+ 207 0040 1DE0     		b	.L11
+ 208              	.LVL24:
+ 209              	.L12:
+ 184:Modules/mcu/Src/mcu_fn.c ****             }
+ 185:Modules/mcu/Src/mcu_fn.c ****             else
+ 186:Modules/mcu/Src/mcu_fn.c ****             {
+ 187:Modules/mcu/Src/mcu_fn.c ****                 return 1;
+ 188:Modules/mcu/Src/mcu_fn.c ****             }
+ARM GAS  C:\Users\wyx12\AppData\Local\Temp\ccdYKey1.s 			page 8
+
+
+ 189:Modules/mcu/Src/mcu_fn.c ****         }
+ 190:Modules/mcu/Src/mcu_fn.c ****         else
+ 191:Modules/mcu/Src/mcu_fn.c ****         {
+ 192:Modules/mcu/Src/mcu_fn.c ****             return 1;
+ 193:Modules/mcu/Src/mcu_fn.c ****         }
+ 194:Modules/mcu/Src/mcu_fn.c ****         i++;
+ 195:Modules/mcu/Src/mcu_fn.c ****         if (str_cpy[i] >= '0' && str_cpy[i] <= 'F')
+ 196:Modules/mcu/Src/mcu_fn.c ****         {
+ 197:Modules/mcu/Src/mcu_fn.c ****             if (str_cpy[i] >= '0' && str_cpy[i] <= '9')
+ 198:Modules/mcu/Src/mcu_fn.c ****             {
+ 199:Modules/mcu/Src/mcu_fn.c ****                 temp |= (str_cpy[i] & 0x0f);
+ 200:Modules/mcu/Src/mcu_fn.c ****             }
+ 201:Modules/mcu/Src/mcu_fn.c ****             else if (str_cpy[i] >= 'A' && str_cpy[i] <= 'F')
+ 210              		.loc 1 201 18 is_stmt 1 view .LVU46
+ 211              		.loc 1 201 40 is_stmt 0 view .LVU47
+ 212 0042 A2F1410E 		sub	lr, r2, #65
+ 213 0046 5FFA8EFE 		uxtb	lr, lr
+ 214              		.loc 1 201 21 view .LVU48
+ 215 004a BEF1050F 		cmp	lr, #5
+ 216 004e 34D8     		bhi	.L19
+ 202:Modules/mcu/Src/mcu_fn.c ****             {
+ 203:Modules/mcu/Src/mcu_fn.c ****                 temp |= ((str_cpy[i] + 0x09) & 0x0f);
+ 217              		.loc 1 203 17 is_stmt 1 view .LVU49
+ 218              		.loc 1 203 38 is_stmt 0 view .LVU50
+ 219 0050 0932     		adds	r2, r2, #9
+ 220 0052 02F00F02 		and	r2, r2, #15
+ 221 0056 1343     		orrs	r3, r3, r2
+ 222              	.LVL25:
+ 223              	.L13:
+ 204:Modules/mcu/Src/mcu_fn.c ****             }
+ 205:Modules/mcu/Src/mcu_fn.c ****             else
+ 206:Modules/mcu/Src/mcu_fn.c ****             {
+ 207:Modules/mcu/Src/mcu_fn.c ****                 return 1;
+ 208:Modules/mcu/Src/mcu_fn.c ****             }
+ 209:Modules/mcu/Src/mcu_fn.c ****         }
+ 210:Modules/mcu/Src/mcu_fn.c ****         else
+ 211:Modules/mcu/Src/mcu_fn.c ****         {
+ 212:Modules/mcu/Src/mcu_fn.c ****             return 1;
+ 213:Modules/mcu/Src/mcu_fn.c ****         }
+ 214:Modules/mcu/Src/mcu_fn.c ****         i++;
+ 224              		.loc 1 214 9 is_stmt 1 view .LVU51
+ 225              		.loc 1 214 10 is_stmt 0 view .LVU52
+ 226 0058 0231     		adds	r1, r1, #2
+ 227              	.LVL26:
+ 215:Modules/mcu/Src/mcu_fn.c ****         hex[j] = temp;
+ 228              		.loc 1 215 9 is_stmt 1 view .LVU53
+ 229              		.loc 1 215 16 is_stmt 0 view .LVU54
+ 230 005a 2354     		strb	r3, [r4, r0]
+ 216:Modules/mcu/Src/mcu_fn.c ****         j++;
+ 231              		.loc 1 216 9 is_stmt 1 view .LVU55
+ 232              		.loc 1 216 10 is_stmt 0 view .LVU56
+ 233 005c 0130     		adds	r0, r0, #1
+ 234              	.LVL27:
+ 235              	.L9:
+ 173:Modules/mcu/Src/mcu_fn.c ****     {
+ 236              		.loc 1 173 14 is_stmt 1 view .LVU57
+ 237 005e 6145     		cmp	r1, ip
+ARM GAS  C:\Users\wyx12\AppData\Local\Temp\ccdYKey1.s 			page 9
+
+
+ 238 0060 20DA     		bge	.L21
+ 175:Modules/mcu/Src/mcu_fn.c ****         {
+ 239              		.loc 1 175 9 view .LVU58
+ 175:Modules/mcu/Src/mcu_fn.c ****         {
+ 240              		.loc 1 175 20 is_stmt 0 view .LVU59
+ 241 0062 01F16803 		add	r3, r1, #104
+ 242 0066 6B44     		add	r3, sp, r3
+ 243 0068 13F8643C 		ldrb	r3, [r3, #-100]	@ zero_extendqisi2
+ 175:Modules/mcu/Src/mcu_fn.c ****         {
+ 244              		.loc 1 175 31 view .LVU60
+ 245 006c A3F13002 		sub	r2, r3, #48
+ 246 0070 D2B2     		uxtb	r2, r2
+ 175:Modules/mcu/Src/mcu_fn.c ****         {
+ 247              		.loc 1 175 12 view .LVU61
+ 248 0072 162A     		cmp	r2, #22
+ 249 0074 1BD8     		bhi	.L16
+ 177:Modules/mcu/Src/mcu_fn.c ****             {
+ 250              		.loc 1 177 13 is_stmt 1 view .LVU62
+ 177:Modules/mcu/Src/mcu_fn.c ****             {
+ 251              		.loc 1 177 16 is_stmt 0 view .LVU63
+ 252 0076 092A     		cmp	r2, #9
+ 253 0078 DAD8     		bhi	.L10
+ 179:Modules/mcu/Src/mcu_fn.c ****             }
+ 254              		.loc 1 179 17 is_stmt 1 view .LVU64
+ 179:Modules/mcu/Src/mcu_fn.c ****             }
+ 255              		.loc 1 179 44 is_stmt 0 view .LVU65
+ 256 007a 1B01     		lsls	r3, r3, #4
+ 179:Modules/mcu/Src/mcu_fn.c ****             }
+ 257              		.loc 1 179 22 view .LVU66
+ 258 007c DBB2     		uxtb	r3, r3
+ 259              	.LVL28:
+ 260              	.L11:
+ 194:Modules/mcu/Src/mcu_fn.c ****         if (str_cpy[i] >= '0' && str_cpy[i] <= 'F')
+ 261              		.loc 1 194 9 is_stmt 1 view .LVU67
+ 195:Modules/mcu/Src/mcu_fn.c ****         {
+ 262              		.loc 1 195 9 view .LVU68
+ 195:Modules/mcu/Src/mcu_fn.c ****         {
+ 263              		.loc 1 195 20 is_stmt 0 view .LVU69
+ 264 007e 01F16902 		add	r2, r1, #105
+ 265 0082 6A44     		add	r2, sp, r2
+ 266 0084 12F8642C 		ldrb	r2, [r2, #-100]	@ zero_extendqisi2
+ 195:Modules/mcu/Src/mcu_fn.c ****         {
+ 267              		.loc 1 195 31 view .LVU70
+ 268 0088 A2F1300E 		sub	lr, r2, #48
+ 269 008c 5FFA8EFE 		uxtb	lr, lr
+ 195:Modules/mcu/Src/mcu_fn.c ****         {
+ 270              		.loc 1 195 12 view .LVU71
+ 271 0090 BEF1160F 		cmp	lr, #22
+ 272 0094 0FD8     		bhi	.L18
+ 197:Modules/mcu/Src/mcu_fn.c ****             {
+ 273              		.loc 1 197 13 is_stmt 1 view .LVU72
+ 197:Modules/mcu/Src/mcu_fn.c ****             {
+ 274              		.loc 1 197 16 is_stmt 0 view .LVU73
+ 275 0096 BEF1090F 		cmp	lr, #9
+ 276 009a D2D8     		bhi	.L12
+ 199:Modules/mcu/Src/mcu_fn.c ****             }
+ 277              		.loc 1 199 17 is_stmt 1 view .LVU74
+ARM GAS  C:\Users\wyx12\AppData\Local\Temp\ccdYKey1.s 			page 10
+
+
+ 278 009c 02F00F02 		and	r2, r2, #15
+ 279 00a0 1343     		orrs	r3, r3, r2
+ 280              	.LVL29:
+ 199:Modules/mcu/Src/mcu_fn.c ****             }
+ 281              		.loc 1 199 17 is_stmt 0 view .LVU75
+ 282 00a2 D9E7     		b	.L13
+ 283              	.LVL30:
+ 284              	.L21:
+ 217:Modules/mcu/Src/mcu_fn.c ****     }
+ 218:Modules/mcu/Src/mcu_fn.c ****     return 0;
+ 285              		.loc 1 218 12 view .LVU76
+ 286 00a4 0020     		movs	r0, #0
+ 287              	.LVL31:
+ 288              		.loc 1 218 12 view .LVU77
+ 289 00a6 00E0     		b	.L7
+ 290              	.LVL32:
+ 291              	.L15:
+ 171:Modules/mcu/Src/mcu_fn.c ****     }
+ 292              		.loc 1 171 16 view .LVU78
+ 293 00a8 0120     		movs	r0, #1
+ 294              	.LVL33:
+ 295              	.L7:
+ 219:Modules/mcu/Src/mcu_fn.c **** }
+ 296              		.loc 1 219 1 view .LVU79
+ 297 00aa 1BB0     		add	sp, sp, #108
+ 298              	.LCFI5:
+ 299              		.cfi_remember_state
+ 300              		.cfi_def_cfa_offset 12
+ 301              		@ sp needed
+ 302 00ac 30BD     		pop	{r4, r5, pc}
+ 303              	.LVL34:
+ 304              	.L16:
+ 305              	.LCFI6:
+ 306              		.cfi_restore_state
+ 192:Modules/mcu/Src/mcu_fn.c ****         }
+ 307              		.loc 1 192 20 view .LVU80
+ 308 00ae 0120     		movs	r0, #1
+ 309              	.LVL35:
+ 192:Modules/mcu/Src/mcu_fn.c ****         }
+ 310              		.loc 1 192 20 view .LVU81
+ 311 00b0 FBE7     		b	.L7
+ 312              	.LVL36:
+ 313              	.L17:
+ 187:Modules/mcu/Src/mcu_fn.c ****             }
+ 314              		.loc 1 187 24 view .LVU82
+ 315 00b2 0120     		movs	r0, #1
+ 316              	.LVL37:
+ 187:Modules/mcu/Src/mcu_fn.c ****             }
+ 317              		.loc 1 187 24 view .LVU83
+ 318 00b4 F9E7     		b	.L7
+ 319              	.LVL38:
+ 320              	.L18:
+ 212:Modules/mcu/Src/mcu_fn.c ****         }
+ 321              		.loc 1 212 20 view .LVU84
+ 322 00b6 0120     		movs	r0, #1
+ 323              	.LVL39:
+ 212:Modules/mcu/Src/mcu_fn.c ****         }
+ARM GAS  C:\Users\wyx12\AppData\Local\Temp\ccdYKey1.s 			page 11
+
+
+ 324              		.loc 1 212 20 view .LVU85
+ 325 00b8 F7E7     		b	.L7
+ 326              	.LVL40:
+ 327              	.L19:
+ 207:Modules/mcu/Src/mcu_fn.c ****             }
+ 328              		.loc 1 207 24 view .LVU86
+ 329 00ba 0120     		movs	r0, #1
+ 330              	.LVL41:
+ 207:Modules/mcu/Src/mcu_fn.c ****             }
+ 331              		.loc 1 207 24 view .LVU87
+ 332 00bc F5E7     		b	.L7
+ 333              		.cfi_endproc
+ 334              	.LFE73:
+ 336              		.section	.text.writeRtcBKP,"ax",%progbits
+ 337              		.align	1
+ 338              		.global	writeRtcBKP
+ 339              		.syntax unified
+ 340              		.thumb
+ 341              		.thumb_func
+ 343              	writeRtcBKP:
+ 344              	.LFB76:
+ 220:Modules/mcu/Src/mcu_fn.c **** 
+ 221:Modules/mcu/Src/mcu_fn.c **** extern uint8_t bat;                                    // 电池电量
+ 222:Modules/mcu/Src/mcu_fn.c **** extern float freq;                                     // 频率
+ 223:Modules/mcu/Src/mcu_fn.c **** extern float ampl;                                     // 振幅
+ 224:Modules/mcu/Src/mcu_fn.c **** #define ntohs(x) (0xff00 & x << 8) | (0x00ff & x >> 8) // 大小端转换
+ 225:Modules/mcu/Src/mcu_fn.c **** void generateFrame(void)
+ 226:Modules/mcu/Src/mcu_fn.c **** {
+ 227:Modules/mcu/Src/mcu_fn.c ****     if (!string2hex(SN, (char *)&loraObject.txFrame.sn[1]))
+ 228:Modules/mcu/Src/mcu_fn.c ****     {
+ 229:Modules/mcu/Src/mcu_fn.c ****         loraObject.txFrame.sn[0] = 0xaa;
+ 230:Modules/mcu/Src/mcu_fn.c ****         loraObject.txFrame.len = sizeof(_Frame_Tx);
+ 231:Modules/mcu/Src/mcu_fn.c ****         loraObject.txFrame.battery = bat;
+ 232:Modules/mcu/Src/mcu_fn.c ****         loraObject.txFrame.frequency = (uint16_t)stackValue.freq;
+ 233:Modules/mcu/Src/mcu_fn.c ****         loraObject.txFrame.frequency = ntohs(loraObject.txFrame.frequency);
+ 234:Modules/mcu/Src/mcu_fn.c ****         loraObject.txFrame.amplitude = (uint16_t)stackValue.ampl;
+ 235:Modules/mcu/Src/mcu_fn.c ****         loraObject.txFrame.amplitude = ntohs(loraObject.txFrame.amplitude);
+ 236:Modules/mcu/Src/mcu_fn.c ****         loraObject.txFrame.crc16 = Protocol_Crc16((uint8_t *)&loraObject.txFrame, sizeof(_Frame_Tx)
+ 237:Modules/mcu/Src/mcu_fn.c ****         loraObject.txFrame.crc16 = ntohs(loraObject.txFrame.crc16);
+ 238:Modules/mcu/Src/mcu_fn.c ****     }
+ 239:Modules/mcu/Src/mcu_fn.c **** }
+ 240:Modules/mcu/Src/mcu_fn.c **** 
+ 241:Modules/mcu/Src/mcu_fn.c **** uint16_t Protocol_Crc16(uint8_t *dat, uint8_t lenth)
+ 242:Modules/mcu/Src/mcu_fn.c **** {
+ 243:Modules/mcu/Src/mcu_fn.c ****     unsigned char i, _Flag, _LSB = 0;
+ 244:Modules/mcu/Src/mcu_fn.c ****     unsigned int CRC_Value = 0xFFFF;
+ 245:Modules/mcu/Src/mcu_fn.c ****     for (i = 0; i < lenth; i++) //=-1
+ 246:Modules/mcu/Src/mcu_fn.c ****     {
+ 247:Modules/mcu/Src/mcu_fn.c ****         CRC_Value ^= dat[i];
+ 248:Modules/mcu/Src/mcu_fn.c ****         for (_Flag = 0; _Flag <= 7; _Flag++)
+ 249:Modules/mcu/Src/mcu_fn.c ****         {
+ 250:Modules/mcu/Src/mcu_fn.c ****             _LSB = (unsigned char)(CRC_Value & 0x0001);
+ 251:Modules/mcu/Src/mcu_fn.c ****             CRC_Value = CRC_Value >> 1;
+ 252:Modules/mcu/Src/mcu_fn.c ****             if (_LSB == 1)
+ 253:Modules/mcu/Src/mcu_fn.c ****                 CRC_Value ^= 0xA001;
+ 254:Modules/mcu/Src/mcu_fn.c ****         }
+ 255:Modules/mcu/Src/mcu_fn.c ****     }
+ARM GAS  C:\Users\wyx12\AppData\Local\Temp\ccdYKey1.s 			page 12
+
+
+ 256:Modules/mcu/Src/mcu_fn.c ****     return CRC_Value;
+ 257:Modules/mcu/Src/mcu_fn.c **** }
+ 258:Modules/mcu/Src/mcu_fn.c **** 
+ 259:Modules/mcu/Src/mcu_fn.c **** void writeRtcBKP(void)
+ 260:Modules/mcu/Src/mcu_fn.c **** {
+ 345              		.loc 1 260 1 is_stmt 1 view -0
+ 346              		.cfi_startproc
+ 347              		@ args = 0, pretend = 0, frame = 0
+ 348              		@ frame_needed = 0, uses_anonymous_args = 0
+ 349 0000 38B5     		push	{r3, r4, r5, lr}
+ 350              	.LCFI7:
+ 351              		.cfi_def_cfa_offset 16
+ 352              		.cfi_offset 3, -16
+ 353              		.cfi_offset 4, -12
+ 354              		.cfi_offset 5, -8
+ 355              		.cfi_offset 14, -4
+ 261:Modules/mcu/Src/mcu_fn.c ****     stackValue.sampleSec += 10;
+ 356              		.loc 1 261 5 view .LVU89
+ 357              		.loc 1 261 15 is_stmt 0 view .LVU90
+ 358 0002 144C     		ldr	r4, .L24
+ 359 0004 A368     		ldr	r3, [r4, #8]
+ 360              		.loc 1 261 26 view .LVU91
+ 361 0006 0A33     		adds	r3, r3, #10
+ 362 0008 A360     		str	r3, [r4, #8]
+ 262:Modules/mcu/Src/mcu_fn.c ****     stackValue.sendSec += 10;
+ 363              		.loc 1 262 5 is_stmt 1 view .LVU92
+ 364              		.loc 1 262 15 is_stmt 0 view .LVU93
+ 365 000a E368     		ldr	r3, [r4, #12]
+ 366              		.loc 1 262 24 view .LVU94
+ 367 000c 0A33     		adds	r3, r3, #10
+ 368 000e E360     		str	r3, [r4, #12]
+ 263:Modules/mcu/Src/mcu_fn.c ****     stackValue.firstInitiate = 1; // 表示下一次则不是第一次上电
+ 369              		.loc 1 263 5 is_stmt 1 view .LVU95
+ 370              		.loc 1 263 30 is_stmt 0 view .LVU96
+ 371 0010 0121     		movs	r1, #1
+ 372 0012 2161     		str	r1, [r4, #16]
+ 264:Modules/mcu/Src/mcu_fn.c ****     HAL_RTCEx_BKUPWrite(&hrtc, RTC_BKP_DR1, stackValue.freq);
+ 373              		.loc 1 264 5 is_stmt 1 view .LVU97
+ 374 0014 104D     		ldr	r5, .L24+4
+ 375 0016 2268     		ldr	r2, [r4]
+ 376 0018 2846     		mov	r0, r5
+ 377 001a FFF7FEFF 		bl	HAL_RTCEx_BKUPWrite
+ 378              	.LVL42:
+ 265:Modules/mcu/Src/mcu_fn.c ****     HAL_RTCEx_BKUPWrite(&hrtc, RTC_BKP_DR2, stackValue.ampl);
+ 379              		.loc 1 265 5 view .LVU98
+ 380 001e 6268     		ldr	r2, [r4, #4]
+ 381 0020 0221     		movs	r1, #2
+ 382 0022 2846     		mov	r0, r5
+ 383 0024 FFF7FEFF 		bl	HAL_RTCEx_BKUPWrite
+ 384              	.LVL43:
+ 266:Modules/mcu/Src/mcu_fn.c ****     HAL_RTCEx_BKUPWrite(&hrtc, RTC_BKP_DR3, stackValue.sampleSec);
+ 385              		.loc 1 266 5 view .LVU99
+ 386 0028 A268     		ldr	r2, [r4, #8]
+ 387 002a 0321     		movs	r1, #3
+ 388 002c 2846     		mov	r0, r5
+ 389 002e FFF7FEFF 		bl	HAL_RTCEx_BKUPWrite
+ 390              	.LVL44:
+ARM GAS  C:\Users\wyx12\AppData\Local\Temp\ccdYKey1.s 			page 13
+
+
+ 267:Modules/mcu/Src/mcu_fn.c ****     HAL_RTCEx_BKUPWrite(&hrtc, RTC_BKP_DR4, stackValue.sendSec);
+ 391              		.loc 1 267 5 view .LVU100
+ 392 0032 E268     		ldr	r2, [r4, #12]
+ 393 0034 0421     		movs	r1, #4
+ 394 0036 2846     		mov	r0, r5
+ 395 0038 FFF7FEFF 		bl	HAL_RTCEx_BKUPWrite
+ 396              	.LVL45:
+ 268:Modules/mcu/Src/mcu_fn.c ****     HAL_RTCEx_BKUPWrite(&hrtc, RTC_BKP_DR5, stackValue.firstInitiate);
+ 397              		.loc 1 268 5 view .LVU101
+ 398 003c 2269     		ldr	r2, [r4, #16]
+ 399 003e 0521     		movs	r1, #5
+ 400 0040 2846     		mov	r0, r5
+ 401 0042 FFF7FEFF 		bl	HAL_RTCEx_BKUPWrite
+ 402              	.LVL46:
+ 269:Modules/mcu/Src/mcu_fn.c ****     HAL_RTCEx_BKUPWrite(&hrtc, RTC_BKP_DR6, stackValue.bat);
+ 403              		.loc 1 269 5 view .LVU102
+ 404 0046 6269     		ldr	r2, [r4, #20]
+ 405 0048 0621     		movs	r1, #6
+ 406 004a 2846     		mov	r0, r5
+ 407 004c FFF7FEFF 		bl	HAL_RTCEx_BKUPWrite
+ 408              	.LVL47:
+ 270:Modules/mcu/Src/mcu_fn.c **** }
+ 409              		.loc 1 270 1 is_stmt 0 view .LVU103
+ 410 0050 38BD     		pop	{r3, r4, r5, pc}
+ 411              	.L25:
+ 412 0052 00BF     		.align	2
+ 413              	.L24:
+ 414 0054 00000000 		.word	stackValue
+ 415 0058 00000000 		.word	hrtc
+ 416              		.cfi_endproc
+ 417              	.LFE76:
+ 419              		.section	.text.readRtcBKP,"ax",%progbits
+ 420              		.align	1
+ 421              		.global	readRtcBKP
+ 422              		.syntax unified
+ 423              		.thumb
+ 424              		.thumb_func
+ 426              	readRtcBKP:
+ 427              	.LFB77:
+ 271:Modules/mcu/Src/mcu_fn.c **** 
+ 272:Modules/mcu/Src/mcu_fn.c **** void readRtcBKP(void)
+ 273:Modules/mcu/Src/mcu_fn.c **** {
+ 428              		.loc 1 273 1 is_stmt 1 view -0
+ 429              		.cfi_startproc
+ 430              		@ args = 0, pretend = 0, frame = 0
+ 431              		@ frame_needed = 0, uses_anonymous_args = 0
+ 432 0000 38B5     		push	{r3, r4, r5, lr}
+ 433              	.LCFI8:
+ 434              		.cfi_def_cfa_offset 16
+ 435              		.cfi_offset 3, -16
+ 436              		.cfi_offset 4, -12
+ 437              		.cfi_offset 5, -8
+ 438              		.cfi_offset 14, -4
+ 274:Modules/mcu/Src/mcu_fn.c ****     stackValue.freq = HAL_RTCEx_BKUPRead(&hrtc, RTC_BKP_DR1);
+ 439              		.loc 1 274 5 view .LVU105
+ 440              		.loc 1 274 23 is_stmt 0 view .LVU106
+ 441 0002 104D     		ldr	r5, .L28
+ARM GAS  C:\Users\wyx12\AppData\Local\Temp\ccdYKey1.s 			page 14
+
+
+ 442 0004 0121     		movs	r1, #1
+ 443 0006 2846     		mov	r0, r5
+ 444 0008 FFF7FEFF 		bl	HAL_RTCEx_BKUPRead
+ 445              	.LVL48:
+ 446              		.loc 1 274 21 view .LVU107
+ 447 000c 0E4C     		ldr	r4, .L28+4
+ 448 000e 2060     		str	r0, [r4]
+ 275:Modules/mcu/Src/mcu_fn.c ****     stackValue.ampl = HAL_RTCEx_BKUPRead(&hrtc, RTC_BKP_DR2);
+ 449              		.loc 1 275 5 is_stmt 1 view .LVU108
+ 450              		.loc 1 275 23 is_stmt 0 view .LVU109
+ 451 0010 0221     		movs	r1, #2
+ 452 0012 2846     		mov	r0, r5
+ 453 0014 FFF7FEFF 		bl	HAL_RTCEx_BKUPRead
+ 454              	.LVL49:
+ 455              		.loc 1 275 21 view .LVU110
+ 456 0018 6060     		str	r0, [r4, #4]
+ 276:Modules/mcu/Src/mcu_fn.c ****     stackValue.sampleSec = HAL_RTCEx_BKUPRead(&hrtc, RTC_BKP_DR3);
+ 457              		.loc 1 276 5 is_stmt 1 view .LVU111
+ 458              		.loc 1 276 28 is_stmt 0 view .LVU112
+ 459 001a 0321     		movs	r1, #3
+ 460 001c 2846     		mov	r0, r5
+ 461 001e FFF7FEFF 		bl	HAL_RTCEx_BKUPRead
+ 462              	.LVL50:
+ 463              		.loc 1 276 26 view .LVU113
+ 464 0022 A060     		str	r0, [r4, #8]
+ 277:Modules/mcu/Src/mcu_fn.c ****     stackValue.sendSec = HAL_RTCEx_BKUPRead(&hrtc, RTC_BKP_DR4);
+ 465              		.loc 1 277 5 is_stmt 1 view .LVU114
+ 466              		.loc 1 277 26 is_stmt 0 view .LVU115
+ 467 0024 0421     		movs	r1, #4
+ 468 0026 2846     		mov	r0, r5
+ 469 0028 FFF7FEFF 		bl	HAL_RTCEx_BKUPRead
+ 470              	.LVL51:
+ 471              		.loc 1 277 24 view .LVU116
+ 472 002c E060     		str	r0, [r4, #12]
+ 278:Modules/mcu/Src/mcu_fn.c ****     stackValue.firstInitiate = HAL_RTCEx_BKUPRead(&hrtc, RTC_BKP_DR5);
+ 473              		.loc 1 278 5 is_stmt 1 view .LVU117
+ 474              		.loc 1 278 32 is_stmt 0 view .LVU118
+ 475 002e 0521     		movs	r1, #5
+ 476 0030 2846     		mov	r0, r5
+ 477 0032 FFF7FEFF 		bl	HAL_RTCEx_BKUPRead
+ 478              	.LVL52:
+ 479              		.loc 1 278 30 view .LVU119
+ 480 0036 2061     		str	r0, [r4, #16]
+ 279:Modules/mcu/Src/mcu_fn.c ****     stackValue.bat = HAL_RTCEx_BKUPRead(&hrtc, RTC_BKP_DR6);
+ 481              		.loc 1 279 5 is_stmt 1 view .LVU120
+ 482              		.loc 1 279 22 is_stmt 0 view .LVU121
+ 483 0038 0621     		movs	r1, #6
+ 484 003a 2846     		mov	r0, r5
+ 485 003c FFF7FEFF 		bl	HAL_RTCEx_BKUPRead
+ 486              	.LVL53:
+ 487              		.loc 1 279 20 view .LVU122
+ 488 0040 6061     		str	r0, [r4, #20]
+ 280:Modules/mcu/Src/mcu_fn.c **** }
+ 489              		.loc 1 280 1 view .LVU123
+ 490 0042 38BD     		pop	{r3, r4, r5, pc}
+ 491              	.L29:
+ 492              		.align	2
+ARM GAS  C:\Users\wyx12\AppData\Local\Temp\ccdYKey1.s 			page 15
+
+
+ 493              	.L28:
+ 494 0044 00000000 		.word	hrtc
+ 495 0048 00000000 		.word	stackValue
+ 496              		.cfi_endproc
+ 497              	.LFE77:
+ 499              		.section	.text.mcu_into_standbyMode,"ax",%progbits
+ 500              		.align	1
+ 501              		.global	mcu_into_standbyMode
+ 502              		.syntax unified
+ 503              		.thumb
+ 504              		.thumb_func
+ 506              	mcu_into_standbyMode:
+ 507              	.LFB68:
+  45:Modules/mcu/Src/mcu_fn.c ****     __HAL_PWR_CLEAR_FLAG(PWR_FLAG_WU);
+ 508              		.loc 1 45 1 is_stmt 1 view -0
+ 509              		.cfi_startproc
+ 510              		@ args = 0, pretend = 0, frame = 0
+ 511              		@ frame_needed = 0, uses_anonymous_args = 0
+ 512 0000 08B5     		push	{r3, lr}
+ 513              	.LCFI9:
+ 514              		.cfi_def_cfa_offset 8
+ 515              		.cfi_offset 3, -8
+ 516              		.cfi_offset 14, -4
+  46:Modules/mcu/Src/mcu_fn.c ****     HAL_SuspendTick();
+ 517              		.loc 1 46 5 view .LVU125
+ 518 0002 054A     		ldr	r2, .L32
+ 519 0004 1368     		ldr	r3, [r2]
+ 520 0006 43F00403 		orr	r3, r3, #4
+ 521 000a 1360     		str	r3, [r2]
+  47:Modules/mcu/Src/mcu_fn.c ****     HAL_PWR_EnterSTANDBYMode();
+ 522              		.loc 1 47 5 view .LVU126
+ 523 000c FFF7FEFF 		bl	HAL_SuspendTick
+ 524              	.LVL54:
+  48:Modules/mcu/Src/mcu_fn.c **** }
+ 525              		.loc 1 48 5 view .LVU127
+ 526 0010 FFF7FEFF 		bl	HAL_PWR_EnterSTANDBYMode
+ 527              	.LVL55:
+  49:Modules/mcu/Src/mcu_fn.c **** 
+ 528              		.loc 1 49 1 is_stmt 0 view .LVU128
+ 529 0014 08BD     		pop	{r3, pc}
+ 530              	.L33:
+ 531 0016 00BF     		.align	2
+ 532              	.L32:
+ 533 0018 00700040 		.word	1073770496
+ 534              		.cfi_endproc
+ 535              	.LFE68:
+ 537              		.section	.text.mcu_gpio_into_mode_analog,"ax",%progbits
+ 538              		.align	1
+ 539              		.global	mcu_gpio_into_mode_analog
+ 540              		.syntax unified
+ 541              		.thumb
+ 542              		.thumb_func
+ 544              	mcu_gpio_into_mode_analog:
+ 545              	.LFB69:
+  52:Modules/mcu/Src/mcu_fn.c ****     GPIO_InitTypeDef gpioStructure;
+ 546              		.loc 1 52 1 is_stmt 1 view -0
+ 547              		.cfi_startproc
+ARM GAS  C:\Users\wyx12\AppData\Local\Temp\ccdYKey1.s 			page 16
+
+
+ 548              		@ args = 0, pretend = 0, frame = 32
+ 549              		@ frame_needed = 0, uses_anonymous_args = 0
+ 550 0000 00B5     		push	{lr}
+ 551              	.LCFI10:
+ 552              		.cfi_def_cfa_offset 4
+ 553              		.cfi_offset 14, -4
+ 554 0002 89B0     		sub	sp, sp, #36
+ 555              	.LCFI11:
+ 556              		.cfi_def_cfa_offset 40
+  53:Modules/mcu/Src/mcu_fn.c ****     __HAL_RCC_GPIOC_CLK_ENABLE();
+ 557              		.loc 1 53 5 view .LVU130
+  54:Modules/mcu/Src/mcu_fn.c ****     __HAL_RCC_GPIOD_CLK_ENABLE();
+ 558              		.loc 1 54 5 view .LVU131
+ 559              	.LBB2:
+  54:Modules/mcu/Src/mcu_fn.c ****     __HAL_RCC_GPIOD_CLK_ENABLE();
+ 560              		.loc 1 54 5 view .LVU132
+  54:Modules/mcu/Src/mcu_fn.c ****     __HAL_RCC_GPIOD_CLK_ENABLE();
+ 561              		.loc 1 54 5 view .LVU133
+ 562 0004 1F4B     		ldr	r3, .L36
+ 563 0006 9A69     		ldr	r2, [r3, #24]
+ 564 0008 42F01002 		orr	r2, r2, #16
+ 565 000c 9A61     		str	r2, [r3, #24]
+  54:Modules/mcu/Src/mcu_fn.c ****     __HAL_RCC_GPIOD_CLK_ENABLE();
+ 566              		.loc 1 54 5 view .LVU134
+ 567 000e 9A69     		ldr	r2, [r3, #24]
+ 568 0010 02F01002 		and	r2, r2, #16
+ 569 0014 0092     		str	r2, [sp]
+  54:Modules/mcu/Src/mcu_fn.c ****     __HAL_RCC_GPIOD_CLK_ENABLE();
+ 570              		.loc 1 54 5 view .LVU135
+ 571 0016 009A     		ldr	r2, [sp]
+ 572              	.LBE2:
+  54:Modules/mcu/Src/mcu_fn.c ****     __HAL_RCC_GPIOD_CLK_ENABLE();
+ 573              		.loc 1 54 5 view .LVU136
+  55:Modules/mcu/Src/mcu_fn.c ****     __HAL_RCC_GPIOA_CLK_ENABLE();
+ 574              		.loc 1 55 5 view .LVU137
+ 575              	.LBB3:
+  55:Modules/mcu/Src/mcu_fn.c ****     __HAL_RCC_GPIOA_CLK_ENABLE();
+ 576              		.loc 1 55 5 view .LVU138
+  55:Modules/mcu/Src/mcu_fn.c ****     __HAL_RCC_GPIOA_CLK_ENABLE();
+ 577              		.loc 1 55 5 view .LVU139
+ 578 0018 9A69     		ldr	r2, [r3, #24]
+ 579 001a 42F02002 		orr	r2, r2, #32
+ 580 001e 9A61     		str	r2, [r3, #24]
+  55:Modules/mcu/Src/mcu_fn.c ****     __HAL_RCC_GPIOA_CLK_ENABLE();
+ 581              		.loc 1 55 5 view .LVU140
+ 582 0020 9A69     		ldr	r2, [r3, #24]
+ 583 0022 02F02002 		and	r2, r2, #32
+ 584 0026 0192     		str	r2, [sp, #4]
+  55:Modules/mcu/Src/mcu_fn.c ****     __HAL_RCC_GPIOA_CLK_ENABLE();
+ 585              		.loc 1 55 5 view .LVU141
+ 586 0028 019A     		ldr	r2, [sp, #4]
+ 587              	.LBE3:
+  55:Modules/mcu/Src/mcu_fn.c ****     __HAL_RCC_GPIOA_CLK_ENABLE();
+ 588              		.loc 1 55 5 view .LVU142
+  56:Modules/mcu/Src/mcu_fn.c ****     __HAL_RCC_GPIOB_CLK_ENABLE();
+ 589              		.loc 1 56 5 view .LVU143
+ 590              	.LBB4:
+ARM GAS  C:\Users\wyx12\AppData\Local\Temp\ccdYKey1.s 			page 17
+
+
+  56:Modules/mcu/Src/mcu_fn.c ****     __HAL_RCC_GPIOB_CLK_ENABLE();
+ 591              		.loc 1 56 5 view .LVU144
+  56:Modules/mcu/Src/mcu_fn.c ****     __HAL_RCC_GPIOB_CLK_ENABLE();
+ 592              		.loc 1 56 5 view .LVU145
+ 593 002a 9A69     		ldr	r2, [r3, #24]
+ 594 002c 42F00402 		orr	r2, r2, #4
+ 595 0030 9A61     		str	r2, [r3, #24]
+  56:Modules/mcu/Src/mcu_fn.c ****     __HAL_RCC_GPIOB_CLK_ENABLE();
+ 596              		.loc 1 56 5 view .LVU146
+ 597 0032 9A69     		ldr	r2, [r3, #24]
+ 598 0034 02F00402 		and	r2, r2, #4
+ 599 0038 0292     		str	r2, [sp, #8]
+  56:Modules/mcu/Src/mcu_fn.c ****     __HAL_RCC_GPIOB_CLK_ENABLE();
+ 600              		.loc 1 56 5 view .LVU147
+ 601 003a 029A     		ldr	r2, [sp, #8]
+ 602              	.LBE4:
+  56:Modules/mcu/Src/mcu_fn.c ****     __HAL_RCC_GPIOB_CLK_ENABLE();
+ 603              		.loc 1 56 5 view .LVU148
+  57:Modules/mcu/Src/mcu_fn.c ****     gpioStructure.Pin = GPIO_PIN_All;
+ 604              		.loc 1 57 5 view .LVU149
+ 605              	.LBB5:
+  57:Modules/mcu/Src/mcu_fn.c ****     gpioStructure.Pin = GPIO_PIN_All;
+ 606              		.loc 1 57 5 view .LVU150
+  57:Modules/mcu/Src/mcu_fn.c ****     gpioStructure.Pin = GPIO_PIN_All;
+ 607              		.loc 1 57 5 view .LVU151
+ 608 003c 9A69     		ldr	r2, [r3, #24]
+ 609 003e 42F00802 		orr	r2, r2, #8
+ 610 0042 9A61     		str	r2, [r3, #24]
+  57:Modules/mcu/Src/mcu_fn.c ****     gpioStructure.Pin = GPIO_PIN_All;
+ 611              		.loc 1 57 5 view .LVU152
+ 612 0044 9B69     		ldr	r3, [r3, #24]
+ 613 0046 03F00803 		and	r3, r3, #8
+ 614 004a 0393     		str	r3, [sp, #12]
+  57:Modules/mcu/Src/mcu_fn.c ****     gpioStructure.Pin = GPIO_PIN_All;
+ 615              		.loc 1 57 5 view .LVU153
+ 616 004c 039B     		ldr	r3, [sp, #12]
+ 617              	.LBE5:
+  57:Modules/mcu/Src/mcu_fn.c ****     gpioStructure.Pin = GPIO_PIN_All;
+ 618              		.loc 1 57 5 view .LVU154
+  58:Modules/mcu/Src/mcu_fn.c ****     gpioStructure.Mode = GPIO_MODE_ANALOG;
+ 619              		.loc 1 58 5 view .LVU155
+  58:Modules/mcu/Src/mcu_fn.c ****     gpioStructure.Mode = GPIO_MODE_ANALOG;
+ 620              		.loc 1 58 23 is_stmt 0 view .LVU156
+ 621 004e 4FF6FF73 		movw	r3, #65535
+ 622 0052 0493     		str	r3, [sp, #16]
+  59:Modules/mcu/Src/mcu_fn.c ****     gpioStructure.Pull = GPIO_NOPULL;
+ 623              		.loc 1 59 5 is_stmt 1 view .LVU157
+  59:Modules/mcu/Src/mcu_fn.c ****     gpioStructure.Pull = GPIO_NOPULL;
+ 624              		.loc 1 59 24 is_stmt 0 view .LVU158
+ 625 0054 0323     		movs	r3, #3
+ 626 0056 0593     		str	r3, [sp, #20]
+  60:Modules/mcu/Src/mcu_fn.c ****     HAL_GPIO_Init(GPIOA, &gpioStructure);
+ 627              		.loc 1 60 5 is_stmt 1 view .LVU159
+  60:Modules/mcu/Src/mcu_fn.c ****     HAL_GPIO_Init(GPIOA, &gpioStructure);
+ 628              		.loc 1 60 24 is_stmt 0 view .LVU160
+ 629 0058 0023     		movs	r3, #0
+ 630 005a 0693     		str	r3, [sp, #24]
+ARM GAS  C:\Users\wyx12\AppData\Local\Temp\ccdYKey1.s 			page 18
+
+
+  61:Modules/mcu/Src/mcu_fn.c ****     HAL_GPIO_Init(GPIOB, &gpioStructure);
+ 631              		.loc 1 61 5 is_stmt 1 view .LVU161
+ 632 005c 04A9     		add	r1, sp, #16
+ 633 005e 0A48     		ldr	r0, .L36+4
+ 634 0060 FFF7FEFF 		bl	HAL_GPIO_Init
+ 635              	.LVL56:
+  62:Modules/mcu/Src/mcu_fn.c ****     HAL_GPIO_Init(GPIOC, &gpioStructure);
+ 636              		.loc 1 62 5 view .LVU162
+ 637 0064 04A9     		add	r1, sp, #16
+ 638 0066 0948     		ldr	r0, .L36+8
+ 639 0068 FFF7FEFF 		bl	HAL_GPIO_Init
+ 640              	.LVL57:
+  63:Modules/mcu/Src/mcu_fn.c ****     HAL_GPIO_Init(GPIOD, &gpioStructure);
+ 641              		.loc 1 63 5 view .LVU163
+ 642 006c 04A9     		add	r1, sp, #16
+ 643 006e 0848     		ldr	r0, .L36+12
+ 644 0070 FFF7FEFF 		bl	HAL_GPIO_Init
+ 645              	.LVL58:
+  64:Modules/mcu/Src/mcu_fn.c **** }
+ 646              		.loc 1 64 5 view .LVU164
+ 647 0074 04A9     		add	r1, sp, #16
+ 648 0076 0748     		ldr	r0, .L36+16
+ 649 0078 FFF7FEFF 		bl	HAL_GPIO_Init
+ 650              	.LVL59:
+  65:Modules/mcu/Src/mcu_fn.c **** 
+ 651              		.loc 1 65 1 is_stmt 0 view .LVU165
+ 652 007c 09B0     		add	sp, sp, #36
+ 653              	.LCFI12:
+ 654              		.cfi_def_cfa_offset 4
+ 655              		@ sp needed
+ 656 007e 5DF804FB 		ldr	pc, [sp], #4
+ 657              	.L37:
+ 658 0082 00BF     		.align	2
+ 659              	.L36:
+ 660 0084 00100240 		.word	1073876992
+ 661 0088 00080140 		.word	1073809408
+ 662 008c 000C0140 		.word	1073810432
+ 663 0090 00100140 		.word	1073811456
+ 664 0094 00140140 		.word	1073812480
+ 665              		.cfi_endproc
+ 666              	.LFE69:
+ 668              		.section	.rodata.mcu_wait_get_userinfo.str1.4,"aMS",%progbits,1
+ 669              		.align	2
+ 670              	.LC1:
+ 671 0000 34393233 		.ascii	"4923330001\000"
+ 671      33333030 
+ 671      303100
+ 672              		.section	.text.mcu_wait_get_userinfo,"ax",%progbits
+ 673              		.align	1
+ 674              		.global	mcu_wait_get_userinfo
+ 675              		.syntax unified
+ 676              		.thumb
+ 677              		.thumb_func
+ 679              	mcu_wait_get_userinfo:
+ 680              	.LVL60:
+ 681              	.LFB71:
+  88:Modules/mcu/Src/mcu_fn.c ****     uint16_t cnt = 0;
+ARM GAS  C:\Users\wyx12\AppData\Local\Temp\ccdYKey1.s 			page 19
+
+
+ 682              		.loc 1 88 1 is_stmt 1 view -0
+ 683              		.cfi_startproc
+ 684              		@ args = 0, pretend = 0, frame = 16
+ 685              		@ frame_needed = 0, uses_anonymous_args = 0
+  88:Modules/mcu/Src/mcu_fn.c ****     uint16_t cnt = 0;
+ 686              		.loc 1 88 1 is_stmt 0 view .LVU167
+ 687 0000 70B5     		push	{r4, r5, r6, lr}
+ 688              	.LCFI13:
+ 689              		.cfi_def_cfa_offset 16
+ 690              		.cfi_offset 4, -16
+ 691              		.cfi_offset 5, -12
+ 692              		.cfi_offset 6, -8
+ 693              		.cfi_offset 14, -4
+ 694 0002 84B0     		sub	sp, sp, #16
+ 695              	.LCFI14:
+ 696              		.cfi_def_cfa_offset 32
+ 697 0004 0646     		mov	r6, r0
+  89:Modules/mcu/Src/mcu_fn.c ****     uint8_t result = 0;
+ 698              		.loc 1 89 5 is_stmt 1 view .LVU168
+ 699              	.LVL61:
+  90:Modules/mcu/Src/mcu_fn.c ****     while (cnt <= (timeout / 200))
+ 700              		.loc 1 90 5 view .LVU169
+  91:Modules/mcu/Src/mcu_fn.c ****     {
+ 701              		.loc 1 91 5 view .LVU170
+  89:Modules/mcu/Src/mcu_fn.c ****     uint8_t result = 0;
+ 702              		.loc 1 89 14 is_stmt 0 view .LVU171
+ 703 0006 0024     		movs	r4, #0
+ 704              	.LVL62:
+ 705              	.L39:
+  91:Modules/mcu/Src/mcu_fn.c ****     {
+ 706              		.loc 1 91 16 is_stmt 1 view .LVU172
+  91:Modules/mcu/Src/mcu_fn.c ****     {
+ 707              		.loc 1 91 28 is_stmt 0 view .LVU173
+ 708 0008 3A4A     		ldr	r2, .L48
+ 709 000a 82FB0632 		smull	r3, r2, r2, r6
+ 710 000e F317     		asrs	r3, r6, #31
+ 711 0010 C3EBA213 		rsb	r3, r3, r2, asr #6
+  91:Modules/mcu/Src/mcu_fn.c ****     {
+ 712              		.loc 1 91 16 view .LVU174
+ 713 0014 9C42     		cmp	r4, r3
+ 714 0016 32DC     		bgt	.L46
+  93:Modules/mcu/Src/mcu_fn.c ****         Radio.IrqProcess();
+ 715              		.loc 1 93 9 is_stmt 1 view .LVU175
+ 716 0018 374D     		ldr	r5, .L48+4
+ 717 001a 4021     		movs	r1, #64
+ 718 001c 2846     		mov	r0, r5
+ 719 001e FFF7FEFF 		bl	HAL_GPIO_TogglePin
+ 720              	.LVL63:
+  94:Modules/mcu/Src/mcu_fn.c ****         LED_ON;
+ 721              		.loc 1 94 9 view .LVU176
+  94:Modules/mcu/Src/mcu_fn.c ****         LED_ON;
+ 722              		.loc 1 94 14 is_stmt 0 view .LVU177
+ 723 0022 364B     		ldr	r3, .L48+8
+ 724 0024 1B6E     		ldr	r3, [r3, #96]
+  94:Modules/mcu/Src/mcu_fn.c ****         LED_ON;
+ 725              		.loc 1 94 9 view .LVU178
+ 726 0026 9847     		blx	r3
+ARM GAS  C:\Users\wyx12\AppData\Local\Temp\ccdYKey1.s 			page 20
+
+
+ 727              	.LVL64:
+  95:Modules/mcu/Src/mcu_fn.c ****         HAL_Delay(100);
+ 728              		.loc 1 95 9 is_stmt 1 view .LVU179
+ 729 0028 0022     		movs	r2, #0
+ 730 002a 8021     		movs	r1, #128
+ 731 002c 2846     		mov	r0, r5
+ 732 002e FFF7FEFF 		bl	HAL_GPIO_WritePin
+ 733              	.LVL65:
+  96:Modules/mcu/Src/mcu_fn.c ****         LED_OFF;
+ 734              		.loc 1 96 9 view .LVU180
+ 735 0032 6420     		movs	r0, #100
+ 736 0034 FFF7FEFF 		bl	HAL_Delay
+ 737              	.LVL66:
+  97:Modules/mcu/Src/mcu_fn.c ****         HAL_Delay(100);
+ 738              		.loc 1 97 9 view .LVU181
+ 739 0038 0122     		movs	r2, #1
+ 740 003a 8021     		movs	r1, #128
+ 741 003c 2846     		mov	r0, r5
+ 742 003e FFF7FEFF 		bl	HAL_GPIO_WritePin
+ 743              	.LVL67:
+  98:Modules/mcu/Src/mcu_fn.c ****         cnt++;
+ 744              		.loc 1 98 9 view .LVU182
+ 745 0042 6420     		movs	r0, #100
+ 746 0044 FFF7FEFF 		bl	HAL_Delay
+ 747              	.LVL68:
+  99:Modules/mcu/Src/mcu_fn.c ****         if (SX1262_State == RX_Done)
+ 748              		.loc 1 99 9 view .LVU183
+  99:Modules/mcu/Src/mcu_fn.c ****         if (SX1262_State == RX_Done)
+ 749              		.loc 1 99 12 is_stmt 0 view .LVU184
+ 750 0048 0134     		adds	r4, r4, #1
+ 751              	.LVL69:
+  99:Modules/mcu/Src/mcu_fn.c ****         if (SX1262_State == RX_Done)
+ 752              		.loc 1 99 12 view .LVU185
+ 753 004a A4B2     		uxth	r4, r4
+ 754              	.LVL70:
+ 100:Modules/mcu/Src/mcu_fn.c ****         {
+ 755              		.loc 1 100 9 is_stmt 1 view .LVU186
+ 100:Modules/mcu/Src/mcu_fn.c ****         {
+ 756              		.loc 1 100 26 is_stmt 0 view .LVU187
+ 757 004c 2C4B     		ldr	r3, .L48+12
+ 758 004e 1D78     		ldrb	r5, [r3]	@ zero_extendqisi2
+ 100:Modules/mcu/Src/mcu_fn.c ****         {
+ 759              		.loc 1 100 12 view .LVU188
+ 760 0050 012D     		cmp	r5, #1
+ 761 0052 D9D1     		bne	.L39
+ 102:Modules/mcu/Src/mcu_fn.c ****             {
+ 762              		.loc 1 102 13 is_stmt 1 view .LVU189
+ 102:Modules/mcu/Src/mcu_fn.c ****             {
+ 763              		.loc 1 102 29 is_stmt 0 view .LVU190
+ 764 0054 2B4B     		ldr	r3, .L48+16
+ 765 0056 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 102:Modules/mcu/Src/mcu_fn.c ****             {
+ 766              		.loc 1 102 16 view .LVU191
+ 767 0058 BB2B     		cmp	r3, #187
+ 768 005a D5D1     		bne	.L39
+ 769              	.LBB6:
+ 104:Modules/mcu/Src/mcu_fn.c ****                 ArrayToStr(&RF_RX_Buffer[1], 5, get_sn);
+ARM GAS  C:\Users\wyx12\AppData\Local\Temp\ccdYKey1.s 			page 21
+
+
+ 770              		.loc 1 104 17 is_stmt 1 view .LVU192
+ 104:Modules/mcu/Src/mcu_fn.c ****                 ArrayToStr(&RF_RX_Buffer[1], 5, get_sn);
+ 771              		.loc 1 104 22 is_stmt 0 view .LVU193
+ 772 005c 0023     		movs	r3, #0
+ 773 005e 0193     		str	r3, [sp, #4]
+ 774 0060 0293     		str	r3, [sp, #8]
+ 775 0062 ADF80C30 		strh	r3, [sp, #12]	@ movhi
+ 105:Modules/mcu/Src/mcu_fn.c ****                 if (!strcmp(get_sn, SN))
+ 776              		.loc 1 105 17 is_stmt 1 view .LVU194
+ 777 0066 01AA     		add	r2, sp, #4
+ 778 0068 0521     		movs	r1, #5
+ 779 006a 2748     		ldr	r0, .L48+20
+ 780 006c FFF7FEFF 		bl	ArrayToStr
+ 781              	.LVL71:
+ 106:Modules/mcu/Src/mcu_fn.c ****                 {
+ 782              		.loc 1 106 17 view .LVU195
+ 106:Modules/mcu/Src/mcu_fn.c ****                 {
+ 783              		.loc 1 106 22 is_stmt 0 view .LVU196
+ 784 0070 2649     		ldr	r1, .L48+24
+ 785 0072 01A8     		add	r0, sp, #4
+ 786 0074 FFF7FEFF 		bl	strcmp
+ 787              	.LVL72:
+ 106:Modules/mcu/Src/mcu_fn.c ****                 {
+ 788              		.loc 1 106 20 view .LVU197
+ 789 0078 0028     		cmp	r0, #0
+ 790 007a C5D1     		bne	.L39
+ 791 007c 00E0     		b	.L42
+ 792              	.L46:
+ 106:Modules/mcu/Src/mcu_fn.c ****                 {
+ 793              		.loc 1 106 20 view .LVU198
+ 794              	.LBE6:
+  90:Modules/mcu/Src/mcu_fn.c ****     while (cnt <= (timeout / 200))
+ 795              		.loc 1 90 13 view .LVU199
+ 796 007e 0025     		movs	r5, #0
+ 797              	.L42:
+ 798              	.LVL73:
+ 114:Modules/mcu/Src/mcu_fn.c ****     if (result)
+ 799              		.loc 1 114 5 is_stmt 1 view .LVU200
+ 800 0080 6420     		movs	r0, #100
+ 801 0082 FFF7FEFF 		bl	HAL_Delay
+ 802              	.LVL74:
+ 115:Modules/mcu/Src/mcu_fn.c ****     {
+ 803              		.loc 1 115 5 view .LVU201
+ 115:Modules/mcu/Src/mcu_fn.c ****     {
+ 804              		.loc 1 115 8 is_stmt 0 view .LVU202
+ 805 0086 15B9     		cbnz	r5, .L47
+ 806              	.L44:
+ 130:Modules/mcu/Src/mcu_fn.c **** 
+ 807              		.loc 1 130 1 view .LVU203
+ 808 0088 2846     		mov	r0, r5
+ 809 008a 04B0     		add	sp, sp, #16
+ 810              	.LCFI15:
+ 811              		.cfi_remember_state
+ 812              		.cfi_def_cfa_offset 16
+ 813              		@ sp needed
+ 814 008c 70BD     		pop	{r4, r5, r6, pc}
+ 815              	.LVL75:
+ARM GAS  C:\Users\wyx12\AppData\Local\Temp\ccdYKey1.s 			page 22
+
+
+ 816              	.L47:
+ 817              	.LCFI16:
+ 818              		.cfi_restore_state
+ 118:Modules/mcu/Src/mcu_fn.c ****         info.freqThreshold = RF_RX_Buffer[8] << 8 | RF_RX_Buffer[9];
+ 819              		.loc 1 118 9 is_stmt 1 view .LVU204
+ 118:Modules/mcu/Src/mcu_fn.c ****         info.freqThreshold = RF_RX_Buffer[8] << 8 | RF_RX_Buffer[9];
+ 820              		.loc 1 118 41 is_stmt 0 view .LVU205
+ 821 008e 1D4B     		ldr	r3, .L48+16
+ 822 0090 9979     		ldrb	r1, [r3, #6]	@ zero_extendqisi2
+ 118:Modules/mcu/Src/mcu_fn.c ****         info.freqThreshold = RF_RX_Buffer[8] << 8 | RF_RX_Buffer[9];
+ 823              		.loc 1 118 64 view .LVU206
+ 824 0092 DA79     		ldrb	r2, [r3, #7]	@ zero_extendqisi2
+ 118:Modules/mcu/Src/mcu_fn.c ****         info.freqThreshold = RF_RX_Buffer[8] << 8 | RF_RX_Buffer[9];
+ 825              		.loc 1 118 50 view .LVU207
+ 826 0094 42EA0122 		orr	r2, r2, r1, lsl #8
+ 118:Modules/mcu/Src/mcu_fn.c ****         info.freqThreshold = RF_RX_Buffer[8] << 8 | RF_RX_Buffer[9];
+ 827              		.loc 1 118 27 view .LVU208
+ 828 0098 1D49     		ldr	r1, .L48+28
+ 829 009a CA60     		str	r2, [r1, #12]
+ 119:Modules/mcu/Src/mcu_fn.c ****         info.sampleTime = RF_RX_Buffer[10] << 24 | RF_RX_Buffer[11] << 16 | RF_RX_Buffer[12] << 8 |
+ 830              		.loc 1 119 9 is_stmt 1 view .LVU209
+ 119:Modules/mcu/Src/mcu_fn.c ****         info.sampleTime = RF_RX_Buffer[10] << 24 | RF_RX_Buffer[11] << 16 | RF_RX_Buffer[12] << 8 |
+ 831              		.loc 1 119 42 is_stmt 0 view .LVU210
+ 832 009c 187A     		ldrb	r0, [r3, #8]	@ zero_extendqisi2
+ 119:Modules/mcu/Src/mcu_fn.c ****         info.sampleTime = RF_RX_Buffer[10] << 24 | RF_RX_Buffer[11] << 16 | RF_RX_Buffer[12] << 8 |
+ 833              		.loc 1 119 65 view .LVU211
+ 834 009e 5A7A     		ldrb	r2, [r3, #9]	@ zero_extendqisi2
+ 119:Modules/mcu/Src/mcu_fn.c ****         info.sampleTime = RF_RX_Buffer[10] << 24 | RF_RX_Buffer[11] << 16 | RF_RX_Buffer[12] << 8 |
+ 835              		.loc 1 119 51 view .LVU212
+ 836 00a0 42EA0022 		orr	r2, r2, r0, lsl #8
+ 119:Modules/mcu/Src/mcu_fn.c ****         info.sampleTime = RF_RX_Buffer[10] << 24 | RF_RX_Buffer[11] << 16 | RF_RX_Buffer[12] << 8 |
+ 837              		.loc 1 119 28 view .LVU213
+ 838 00a4 0A61     		str	r2, [r1, #16]
+ 120:Modules/mcu/Src/mcu_fn.c ****         info.lowSendTime = RF_RX_Buffer[14] << 24 | RF_RX_Buffer[15] << 16 | RF_RX_Buffer[16] << 8 
+ 839              		.loc 1 120 9 is_stmt 1 view .LVU214
+ 120:Modules/mcu/Src/mcu_fn.c ****         info.lowSendTime = RF_RX_Buffer[14] << 24 | RF_RX_Buffer[15] << 16 | RF_RX_Buffer[16] << 8 
+ 840              		.loc 1 120 39 is_stmt 0 view .LVU215
+ 841 00a6 987A     		ldrb	r0, [r3, #10]	@ zero_extendqisi2
+ 120:Modules/mcu/Src/mcu_fn.c ****         info.lowSendTime = RF_RX_Buffer[14] << 24 | RF_RX_Buffer[15] << 16 | RF_RX_Buffer[16] << 8 
+ 842              		.loc 1 120 64 view .LVU216
+ 843 00a8 DA7A     		ldrb	r2, [r3, #11]	@ zero_extendqisi2
+ 120:Modules/mcu/Src/mcu_fn.c ****         info.lowSendTime = RF_RX_Buffer[14] << 24 | RF_RX_Buffer[15] << 16 | RF_RX_Buffer[16] << 8 
+ 844              		.loc 1 120 69 view .LVU217
+ 845 00aa 1204     		lsls	r2, r2, #16
+ 120:Modules/mcu/Src/mcu_fn.c ****         info.lowSendTime = RF_RX_Buffer[14] << 24 | RF_RX_Buffer[15] << 16 | RF_RX_Buffer[16] << 8 
+ 846              		.loc 1 120 50 view .LVU218
+ 847 00ac 42EA0062 		orr	r2, r2, r0, lsl #24
+ 120:Modules/mcu/Src/mcu_fn.c ****         info.lowSendTime = RF_RX_Buffer[14] << 24 | RF_RX_Buffer[15] << 16 | RF_RX_Buffer[16] << 8 
+ 848              		.loc 1 120 89 view .LVU219
+ 849 00b0 187B     		ldrb	r0, [r3, #12]	@ zero_extendqisi2
+ 120:Modules/mcu/Src/mcu_fn.c ****         info.lowSendTime = RF_RX_Buffer[14] << 24 | RF_RX_Buffer[15] << 16 | RF_RX_Buffer[16] << 8 
+ 850              		.loc 1 120 75 view .LVU220
+ 851 00b2 42EA0022 		orr	r2, r2, r0, lsl #8
+ 120:Modules/mcu/Src/mcu_fn.c ****         info.lowSendTime = RF_RX_Buffer[14] << 24 | RF_RX_Buffer[15] << 16 | RF_RX_Buffer[16] << 8 
+ 852              		.loc 1 120 113 view .LVU221
+ 853 00b6 587B     		ldrb	r0, [r3, #13]	@ zero_extendqisi2
+ 120:Modules/mcu/Src/mcu_fn.c ****         info.lowSendTime = RF_RX_Buffer[14] << 24 | RF_RX_Buffer[15] << 16 | RF_RX_Buffer[16] << 8 
+ARM GAS  C:\Users\wyx12\AppData\Local\Temp\ccdYKey1.s 			page 23
+
+
+ 854              		.loc 1 120 99 view .LVU222
+ 855 00b8 0243     		orrs	r2, r2, r0
+ 120:Modules/mcu/Src/mcu_fn.c ****         info.lowSendTime = RF_RX_Buffer[14] << 24 | RF_RX_Buffer[15] << 16 | RF_RX_Buffer[16] << 8 
+ 856              		.loc 1 120 25 view .LVU223
+ 857 00ba 8A60     		str	r2, [r1, #8]
+ 121:Modules/mcu/Src/mcu_fn.c ****         info.highSendTime = RF_RX_Buffer[18] << 24 | RF_RX_Buffer[19] << 16 | RF_RX_Buffer[20] << 8
+ 858              		.loc 1 121 9 is_stmt 1 view .LVU224
+ 121:Modules/mcu/Src/mcu_fn.c ****         info.highSendTime = RF_RX_Buffer[18] << 24 | RF_RX_Buffer[19] << 16 | RF_RX_Buffer[20] << 8
+ 859              		.loc 1 121 40 is_stmt 0 view .LVU225
+ 860 00bc 987B     		ldrb	r0, [r3, #14]	@ zero_extendqisi2
+ 121:Modules/mcu/Src/mcu_fn.c ****         info.highSendTime = RF_RX_Buffer[18] << 24 | RF_RX_Buffer[19] << 16 | RF_RX_Buffer[20] << 8
+ 861              		.loc 1 121 65 view .LVU226
+ 862 00be DA7B     		ldrb	r2, [r3, #15]	@ zero_extendqisi2
+ 121:Modules/mcu/Src/mcu_fn.c ****         info.highSendTime = RF_RX_Buffer[18] << 24 | RF_RX_Buffer[19] << 16 | RF_RX_Buffer[20] << 8
+ 863              		.loc 1 121 70 view .LVU227
+ 864 00c0 1204     		lsls	r2, r2, #16
+ 121:Modules/mcu/Src/mcu_fn.c ****         info.highSendTime = RF_RX_Buffer[18] << 24 | RF_RX_Buffer[19] << 16 | RF_RX_Buffer[20] << 8
+ 865              		.loc 1 121 51 view .LVU228
+ 866 00c2 42EA0062 		orr	r2, r2, r0, lsl #24
+ 121:Modules/mcu/Src/mcu_fn.c ****         info.highSendTime = RF_RX_Buffer[18] << 24 | RF_RX_Buffer[19] << 16 | RF_RX_Buffer[20] << 8
+ 867              		.loc 1 121 90 view .LVU229
+ 868 00c6 187C     		ldrb	r0, [r3, #16]	@ zero_extendqisi2
+ 121:Modules/mcu/Src/mcu_fn.c ****         info.highSendTime = RF_RX_Buffer[18] << 24 | RF_RX_Buffer[19] << 16 | RF_RX_Buffer[20] << 8
+ 869              		.loc 1 121 76 view .LVU230
+ 870 00c8 42EA0022 		orr	r2, r2, r0, lsl #8
+ 121:Modules/mcu/Src/mcu_fn.c ****         info.highSendTime = RF_RX_Buffer[18] << 24 | RF_RX_Buffer[19] << 16 | RF_RX_Buffer[20] << 8
+ 871              		.loc 1 121 114 view .LVU231
+ 872 00cc 587C     		ldrb	r0, [r3, #17]	@ zero_extendqisi2
+ 121:Modules/mcu/Src/mcu_fn.c ****         info.highSendTime = RF_RX_Buffer[18] << 24 | RF_RX_Buffer[19] << 16 | RF_RX_Buffer[20] << 8
+ 873              		.loc 1 121 100 view .LVU232
+ 874 00ce 0243     		orrs	r2, r2, r0
+ 121:Modules/mcu/Src/mcu_fn.c ****         info.highSendTime = RF_RX_Buffer[18] << 24 | RF_RX_Buffer[19] << 16 | RF_RX_Buffer[20] << 8
+ 875              		.loc 1 121 26 view .LVU233
+ 876 00d0 0A60     		str	r2, [r1]
+ 122:Modules/mcu/Src/mcu_fn.c ****         FlashWrite(FLASH_SAVE_ADDR, (uint16_t *)&info, sizeof(info)); // 读取flash中的配置信
+ 877              		.loc 1 122 9 is_stmt 1 view .LVU234
+ 122:Modules/mcu/Src/mcu_fn.c ****         FlashWrite(FLASH_SAVE_ADDR, (uint16_t *)&info, sizeof(info)); // 读取flash中的配置信
+ 878              		.loc 1 122 41 is_stmt 0 view .LVU235
+ 879 00d2 987C     		ldrb	r0, [r3, #18]	@ zero_extendqisi2
+ 122:Modules/mcu/Src/mcu_fn.c ****         FlashWrite(FLASH_SAVE_ADDR, (uint16_t *)&info, sizeof(info)); // 读取flash中的配置信
+ 880              		.loc 1 122 66 view .LVU236
+ 881 00d4 DA7C     		ldrb	r2, [r3, #19]	@ zero_extendqisi2
+ 122:Modules/mcu/Src/mcu_fn.c ****         FlashWrite(FLASH_SAVE_ADDR, (uint16_t *)&info, sizeof(info)); // 读取flash中的配置信
+ 882              		.loc 1 122 71 view .LVU237
+ 883 00d6 1204     		lsls	r2, r2, #16
+ 122:Modules/mcu/Src/mcu_fn.c ****         FlashWrite(FLASH_SAVE_ADDR, (uint16_t *)&info, sizeof(info)); // 读取flash中的配置信
+ 884              		.loc 1 122 52 view .LVU238
+ 885 00d8 42EA0062 		orr	r2, r2, r0, lsl #24
+ 122:Modules/mcu/Src/mcu_fn.c ****         FlashWrite(FLASH_SAVE_ADDR, (uint16_t *)&info, sizeof(info)); // 读取flash中的配置信
+ 886              		.loc 1 122 91 view .LVU239
+ 887 00dc 187D     		ldrb	r0, [r3, #20]	@ zero_extendqisi2
+ 122:Modules/mcu/Src/mcu_fn.c ****         FlashWrite(FLASH_SAVE_ADDR, (uint16_t *)&info, sizeof(info)); // 读取flash中的配置信
+ 888              		.loc 1 122 77 view .LVU240
+ 889 00de 42EA0022 		orr	r2, r2, r0, lsl #8
+ 122:Modules/mcu/Src/mcu_fn.c ****         FlashWrite(FLASH_SAVE_ADDR, (uint16_t *)&info, sizeof(info)); // 读取flash中的配置信
+ 890              		.loc 1 122 115 view .LVU241
+ 891 00e2 5B7D     		ldrb	r3, [r3, #21]	@ zero_extendqisi2
+ARM GAS  C:\Users\wyx12\AppData\Local\Temp\ccdYKey1.s 			page 24
+
+
+ 122:Modules/mcu/Src/mcu_fn.c ****         FlashWrite(FLASH_SAVE_ADDR, (uint16_t *)&info, sizeof(info)); // 读取flash中的配置信
+ 892              		.loc 1 122 101 view .LVU242
+ 893 00e4 1343     		orrs	r3, r3, r2
+ 122:Modules/mcu/Src/mcu_fn.c ****         FlashWrite(FLASH_SAVE_ADDR, (uint16_t *)&info, sizeof(info)); // 读取flash中的配置信
+ 894              		.loc 1 122 27 view .LVU243
+ 895 00e6 4B60     		str	r3, [r1, #4]
+ 123:Modules/mcu/Src/mcu_fn.c ****         return 1;
+ 896              		.loc 1 123 9 is_stmt 1 view .LVU244
+ 897 00e8 1422     		movs	r2, #20
+ 898 00ea 0A48     		ldr	r0, .L48+32
+ 899 00ec FFF7FEFF 		bl	FlashWrite
+ 900              	.LVL76:
+ 124:Modules/mcu/Src/mcu_fn.c ****     }
+ 901              		.loc 1 124 9 view .LVU245
+ 124:Modules/mcu/Src/mcu_fn.c ****     }
+ 902              		.loc 1 124 16 is_stmt 0 view .LVU246
+ 903 00f0 CAE7     		b	.L44
+ 904              	.L49:
+ 905 00f2 00BF     		.align	2
+ 906              	.L48:
+ 907 00f4 1F85EB51 		.word	1374389535
+ 908 00f8 000C0140 		.word	1073810432
+ 909 00fc 00000000 		.word	Radio
+ 910 0100 00000000 		.word	SX1262_State
+ 911 0104 00000000 		.word	RF_RX_Buffer
+ 912 0108 01000000 		.word	RF_RX_Buffer+1
+ 913 010c 00000000 		.word	.LC1
+ 914 0110 00000000 		.word	info
+ 915 0114 00000208 		.word	134348800
+ 916              		.cfi_endproc
+ 917              	.LFE71:
+ 919              		.section	.text.Protocol_Crc16,"ax",%progbits
+ 920              		.align	1
+ 921              		.global	Protocol_Crc16
+ 922              		.syntax unified
+ 923              		.thumb
+ 924              		.thumb_func
+ 926              	Protocol_Crc16:
+ 927              	.LVL77:
+ 928              	.LFB75:
+ 242:Modules/mcu/Src/mcu_fn.c ****     unsigned char i, _Flag, _LSB = 0;
+ 929              		.loc 1 242 1 is_stmt 1 view -0
+ 930              		.cfi_startproc
+ 931              		@ args = 0, pretend = 0, frame = 0
+ 932              		@ frame_needed = 0, uses_anonymous_args = 0
+ 242:Modules/mcu/Src/mcu_fn.c ****     unsigned char i, _Flag, _LSB = 0;
+ 933              		.loc 1 242 1 is_stmt 0 view .LVU248
+ 934 0000 00B5     		push	{lr}
+ 935              	.LCFI17:
+ 936              		.cfi_def_cfa_offset 4
+ 937              		.cfi_offset 14, -4
+ 938 0002 8E46     		mov	lr, r1
+ 243:Modules/mcu/Src/mcu_fn.c ****     unsigned int CRC_Value = 0xFFFF;
+ 939              		.loc 1 243 5 is_stmt 1 view .LVU249
+ 940              	.LVL78:
+ 244:Modules/mcu/Src/mcu_fn.c ****     for (i = 0; i < lenth; i++) //=-1
+ 941              		.loc 1 244 5 view .LVU250
+ARM GAS  C:\Users\wyx12\AppData\Local\Temp\ccdYKey1.s 			page 25
+
+
+ 245:Modules/mcu/Src/mcu_fn.c ****     {
+ 942              		.loc 1 245 5 view .LVU251
+ 244:Modules/mcu/Src/mcu_fn.c ****     for (i = 0; i < lenth; i++) //=-1
+ 943              		.loc 1 244 18 is_stmt 0 view .LVU252
+ 944 0004 4FF6FF73 		movw	r3, #65535
+ 245:Modules/mcu/Src/mcu_fn.c ****     {
+ 945              		.loc 1 245 12 view .LVU253
+ 946 0008 4FF0000C 		mov	ip, #0
+ 245:Modules/mcu/Src/mcu_fn.c ****     {
+ 947              		.loc 1 245 5 view .LVU254
+ 948 000c 11E0     		b	.L51
+ 949              	.LVL79:
+ 950              	.L53:
+ 248:Modules/mcu/Src/mcu_fn.c ****         {
+ 951              		.loc 1 248 42 is_stmt 1 discriminator 2 view .LVU255
+ 952 000e 0132     		adds	r2, r2, #1
+ 953              	.LVL80:
+ 248:Modules/mcu/Src/mcu_fn.c ****         {
+ 954              		.loc 1 248 42 is_stmt 0 discriminator 2 view .LVU256
+ 955 0010 D2B2     		uxtb	r2, r2
+ 956              	.LVL81:
+ 957              	.L52:
+ 248:Modules/mcu/Src/mcu_fn.c ****         {
+ 958              		.loc 1 248 31 is_stmt 1 discriminator 1 view .LVU257
+ 959 0012 072A     		cmp	r2, #7
+ 960 0014 09D8     		bhi	.L57
+ 250:Modules/mcu/Src/mcu_fn.c ****             CRC_Value = CRC_Value >> 1;
+ 961              		.loc 1 250 13 view .LVU258
+ 250:Modules/mcu/Src/mcu_fn.c ****             CRC_Value = CRC_Value >> 1;
+ 962              		.loc 1 250 18 is_stmt 0 view .LVU259
+ 963 0016 03F00101 		and	r1, r3, #1
+ 964              	.LVL82:
+ 251:Modules/mcu/Src/mcu_fn.c ****             if (_LSB == 1)
+ 965              		.loc 1 251 13 is_stmt 1 view .LVU260
+ 251:Modules/mcu/Src/mcu_fn.c ****             if (_LSB == 1)
+ 966              		.loc 1 251 23 is_stmt 0 view .LVU261
+ 967 001a 5B08     		lsrs	r3, r3, #1
+ 968              	.LVL83:
+ 252:Modules/mcu/Src/mcu_fn.c ****                 CRC_Value ^= 0xA001;
+ 969              		.loc 1 252 13 is_stmt 1 view .LVU262
+ 252:Modules/mcu/Src/mcu_fn.c ****                 CRC_Value ^= 0xA001;
+ 970              		.loc 1 252 16 is_stmt 0 view .LVU263
+ 971 001c 0029     		cmp	r1, #0
+ 972 001e F6D0     		beq	.L53
+ 253:Modules/mcu/Src/mcu_fn.c ****         }
+ 973              		.loc 1 253 17 is_stmt 1 view .LVU264
+ 253:Modules/mcu/Src/mcu_fn.c ****         }
+ 974              		.loc 1 253 27 is_stmt 0 view .LVU265
+ 975 0020 83F42043 		eor	r3, r3, #40960
+ 976              	.LVL84:
+ 253:Modules/mcu/Src/mcu_fn.c ****         }
+ 977              		.loc 1 253 27 view .LVU266
+ 978 0024 83F00103 		eor	r3, r3, #1
+ 979              	.LVL85:
+ 253:Modules/mcu/Src/mcu_fn.c ****         }
+ 980              		.loc 1 253 27 view .LVU267
+ 981 0028 F1E7     		b	.L53
+ARM GAS  C:\Users\wyx12\AppData\Local\Temp\ccdYKey1.s 			page 26
+
+
+ 982              	.LVL86:
+ 983              	.L57:
+ 245:Modules/mcu/Src/mcu_fn.c ****     {
+ 984              		.loc 1 245 29 is_stmt 1 discriminator 2 view .LVU268
+ 985 002a 0CF1010C 		add	ip, ip, #1
+ 986              	.LVL87:
+ 245:Modules/mcu/Src/mcu_fn.c ****     {
+ 987              		.loc 1 245 29 is_stmt 0 discriminator 2 view .LVU269
+ 988 002e 5FFA8CFC 		uxtb	ip, ip
+ 989              	.LVL88:
+ 990              	.L51:
+ 245:Modules/mcu/Src/mcu_fn.c ****     {
+ 991              		.loc 1 245 19 is_stmt 1 discriminator 1 view .LVU270
+ 992 0032 F445     		cmp	ip, lr
+ 993 0034 04D2     		bcs	.L58
+ 247:Modules/mcu/Src/mcu_fn.c ****         for (_Flag = 0; _Flag <= 7; _Flag++)
+ 994              		.loc 1 247 9 view .LVU271
+ 247:Modules/mcu/Src/mcu_fn.c ****         for (_Flag = 0; _Flag <= 7; _Flag++)
+ 995              		.loc 1 247 25 is_stmt 0 view .LVU272
+ 996 0036 10F80C20 		ldrb	r2, [r0, ip]	@ zero_extendqisi2
+ 247:Modules/mcu/Src/mcu_fn.c ****         for (_Flag = 0; _Flag <= 7; _Flag++)
+ 997              		.loc 1 247 19 view .LVU273
+ 998 003a 5340     		eors	r3, r3, r2
+ 999              	.LVL89:
+ 248:Modules/mcu/Src/mcu_fn.c ****         {
+ 1000              		.loc 1 248 9 is_stmt 1 view .LVU274
+ 248:Modules/mcu/Src/mcu_fn.c ****         {
+ 1001              		.loc 1 248 20 is_stmt 0 view .LVU275
+ 1002 003c 0022     		movs	r2, #0
+ 248:Modules/mcu/Src/mcu_fn.c ****         {
+ 1003              		.loc 1 248 9 view .LVU276
+ 1004 003e E8E7     		b	.L52
+ 1005              	.LVL90:
+ 1006              	.L58:
+ 256:Modules/mcu/Src/mcu_fn.c **** }
+ 1007              		.loc 1 256 5 is_stmt 1 view .LVU277
+ 257:Modules/mcu/Src/mcu_fn.c **** 
+ 1008              		.loc 1 257 1 is_stmt 0 view .LVU278
+ 1009 0040 98B2     		uxth	r0, r3
+ 1010              	.LVL91:
+ 257:Modules/mcu/Src/mcu_fn.c **** 
+ 1011              		.loc 1 257 1 view .LVU279
+ 1012 0042 5DF804FB 		ldr	pc, [sp], #4
+ 1013              		.cfi_endproc
+ 1014              	.LFE75:
+ 1016              		.section	.text.generateFrame,"ax",%progbits
+ 1017              		.align	1
+ 1018              		.global	generateFrame
+ 1019              		.syntax unified
+ 1020              		.thumb
+ 1021              		.thumb_func
+ 1023              	generateFrame:
+ 1024              	.LFB74:
+ 226:Modules/mcu/Src/mcu_fn.c ****     if (!string2hex(SN, (char *)&loraObject.txFrame.sn[1]))
+ 1025              		.loc 1 226 1 is_stmt 1 view -0
+ 1026              		.cfi_startproc
+ 1027              		@ args = 0, pretend = 0, frame = 0
+ARM GAS  C:\Users\wyx12\AppData\Local\Temp\ccdYKey1.s 			page 27
+
+
+ 1028              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1029 0000 10B5     		push	{r4, lr}
+ 1030              	.LCFI18:
+ 1031              		.cfi_def_cfa_offset 8
+ 1032              		.cfi_offset 4, -8
+ 1033              		.cfi_offset 14, -4
+ 227:Modules/mcu/Src/mcu_fn.c ****     {
+ 1034              		.loc 1 227 5 view .LVU281
+ 227:Modules/mcu/Src/mcu_fn.c ****     {
+ 1035              		.loc 1 227 10 is_stmt 0 view .LVU282
+ 1036 0002 1249     		ldr	r1, .L62
+ 1037 0004 1248     		ldr	r0, .L62+4
+ 1038 0006 FFF7FEFF 		bl	string2hex
+ 1039              	.LVL92:
+ 227:Modules/mcu/Src/mcu_fn.c ****     {
+ 1040              		.loc 1 227 8 view .LVU283
+ 1041 000a E8B9     		cbnz	r0, .L59
+ 229:Modules/mcu/Src/mcu_fn.c ****         loraObject.txFrame.len = sizeof(_Frame_Tx);
+ 1042              		.loc 1 229 9 is_stmt 1 view .LVU284
+ 229:Modules/mcu/Src/mcu_fn.c ****         loraObject.txFrame.len = sizeof(_Frame_Tx);
+ 1043              		.loc 1 229 34 is_stmt 0 view .LVU285
+ 1044 000c 114C     		ldr	r4, .L62+8
+ 1045 000e AA23     		movs	r3, #170
+ 1046 0010 2370     		strb	r3, [r4]
+ 230:Modules/mcu/Src/mcu_fn.c ****         loraObject.txFrame.battery = bat;
+ 1047              		.loc 1 230 9 is_stmt 1 view .LVU286
+ 230:Modules/mcu/Src/mcu_fn.c ****         loraObject.txFrame.battery = bat;
+ 1048              		.loc 1 230 32 is_stmt 0 view .LVU287
+ 1049 0012 0E23     		movs	r3, #14
+ 1050 0014 A371     		strb	r3, [r4, #6]
+ 231:Modules/mcu/Src/mcu_fn.c ****         loraObject.txFrame.frequency = (uint16_t)stackValue.freq;
+ 1051              		.loc 1 231 9 is_stmt 1 view .LVU288
+ 231:Modules/mcu/Src/mcu_fn.c ****         loraObject.txFrame.frequency = (uint16_t)stackValue.freq;
+ 1052              		.loc 1 231 36 is_stmt 0 view .LVU289
+ 1053 0016 104B     		ldr	r3, .L62+12
+ 1054 0018 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 1055 001a E371     		strb	r3, [r4, #7]
+ 232:Modules/mcu/Src/mcu_fn.c ****         loraObject.txFrame.frequency = ntohs(loraObject.txFrame.frequency);
+ 1056              		.loc 1 232 9 is_stmt 1 view .LVU290
+ 232:Modules/mcu/Src/mcu_fn.c ****         loraObject.txFrame.frequency = ntohs(loraObject.txFrame.frequency);
+ 1057              		.loc 1 232 60 is_stmt 0 view .LVU291
+ 1058 001c 0F49     		ldr	r1, .L62+16
+ 232:Modules/mcu/Src/mcu_fn.c ****         loraObject.txFrame.frequency = ntohs(loraObject.txFrame.frequency);
+ 1059              		.loc 1 232 40 view .LVU292
+ 1060 001e 0A88     		ldrh	r2, [r1]
+ 232:Modules/mcu/Src/mcu_fn.c ****         loraObject.txFrame.frequency = ntohs(loraObject.txFrame.frequency);
+ 1061              		.loc 1 232 38 view .LVU293
+ 1062 0020 2281     		strh	r2, [r4, #8]	@ movhi
+ 233:Modules/mcu/Src/mcu_fn.c ****         loraObject.txFrame.amplitude = (uint16_t)stackValue.ampl;
+ 1063              		.loc 1 233 9 is_stmt 1 view .LVU294
+ 233:Modules/mcu/Src/mcu_fn.c ****         loraObject.txFrame.amplitude = (uint16_t)stackValue.ampl;
+ 1064              		.loc 1 233 40 is_stmt 0 view .LVU295
+ 1065 0022 130A     		lsrs	r3, r2, #8
+ 1066 0024 43EA0223 		orr	r3, r3, r2, lsl #8
+ 233:Modules/mcu/Src/mcu_fn.c ****         loraObject.txFrame.amplitude = (uint16_t)stackValue.ampl;
+ 1067              		.loc 1 233 38 view .LVU296
+ 1068 0028 2381     		strh	r3, [r4, #8]	@ movhi
+ARM GAS  C:\Users\wyx12\AppData\Local\Temp\ccdYKey1.s 			page 28
+
+
+ 234:Modules/mcu/Src/mcu_fn.c ****         loraObject.txFrame.amplitude = ntohs(loraObject.txFrame.amplitude);
+ 1069              		.loc 1 234 9 is_stmt 1 view .LVU297
+ 234:Modules/mcu/Src/mcu_fn.c ****         loraObject.txFrame.amplitude = ntohs(loraObject.txFrame.amplitude);
+ 1070              		.loc 1 234 40 is_stmt 0 view .LVU298
+ 1071 002a 8A88     		ldrh	r2, [r1, #4]
+ 234:Modules/mcu/Src/mcu_fn.c ****         loraObject.txFrame.amplitude = ntohs(loraObject.txFrame.amplitude);
+ 1072              		.loc 1 234 38 view .LVU299
+ 1073 002c 6281     		strh	r2, [r4, #10]	@ movhi
+ 235:Modules/mcu/Src/mcu_fn.c ****         loraObject.txFrame.crc16 = Protocol_Crc16((uint8_t *)&loraObject.txFrame, sizeof(_Frame_Tx)
+ 1074              		.loc 1 235 9 is_stmt 1 view .LVU300
+ 235:Modules/mcu/Src/mcu_fn.c ****         loraObject.txFrame.crc16 = Protocol_Crc16((uint8_t *)&loraObject.txFrame, sizeof(_Frame_Tx)
+ 1075              		.loc 1 235 40 is_stmt 0 view .LVU301
+ 1076 002e 130A     		lsrs	r3, r2, #8
+ 1077 0030 43EA0223 		orr	r3, r3, r2, lsl #8
+ 235:Modules/mcu/Src/mcu_fn.c ****         loraObject.txFrame.crc16 = Protocol_Crc16((uint8_t *)&loraObject.txFrame, sizeof(_Frame_Tx)
+ 1078              		.loc 1 235 38 view .LVU302
+ 1079 0034 6381     		strh	r3, [r4, #10]	@ movhi
+ 236:Modules/mcu/Src/mcu_fn.c ****         loraObject.txFrame.crc16 = ntohs(loraObject.txFrame.crc16);
+ 1080              		.loc 1 236 9 is_stmt 1 view .LVU303
+ 236:Modules/mcu/Src/mcu_fn.c ****         loraObject.txFrame.crc16 = ntohs(loraObject.txFrame.crc16);
+ 1081              		.loc 1 236 36 is_stmt 0 view .LVU304
+ 1082 0036 0C21     		movs	r1, #12
+ 1083 0038 2046     		mov	r0, r4
+ 1084 003a FFF7FEFF 		bl	Protocol_Crc16
+ 1085              	.LVL93:
+ 236:Modules/mcu/Src/mcu_fn.c ****         loraObject.txFrame.crc16 = ntohs(loraObject.txFrame.crc16);
+ 1086              		.loc 1 236 34 view .LVU305
+ 1087 003e A081     		strh	r0, [r4, #12]	@ movhi
+ 237:Modules/mcu/Src/mcu_fn.c ****     }
+ 1088              		.loc 1 237 9 is_stmt 1 view .LVU306
+ 237:Modules/mcu/Src/mcu_fn.c ****     }
+ 1089              		.loc 1 237 36 is_stmt 0 view .LVU307
+ 1090 0040 030A     		lsrs	r3, r0, #8
+ 1091 0042 43EA0023 		orr	r3, r3, r0, lsl #8
+ 237:Modules/mcu/Src/mcu_fn.c ****     }
+ 1092              		.loc 1 237 34 view .LVU308
+ 1093 0046 A381     		strh	r3, [r4, #12]	@ movhi
+ 1094              	.L59:
+ 239:Modules/mcu/Src/mcu_fn.c **** 
+ 1095              		.loc 1 239 1 view .LVU309
+ 1096 0048 10BD     		pop	{r4, pc}
+ 1097              	.L63:
+ 1098 004a 00BF     		.align	2
+ 1099              	.L62:
+ 1100 004c 01000000 		.word	loraObject+1
+ 1101 0050 00000000 		.word	.LC1
+ 1102 0054 00000000 		.word	loraObject
+ 1103 0058 00000000 		.word	bat
+ 1104 005c 00000000 		.word	stackValue
+ 1105              		.cfi_endproc
+ 1106              	.LFE74:
+ 1108              		.section	.text.mcu_rtc_alarmSet,"ax",%progbits
+ 1109              		.align	1
+ 1110              		.global	mcu_rtc_alarmSet
+ 1111              		.syntax unified
+ 1112              		.thumb
+ 1113              		.thumb_func
+ARM GAS  C:\Users\wyx12\AppData\Local\Temp\ccdYKey1.s 			page 29
+
+
+ 1115              	mcu_rtc_alarmSet:
+ 1116              	.LVL94:
+ 1117              	.LFB78:
+ 281:Modules/mcu/Src/mcu_fn.c **** 
+ 282:Modules/mcu/Src/mcu_fn.c **** void mcu_rtc_alarmSet(uint32_t Seconds)
+ 283:Modules/mcu/Src/mcu_fn.c **** {
+ 1118              		.loc 1 283 1 is_stmt 1 view -0
+ 1119              		.cfi_startproc
+ 1120              		@ args = 0, pretend = 0, frame = 16
+ 1121              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1122              		.loc 1 283 1 is_stmt 0 view .LVU311
+ 1123 0000 30B5     		push	{r4, r5, lr}
+ 1124              	.LCFI19:
+ 1125              		.cfi_def_cfa_offset 12
+ 1126              		.cfi_offset 4, -12
+ 1127              		.cfi_offset 5, -8
+ 1128              		.cfi_offset 14, -4
+ 1129 0002 85B0     		sub	sp, sp, #20
+ 1130              	.LCFI20:
+ 1131              		.cfi_def_cfa_offset 32
+ 1132 0004 0546     		mov	r5, r0
+ 284:Modules/mcu/Src/mcu_fn.c ****     // 说明： Seconds 不能超过 24 * 60 * 60   不能超过一天
+ 285:Modules/mcu/Src/mcu_fn.c ****     RTC_AlarmTypeDef RTC_AlarmStructure;
+ 1133              		.loc 1 285 5 is_stmt 1 view .LVU312
+ 286:Modules/mcu/Src/mcu_fn.c ****     /* RTC 闹钟中断配置 */
+ 287:Modules/mcu/Src/mcu_fn.c ****     HAL_NVIC_SetPriority(RTC_Alarm_IRQn, 1, 0);
+ 1134              		.loc 1 287 5 view .LVU313
+ 1135 0006 0022     		movs	r2, #0
+ 1136 0008 0121     		movs	r1, #1
+ 1137 000a 2920     		movs	r0, #41
+ 1138              	.LVL95:
+ 1139              		.loc 1 287 5 is_stmt 0 view .LVU314
+ 1140 000c FFF7FEFF 		bl	HAL_NVIC_SetPriority
+ 1141              	.LVL96:
+ 288:Modules/mcu/Src/mcu_fn.c ****     /* 使能RTC闹钟中断 */
+ 289:Modules/mcu/Src/mcu_fn.c ****     HAL_NVIC_EnableIRQ(RTC_Alarm_IRQn);
+ 1142              		.loc 1 289 5 is_stmt 1 view .LVU315
+ 1143 0010 2920     		movs	r0, #41
+ 1144 0012 FFF7FEFF 		bl	HAL_NVIC_EnableIRQ
+ 1145              	.LVL97:
+ 290:Modules/mcu/Src/mcu_fn.c ****     /* 设置闹钟时间 */
+ 291:Modules/mcu/Src/mcu_fn.c ****     RTC_DateTypeDef sdatestructureget;
+ 1146              		.loc 1 291 5 view .LVU316
+ 292:Modules/mcu/Src/mcu_fn.c ****     RTC_TimeTypeDef stimestructureget;
+ 1147              		.loc 1 292 5 view .LVU317
+ 293:Modules/mcu/Src/mcu_fn.c ****     /* Get the RTC current Time */
+ 294:Modules/mcu/Src/mcu_fn.c ****     HAL_RTC_GetTime(&hrtc, &stimestructureget, RTC_FORMAT_BIN);
+ 1148              		.loc 1 294 5 view .LVU318
+ 1149 0016 294C     		ldr	r4, .L66
+ 1150 0018 0022     		movs	r2, #0
+ 1151 001a 6946     		mov	r1, sp
+ 1152 001c 2046     		mov	r0, r4
+ 1153 001e FFF7FEFF 		bl	HAL_RTC_GetTime
+ 1154              	.LVL98:
+ 295:Modules/mcu/Src/mcu_fn.c ****     /* Get the RTC current Date */
+ 296:Modules/mcu/Src/mcu_fn.c ****     HAL_RTC_GetDate(&hrtc, &sdatestructureget, RTC_FORMAT_BIN);
+ 1155              		.loc 1 296 5 view .LVU319
+ARM GAS  C:\Users\wyx12\AppData\Local\Temp\ccdYKey1.s 			page 30
+
+
+ 1156 0022 0022     		movs	r2, #0
+ 1157 0024 01A9     		add	r1, sp, #4
+ 1158 0026 2046     		mov	r0, r4
+ 1159 0028 FFF7FEFF 		bl	HAL_RTC_GetDate
+ 1160              	.LVL99:
+ 297:Modules/mcu/Src/mcu_fn.c ****     RTC_AlarmStructure.Alarm = RTC_ALARM_A;
+ 1161              		.loc 1 297 5 view .LVU320
+ 1162              		.loc 1 297 30 is_stmt 0 view .LVU321
+ 1163 002c 0023     		movs	r3, #0
+ 1164 002e 0393     		str	r3, [sp, #12]
+ 298:Modules/mcu/Src/mcu_fn.c ****     RTC_AlarmStructure.AlarmTime.Hours = (Seconds / 3600 + stimestructureget.Hours) / 10 * 16 + (Se
+ 1165              		.loc 1 298 5 is_stmt 1 view .LVU322
+ 1166              		.loc 1 298 51 is_stmt 0 view .LVU323
+ 1167 0030 234A     		ldr	r2, .L66+4
+ 1168 0032 A2FB0532 		umull	r3, r2, r2, r5
+ 1169 0036 D00A     		lsrs	r0, r2, #11
+ 1170              		.loc 1 298 77 view .LVU324
+ 1171 0038 9DF80030 		ldrb	r3, [sp]	@ zero_extendqisi2
+ 1172              		.loc 1 298 58 view .LVU325
+ 1173 003c 03EBD223 		add	r3, r3, r2, lsr #11
+ 1174              		.loc 1 298 85 view .LVU326
+ 1175 0040 204A     		ldr	r2, .L66+8
+ 1176 0042 A2FB03C1 		umull	ip, r1, r2, r3
+ 1177 0046 C908     		lsrs	r1, r1, #3
+ 1178              		.loc 1 298 140 view .LVU327
+ 1179 0048 01EB810C 		add	ip, r1, r1, lsl #2
+ 1180 004c A3EB4C03 		sub	r3, r3, ip, lsl #1
+ 1181              		.loc 1 298 95 view .LVU328
+ 1182 0050 03EB0113 		add	r3, r3, r1, lsl #4
+ 1183              		.loc 1 298 40 view .LVU329
+ 1184 0054 8DF80830 		strb	r3, [sp, #8]
+ 299:Modules/mcu/Src/mcu_fn.c ****     RTC_AlarmStructure.AlarmTime.Minutes = ((Seconds % 3600) / 60 + stimestructureget.Minutes) / 10
+ 1185              		.loc 1 299 5 is_stmt 1 view .LVU330
+ 1186              		.loc 1 299 54 is_stmt 0 view .LVU331
+ 1187 0058 4FF46163 		mov	r3, #3600
+ 1188 005c 03FB1050 		mls	r0, r3, r0, r5
+ 1189              		.loc 1 299 62 view .LVU332
+ 1190 0060 194B     		ldr	r3, .L66+12
+ 1191 0062 A3FB0010 		umull	r1, r0, r3, r0
+ 1192              		.loc 1 299 86 view .LVU333
+ 1193 0066 9DF80110 		ldrb	r1, [sp, #1]	@ zero_extendqisi2
+ 1194              		.loc 1 299 67 view .LVU334
+ 1195 006a 01EB5011 		add	r1, r1, r0, lsr #5
+ 1196              		.loc 1 299 96 view .LVU335
+ 1197 006e A2FB01C0 		umull	ip, r0, r2, r1
+ 1198 0072 C008     		lsrs	r0, r0, #3
+ 1199              		.loc 1 299 160 view .LVU336
+ 1200 0074 00EB800C 		add	ip, r0, r0, lsl #2
+ 1201 0078 A1EB4C01 		sub	r1, r1, ip, lsl #1
+ 1202              		.loc 1 299 106 view .LVU337
+ 1203 007c 01EB0011 		add	r1, r1, r0, lsl #4
+ 1204              		.loc 1 299 42 view .LVU338
+ 1205 0080 8DF80910 		strb	r1, [sp, #9]
+ 300:Modules/mcu/Src/mcu_fn.c ****     RTC_AlarmStructure.AlarmTime.Seconds = (Seconds % 60 + stimestructureget.Seconds) / 10 * 16 + (
+ 1206              		.loc 1 300 5 is_stmt 1 view .LVU339
+ 1207              		.loc 1 300 53 is_stmt 0 view .LVU340
+ 1208 0084 A3FB0513 		umull	r1, r3, r3, r5
+ARM GAS  C:\Users\wyx12\AppData\Local\Temp\ccdYKey1.s 			page 31
+
+
+ 1209 0088 5B09     		lsrs	r3, r3, #5
+ 1210 008a C3EB0313 		rsb	r3, r3, r3, lsl #4
+ 1211 008e A5EB8303 		sub	r3, r5, r3, lsl #2
+ 1212              		.loc 1 300 77 view .LVU341
+ 1213 0092 9DF80210 		ldrb	r1, [sp, #2]	@ zero_extendqisi2
+ 1214              		.loc 1 300 58 view .LVU342
+ 1215 0096 0B44     		add	r3, r3, r1
+ 1216              		.loc 1 300 87 view .LVU343
+ 1217 0098 A2FB0312 		umull	r1, r2, r2, r3
+ 1218 009c D208     		lsrs	r2, r2, #3
+ 1219              		.loc 1 300 142 view .LVU344
+ 1220 009e 02EB8201 		add	r1, r2, r2, lsl #2
+ 1221 00a2 A3EB4103 		sub	r3, r3, r1, lsl #1
+ 1222              		.loc 1 300 97 view .LVU345
+ 1223 00a6 03EB0213 		add	r3, r3, r2, lsl #4
+ 1224              		.loc 1 300 42 view .LVU346
+ 1225 00aa 8DF80A30 		strb	r3, [sp, #10]
+ 301:Modules/mcu/Src/mcu_fn.c ****     HAL_RTC_SetAlarm_IT(&hrtc, &RTC_AlarmStructure, RTC_FORMAT_BCD);
+ 1226              		.loc 1 301 5 is_stmt 1 view .LVU347
+ 1227 00ae 0122     		movs	r2, #1
+ 1228 00b0 02A9     		add	r1, sp, #8
+ 1229 00b2 2046     		mov	r0, r4
+ 1230 00b4 FFF7FEFF 		bl	HAL_RTC_SetAlarm_IT
+ 1231              	.LVL100:
+ 302:Modules/mcu/Src/mcu_fn.c **** }...
+ 1232              		.loc 1 302 1 is_stmt 0 view .LVU348
+ 1233 00b8 05B0     		add	sp, sp, #20
+ 1234              	.LCFI21:
+ 1235              		.cfi_def_cfa_offset 12
+ 1236              		@ sp needed
+ 1237 00ba 30BD     		pop	{r4, r5, pc}
+ 1238              	.LVL101:
+ 1239              	.L67:
+ 1240              		.loc 1 302 1 view .LVU349
+ 1241              		.align	2
+ 1242              	.L66:
+ 1243 00bc 00000000 		.word	hrtc
+ 1244 00c0 C5B3A291 		.word	-1851608123
+ 1245 00c4 CDCCCCCC 		.word	-858993459
+ 1246 00c8 89888888 		.word	-2004318071
+ 1247              		.cfi_endproc
+ 1248              	.LFE78:
+ 1250              		.global	stackValue
+ 1251              		.section	.data.stackValue,"aw"
+ 1252              		.align	2
+ 1255              	stackValue:
+ 1256 0000 00000000 		.word	0
+ 1257 0004 00000000 		.word	0
+ 1258 0008 00000000 		.word	0
+ 1259 000c 00000000 		.word	0
+ 1260 0010 00000000 		.space	8
+ 1260      00000000 
+ 1261 0018 00000000 		.word	writeRtcBKP
+ 1262 001c 00000000 		.word	readRtcBKP
+ 1263              		.global	debug
+ 1264              		.section	.data.debug,"aw"
+ 1265              		.align	2
+ARM GAS  C:\Users\wyx12\AppData\Local\Temp\ccdYKey1.s 			page 32
+
+
+ 1268              	debug:
+ 1269 0000 78000000 		.word	120
+ 1270 0004 3C000000 		.word	60
+ 1271 0008 0A000000 		.word	10
+ 1272 000c 10270000 		.word	10000
+ 1273 0010 10270000 		.word	10000
+ 1274              		.global	info
+ 1275              		.section	.data.info,"aw"
+ 1276              		.align	2
+ 1279              	info:
+ 1280 0000 78000000 		.word	120
+ 1281 0004 3C000000 		.word	60
+ 1282 0008 0A000000 		.word	10
+ 1283 000c 64000000 		.word	100
+ 1284 0010 64000000 		.word	100
+ 1285              		.global	loraObject
+ 1286              		.section	.bss.loraObject,"aw",%nobits
+ 1287              		.align	2
+ 1290              	loraObject:
+ 1291 0000 00000000 		.space	14
+ 1291      00000000 
+ 1291      00000000 
+ 1291      0000
+ 1292              		.text
+ 1293              	.Letext0:
+ 1294              		.file 2 "Drivers/CMSIS/Device/ST/STM32F1xx/Include/stm32f103xe.h"
+ 1295              		.file 3 "c:\\program files (x86)\\arm gnu toolchain arm-none-eabi\\12.2 rel1\\arm-none-eabi\\inclu
+ 1296              		.file 4 "c:\\program files (x86)\\arm gnu toolchain arm-none-eabi\\12.2 rel1\\arm-none-eabi\\inclu
+ 1297              		.file 5 "c:\\program files (x86)\\arm gnu toolchain arm-none-eabi\\12.2 rel1\\lib\\gcc\\arm-none-e
+ 1298              		.file 6 "Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_def.h"
+ 1299              		.file 7 "Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_gpio.h"
+ 1300              		.file 8 "Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_rtc.h"
+ 1301              		.file 9 "Modules/sx1262/Inc/radio.h"
+ 1302              		.file 10 "Core/Inc/rtc.h"
+ 1303              		.file 11 "Modules/sx1262/Inc/sx126x_Init.h"
+ 1304              		.file 12 "Modules/mcu/Inc/mcu_fn.h"
+ 1305              		.file 13 "Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_cortex.h"
+ 1306              		.file 14 "Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_rtc_ex.h"
+ 1307              		.file 15 "c:\\program files (x86)\\arm gnu toolchain arm-none-eabi\\12.2 rel1\\arm-none-eabi\\incl
+ 1308              		.file 16 "c:\\program files (x86)\\arm gnu toolchain arm-none-eabi\\12.2 rel1\\arm-none-eabi\\incl
+ 1309              		.file 17 "Modules/mcu/Inc/mcu_flash.h"
+ 1310              		.file 18 "Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal.h"
+ 1311              		.file 19 "Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_pwr.h"
+ 1312              		.file 20 "<built-in>"
+ARM GAS  C:\Users\wyx12\AppData\Local\Temp\ccdYKey1.s 			page 33
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 mcu_fn.c
+C:\Users\wyx12\AppData\Local\Temp\ccdYKey1.s:19     .rodata.ArrayToStr.str1.4:00000000 $d
+C:\Users\wyx12\AppData\Local\Temp\ccdYKey1.s:23     .text.ArrayToStr:00000000 $t
+C:\Users\wyx12\AppData\Local\Temp\ccdYKey1.s:28     .text.ArrayToStr:00000000 ArrayToStr
+C:\Users\wyx12\AppData\Local\Temp\ccdYKey1.s:121    .text.ArrayToStr:00000054 $d
+C:\Users\wyx12\AppData\Local\Temp\ccdYKey1.s:126    .text.string2hex:00000000 $t
+C:\Users\wyx12\AppData\Local\Temp\ccdYKey1.s:131    .text.string2hex:00000000 string2hex
+C:\Users\wyx12\AppData\Local\Temp\ccdYKey1.s:337    .text.writeRtcBKP:00000000 $t
+C:\Users\wyx12\AppData\Local\Temp\ccdYKey1.s:343    .text.writeRtcBKP:00000000 writeRtcBKP
+C:\Users\wyx12\AppData\Local\Temp\ccdYKey1.s:414    .text.writeRtcBKP:00000054 $d
+C:\Users\wyx12\AppData\Local\Temp\ccdYKey1.s:1255   .data.stackValue:00000000 stackValue
+C:\Users\wyx12\AppData\Local\Temp\ccdYKey1.s:420    .text.readRtcBKP:00000000 $t
+C:\Users\wyx12\AppData\Local\Temp\ccdYKey1.s:426    .text.readRtcBKP:00000000 readRtcBKP
+C:\Users\wyx12\AppData\Local\Temp\ccdYKey1.s:494    .text.readRtcBKP:00000044 $d
+C:\Users\wyx12\AppData\Local\Temp\ccdYKey1.s:500    .text.mcu_into_standbyMode:00000000 $t
+C:\Users\wyx12\AppData\Local\Temp\ccdYKey1.s:506    .text.mcu_into_standbyMode:00000000 mcu_into_standbyMode
+C:\Users\wyx12\AppData\Local\Temp\ccdYKey1.s:533    .text.mcu_into_standbyMode:00000018 $d
+C:\Users\wyx12\AppData\Local\Temp\ccdYKey1.s:538    .text.mcu_gpio_into_mode_analog:00000000 $t
+C:\Users\wyx12\AppData\Local\Temp\ccdYKey1.s:544    .text.mcu_gpio_into_mode_analog:00000000 mcu_gpio_into_mode_analog
+C:\Users\wyx12\AppData\Local\Temp\ccdYKey1.s:660    .text.mcu_gpio_into_mode_analog:00000084 $d
+C:\Users\wyx12\AppData\Local\Temp\ccdYKey1.s:669    .rodata.mcu_wait_get_userinfo.str1.4:00000000 $d
+C:\Users\wyx12\AppData\Local\Temp\ccdYKey1.s:673    .text.mcu_wait_get_userinfo:00000000 $t
+C:\Users\wyx12\AppData\Local\Temp\ccdYKey1.s:679    .text.mcu_wait_get_userinfo:00000000 mcu_wait_get_userinfo
+C:\Users\wyx12\AppData\Local\Temp\ccdYKey1.s:907    .text.mcu_wait_get_userinfo:000000f4 $d
+C:\Users\wyx12\AppData\Local\Temp\ccdYKey1.s:1279   .data.info:00000000 info
+C:\Users\wyx12\AppData\Local\Temp\ccdYKey1.s:920    .text.Protocol_Crc16:00000000 $t
+C:\Users\wyx12\AppData\Local\Temp\ccdYKey1.s:926    .text.Protocol_Crc16:00000000 Protocol_Crc16
+C:\Users\wyx12\AppData\Local\Temp\ccdYKey1.s:1017   .text.generateFrame:00000000 $t
+C:\Users\wyx12\AppData\Local\Temp\ccdYKey1.s:1023   .text.generateFrame:00000000 generateFrame
+C:\Users\wyx12\AppData\Local\Temp\ccdYKey1.s:1100   .text.generateFrame:0000004c $d
+C:\Users\wyx12\AppData\Local\Temp\ccdYKey1.s:1290   .bss.loraObject:00000000 loraObject
+C:\Users\wyx12\AppData\Local\Temp\ccdYKey1.s:1109   .text.mcu_rtc_alarmSet:00000000 $t
+C:\Users\wyx12\AppData\Local\Temp\ccdYKey1.s:1115   .text.mcu_rtc_alarmSet:00000000 mcu_rtc_alarmSet
+C:\Users\wyx12\AppData\Local\Temp\ccdYKey1.s:1243   .text.mcu_rtc_alarmSet:000000bc $d
+C:\Users\wyx12\AppData\Local\Temp\ccdYKey1.s:1252   .data.stackValue:00000000 $d
+C:\Users\wyx12\AppData\Local\Temp\ccdYKey1.s:1268   .data.debug:00000000 debug
+C:\Users\wyx12\AppData\Local\Temp\ccdYKey1.s:1265   .data.debug:00000000 $d
+C:\Users\wyx12\AppData\Local\Temp\ccdYKey1.s:1276   .data.info:00000000 $d
+C:\Users\wyx12\AppData\Local\Temp\ccdYKey1.s:1287   .bss.loraObject:00000000 $d
+
+UNDEFINED SYMBOLS
+memset
+sprintf
+strncat
+strncpy
+strcpy
+strlen
+HAL_RTCEx_BKUPWrite
+hrtc
+HAL_RTCEx_BKUPRead
+HAL_SuspendTick
+HAL_PWR_EnterSTANDBYMode
+HAL_GPIO_Init
+HAL_GPIO_TogglePin
+HAL_GPIO_WritePin
+HAL_Delay
+ARM GAS  C:\Users\wyx12\AppData\Local\Temp\ccdYKey1.s 			page 34
+
+
+strcmp
+FlashWrite
+Radio
+SX1262_State
+RF_RX_Buffer
+bat
+HAL_NVIC_SetPriority
+HAL_NVIC_EnableIRQ
+HAL_RTC_GetTime
+HAL_RTC_GetDate
+HAL_RTC_SetAlarm_IT

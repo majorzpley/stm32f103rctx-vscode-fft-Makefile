@@ -1,0 +1,740 @@
+ARM GAS  C:\Users\wyx12\AppData\Local\Temp\ccIYb9ae.s 			page 1
+
+
+   1              		.cpu cortex-m3
+   2              		.arch armv7-m
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 1
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.file	"adc.c"
+  14              		.text
+  15              	.Ltext0:
+  16              		.cfi_sections	.debug_frame
+  17              		.file 1 "Core/Src/adc.c"
+  18              		.section	.text.MX_ADC1_Init,"ax",%progbits
+  19              		.align	1
+  20              		.global	MX_ADC1_Init
+  21              		.syntax unified
+  22              		.thumb
+  23              		.thumb_func
+  25              	MX_ADC1_Init:
+  26              	.LFB143:
+   1:Core/Src/adc.c **** /* USER CODE BEGIN Header */
+   2:Core/Src/adc.c **** /**
+   3:Core/Src/adc.c ****  ******************************************************************************
+   4:Core/Src/adc.c ****  * @file    adc.c
+   5:Core/Src/adc.c ****  * @brief   This file provides code for the configuration
+   6:Core/Src/adc.c ****  *          of the ADC instances.
+   7:Core/Src/adc.c ****  ******************************************************************************
+   8:Core/Src/adc.c ****  * @attention
+   9:Core/Src/adc.c ****  *
+  10:Core/Src/adc.c ****  * Copyright (c) 2022 STMicroelectronics.
+  11:Core/Src/adc.c ****  * All rights reserved.
+  12:Core/Src/adc.c ****  *
+  13:Core/Src/adc.c ****  * This software is licensed under terms that can be found in the LICENSE file
+  14:Core/Src/adc.c ****  * in the root directory of this software component.
+  15:Core/Src/adc.c ****  * If no LICENSE file comes with this software, it is provided AS-IS.
+  16:Core/Src/adc.c ****  *
+  17:Core/Src/adc.c ****  ******************************************************************************
+  18:Core/Src/adc.c ****  */
+  19:Core/Src/adc.c **** /* USER CODE END Header */
+  20:Core/Src/adc.c **** /* Includes ------------------------------------------------------------------*/
+  21:Core/Src/adc.c **** #include "adc.h"
+  22:Core/Src/adc.c **** 
+  23:Core/Src/adc.c **** /* USER CODE BEGIN 0 */
+  24:Core/Src/adc.c **** 
+  25:Core/Src/adc.c **** /* USER CODE END 0 */
+  26:Core/Src/adc.c **** 
+  27:Core/Src/adc.c **** ADC_HandleTypeDef hadc1;
+  28:Core/Src/adc.c **** 
+  29:Core/Src/adc.c **** /* ADC1 init function */
+  30:Core/Src/adc.c **** void MX_ADC1_Init(void)
+  31:Core/Src/adc.c **** {
+  27              		.loc 1 31 1 view -0
+ARM GAS  C:\Users\wyx12\AppData\Local\Temp\ccIYb9ae.s 			page 2
+
+
+  28              		.cfi_startproc
+  29              		@ args = 0, pretend = 0, frame = 16
+  30              		@ frame_needed = 0, uses_anonymous_args = 0
+  31 0000 00B5     		push	{lr}
+  32              	.LCFI0:
+  33              		.cfi_def_cfa_offset 4
+  34              		.cfi_offset 14, -4
+  35 0002 85B0     		sub	sp, sp, #20
+  36              	.LCFI1:
+  37              		.cfi_def_cfa_offset 24
+  32:Core/Src/adc.c **** 
+  33:Core/Src/adc.c ****     /* USER CODE BEGIN ADC1_Init 0 */
+  34:Core/Src/adc.c **** 
+  35:Core/Src/adc.c ****     /* USER CODE END ADC1_Init 0 */
+  36:Core/Src/adc.c **** 
+  37:Core/Src/adc.c ****     ADC_ChannelConfTypeDef sConfig = {0};
+  38              		.loc 1 37 5 view .LVU1
+  39              		.loc 1 37 28 is_stmt 0 view .LVU2
+  40 0004 0023     		movs	r3, #0
+  41 0006 0193     		str	r3, [sp, #4]
+  42 0008 0293     		str	r3, [sp, #8]
+  43 000a 0393     		str	r3, [sp, #12]
+  38:Core/Src/adc.c **** 
+  39:Core/Src/adc.c ****     /* USER CODE BEGIN ADC1_Init 1 */
+  40:Core/Src/adc.c **** 
+  41:Core/Src/adc.c ****     /* USER CODE END ADC1_Init 1 */
+  42:Core/Src/adc.c **** 
+  43:Core/Src/adc.c ****     /** Common config
+  44:Core/Src/adc.c ****      */
+  45:Core/Src/adc.c ****     hadc1.Instance = ADC1;
+  44              		.loc 1 45 5 is_stmt 1 view .LVU3
+  45              		.loc 1 45 20 is_stmt 0 view .LVU4
+  46 000c 1148     		ldr	r0, .L7
+  47 000e 124A     		ldr	r2, .L7+4
+  48 0010 0260     		str	r2, [r0]
+  46:Core/Src/adc.c ****     hadc1.Init.ScanConvMode = ADC_SCAN_DISABLE;
+  49              		.loc 1 46 5 is_stmt 1 view .LVU5
+  50              		.loc 1 46 29 is_stmt 0 view .LVU6
+  51 0012 8360     		str	r3, [r0, #8]
+  47:Core/Src/adc.c ****     hadc1.Init.ContinuousConvMode = DISABLE;
+  52              		.loc 1 47 5 is_stmt 1 view .LVU7
+  53              		.loc 1 47 35 is_stmt 0 view .LVU8
+  54 0014 0373     		strb	r3, [r0, #12]
+  48:Core/Src/adc.c ****     hadc1.Init.DiscontinuousConvMode = DISABLE;
+  55              		.loc 1 48 5 is_stmt 1 view .LVU9
+  56              		.loc 1 48 38 is_stmt 0 view .LVU10
+  57 0016 0375     		strb	r3, [r0, #20]
+  49:Core/Src/adc.c ****     hadc1.Init.ExternalTrigConv = ADC_SOFTWARE_START;
+  58              		.loc 1 49 5 is_stmt 1 view .LVU11
+  59              		.loc 1 49 33 is_stmt 0 view .LVU12
+  60 0018 4FF46022 		mov	r2, #917504
+  61 001c C261     		str	r2, [r0, #28]
+  50:Core/Src/adc.c ****     hadc1.Init.DataAlign = ADC_DATAALIGN_RIGHT;
+  62              		.loc 1 50 5 is_stmt 1 view .LVU13
+  63              		.loc 1 50 26 is_stmt 0 view .LVU14
+  64 001e 4360     		str	r3, [r0, #4]
+  51:Core/Src/adc.c ****     hadc1.Init.NbrOfConversion = 1;
+ARM GAS  C:\Users\wyx12\AppData\Local\Temp\ccIYb9ae.s 			page 3
+
+
+  65              		.loc 1 51 5 is_stmt 1 view .LVU15
+  66              		.loc 1 51 32 is_stmt 0 view .LVU16
+  67 0020 0123     		movs	r3, #1
+  68 0022 0361     		str	r3, [r0, #16]
+  52:Core/Src/adc.c ****     if (HAL_ADC_Init(&hadc1) != HAL_OK)
+  69              		.loc 1 52 5 is_stmt 1 view .LVU17
+  70              		.loc 1 52 9 is_stmt 0 view .LVU18
+  71 0024 FFF7FEFF 		bl	HAL_ADC_Init
+  72              	.LVL0:
+  73              		.loc 1 52 8 view .LVU19
+  74 0028 68B9     		cbnz	r0, .L5
+  75              	.L2:
+  53:Core/Src/adc.c ****     {
+  54:Core/Src/adc.c ****         Error_Handler();
+  55:Core/Src/adc.c ****     }
+  56:Core/Src/adc.c **** 
+  57:Core/Src/adc.c ****     /** Configure Regular Channel
+  58:Core/Src/adc.c ****      */
+  59:Core/Src/adc.c ****     sConfig.Channel = ADC_CHANNEL_8;
+  76              		.loc 1 59 5 is_stmt 1 view .LVU20
+  77              		.loc 1 59 21 is_stmt 0 view .LVU21
+  78 002a 0823     		movs	r3, #8
+  79 002c 0193     		str	r3, [sp, #4]
+  60:Core/Src/adc.c ****     sConfig.Rank = ADC_REGULAR_RANK_1;
+  80              		.loc 1 60 5 is_stmt 1 view .LVU22
+  81              		.loc 1 60 18 is_stmt 0 view .LVU23
+  82 002e 0123     		movs	r3, #1
+  83 0030 0293     		str	r3, [sp, #8]
+  61:Core/Src/adc.c ****     sConfig.SamplingTime = ADC_SAMPLETIME_1CYCLE_5;
+  84              		.loc 1 61 5 is_stmt 1 view .LVU24
+  85              		.loc 1 61 26 is_stmt 0 view .LVU25
+  86 0032 0023     		movs	r3, #0
+  87 0034 0393     		str	r3, [sp, #12]
+  62:Core/Src/adc.c ****     if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
+  88              		.loc 1 62 5 is_stmt 1 view .LVU26
+  89              		.loc 1 62 9 is_stmt 0 view .LVU27
+  90 0036 01A9     		add	r1, sp, #4
+  91 0038 0648     		ldr	r0, .L7
+  92 003a FFF7FEFF 		bl	HAL_ADC_ConfigChannel
+  93              	.LVL1:
+  94              		.loc 1 62 8 view .LVU28
+  95 003e 28B9     		cbnz	r0, .L6
+  96              	.L1:
+  63:Core/Src/adc.c ****     {
+  64:Core/Src/adc.c ****         Error_Handler();
+  65:Core/Src/adc.c ****     }
+  66:Core/Src/adc.c ****     /* USER CODE BEGIN ADC1_Init 2 */
+  67:Core/Src/adc.c **** 
+  68:Core/Src/adc.c ****     /* USER CODE END ADC1_Init 2 */
+  69:Core/Src/adc.c **** }
+  97              		.loc 1 69 1 view .LVU29
+  98 0040 05B0     		add	sp, sp, #20
+  99              	.LCFI2:
+ 100              		.cfi_remember_state
+ 101              		.cfi_def_cfa_offset 4
+ 102              		@ sp needed
+ 103 0042 5DF804FB 		ldr	pc, [sp], #4
+ARM GAS  C:\Users\wyx12\AppData\Local\Temp\ccIYb9ae.s 			page 4
+
+
+ 104              	.L5:
+ 105              	.LCFI3:
+ 106              		.cfi_restore_state
+  54:Core/Src/adc.c ****     }
+ 107              		.loc 1 54 9 is_stmt 1 view .LVU30
+ 108 0046 FFF7FEFF 		bl	Error_Handler
+ 109              	.LVL2:
+ 110 004a EEE7     		b	.L2
+ 111              	.L6:
+  64:Core/Src/adc.c ****     }
+ 112              		.loc 1 64 9 view .LVU31
+ 113 004c FFF7FEFF 		bl	Error_Handler
+ 114              	.LVL3:
+ 115              		.loc 1 69 1 is_stmt 0 view .LVU32
+ 116 0050 F6E7     		b	.L1
+ 117              	.L8:
+ 118 0052 00BF     		.align	2
+ 119              	.L7:
+ 120 0054 00000000 		.word	hadc1
+ 121 0058 00240140 		.word	1073816576
+ 122              		.cfi_endproc
+ 123              	.LFE143:
+ 125              		.section	.text.HAL_ADC_MspInit,"ax",%progbits
+ 126              		.align	1
+ 127              		.global	HAL_ADC_MspInit
+ 128              		.syntax unified
+ 129              		.thumb
+ 130              		.thumb_func
+ 132              	HAL_ADC_MspInit:
+ 133              	.LVL4:
+ 134              	.LFB144:
+  70:Core/Src/adc.c **** 
+  71:Core/Src/adc.c **** void HAL_ADC_MspInit(ADC_HandleTypeDef *adcHandle)
+  72:Core/Src/adc.c **** {
+ 135              		.loc 1 72 1 is_stmt 1 view -0
+ 136              		.cfi_startproc
+ 137              		@ args = 0, pretend = 0, frame = 24
+ 138              		@ frame_needed = 0, uses_anonymous_args = 0
+ 139              		.loc 1 72 1 is_stmt 0 view .LVU34
+ 140 0000 00B5     		push	{lr}
+ 141              	.LCFI4:
+ 142              		.cfi_def_cfa_offset 4
+ 143              		.cfi_offset 14, -4
+ 144 0002 87B0     		sub	sp, sp, #28
+ 145              	.LCFI5:
+ 146              		.cfi_def_cfa_offset 32
+  73:Core/Src/adc.c **** 
+  74:Core/Src/adc.c ****     GPIO_InitTypeDef GPIO_InitStruct = {0};
+ 147              		.loc 1 74 5 is_stmt 1 view .LVU35
+ 148              		.loc 1 74 22 is_stmt 0 view .LVU36
+ 149 0004 0023     		movs	r3, #0
+ 150 0006 0293     		str	r3, [sp, #8]
+ 151 0008 0393     		str	r3, [sp, #12]
+ 152 000a 0493     		str	r3, [sp, #16]
+ 153 000c 0593     		str	r3, [sp, #20]
+  75:Core/Src/adc.c ****     if (adcHandle->Instance == ADC1)
+ 154              		.loc 1 75 5 is_stmt 1 view .LVU37
+ARM GAS  C:\Users\wyx12\AppData\Local\Temp\ccIYb9ae.s 			page 5
+
+
+ 155              		.loc 1 75 18 is_stmt 0 view .LVU38
+ 156 000e 0268     		ldr	r2, [r0]
+ 157              		.loc 1 75 8 view .LVU39
+ 158 0010 114B     		ldr	r3, .L13
+ 159 0012 9A42     		cmp	r2, r3
+ 160 0014 02D0     		beq	.L12
+ 161              	.LVL5:
+ 162              	.L9:
+  76:Core/Src/adc.c ****     {
+  77:Core/Src/adc.c ****         /* USER CODE BEGIN ADC1_MspInit 0 */
+  78:Core/Src/adc.c **** 
+  79:Core/Src/adc.c ****         /* USER CODE END ADC1_MspInit 0 */
+  80:Core/Src/adc.c ****         /* ADC1 clock enable */
+  81:Core/Src/adc.c ****         __HAL_RCC_ADC1_CLK_ENABLE();
+  82:Core/Src/adc.c **** 
+  83:Core/Src/adc.c ****         __HAL_RCC_GPIOB_CLK_ENABLE();
+  84:Core/Src/adc.c ****         /**ADC1 GPIO Configuration
+  85:Core/Src/adc.c ****         PB0     ------> ADC1_IN8
+  86:Core/Src/adc.c ****         */
+  87:Core/Src/adc.c ****         GPIO_InitStruct.Pin = BATT_DET_Pin;
+  88:Core/Src/adc.c ****         GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
+  89:Core/Src/adc.c ****         HAL_GPIO_Init(BATT_DET_GPIO_Port, &GPIO_InitStruct);
+  90:Core/Src/adc.c **** 
+  91:Core/Src/adc.c ****         /* USER CODE BEGIN ADC1_MspInit 1 */
+  92:Core/Src/adc.c **** 
+  93:Core/Src/adc.c ****         /* USER CODE END ADC1_MspInit 1 */
+  94:Core/Src/adc.c ****     }
+  95:Core/Src/adc.c **** }
+ 163              		.loc 1 95 1 view .LVU40
+ 164 0016 07B0     		add	sp, sp, #28
+ 165              	.LCFI6:
+ 166              		.cfi_remember_state
+ 167              		.cfi_def_cfa_offset 4
+ 168              		@ sp needed
+ 169 0018 5DF804FB 		ldr	pc, [sp], #4
+ 170              	.LVL6:
+ 171              	.L12:
+ 172              	.LCFI7:
+ 173              		.cfi_restore_state
+  81:Core/Src/adc.c **** 
+ 174              		.loc 1 81 9 is_stmt 1 view .LVU41
+ 175              	.LBB2:
+  81:Core/Src/adc.c **** 
+ 176              		.loc 1 81 9 view .LVU42
+  81:Core/Src/adc.c **** 
+ 177              		.loc 1 81 9 view .LVU43
+ 178 001c 03F56C43 		add	r3, r3, #60416
+ 179 0020 9A69     		ldr	r2, [r3, #24]
+ 180 0022 42F40072 		orr	r2, r2, #512
+ 181 0026 9A61     		str	r2, [r3, #24]
+  81:Core/Src/adc.c **** 
+ 182              		.loc 1 81 9 view .LVU44
+ 183 0028 9A69     		ldr	r2, [r3, #24]
+ 184 002a 02F40072 		and	r2, r2, #512
+ 185 002e 0092     		str	r2, [sp]
+  81:Core/Src/adc.c **** 
+ 186              		.loc 1 81 9 view .LVU45
+ARM GAS  C:\Users\wyx12\AppData\Local\Temp\ccIYb9ae.s 			page 6
+
+
+ 187 0030 009A     		ldr	r2, [sp]
+ 188              	.LBE2:
+  81:Core/Src/adc.c **** 
+ 189              		.loc 1 81 9 view .LVU46
+  83:Core/Src/adc.c ****         /**ADC1 GPIO Configuration
+ 190              		.loc 1 83 9 view .LVU47
+ 191              	.LBB3:
+  83:Core/Src/adc.c ****         /**ADC1 GPIO Configuration
+ 192              		.loc 1 83 9 view .LVU48
+  83:Core/Src/adc.c ****         /**ADC1 GPIO Configuration
+ 193              		.loc 1 83 9 view .LVU49
+ 194 0032 9A69     		ldr	r2, [r3, #24]
+ 195 0034 42F00802 		orr	r2, r2, #8
+ 196 0038 9A61     		str	r2, [r3, #24]
+  83:Core/Src/adc.c ****         /**ADC1 GPIO Configuration
+ 197              		.loc 1 83 9 view .LVU50
+ 198 003a 9B69     		ldr	r3, [r3, #24]
+ 199 003c 03F00803 		and	r3, r3, #8
+ 200 0040 0193     		str	r3, [sp, #4]
+  83:Core/Src/adc.c ****         /**ADC1 GPIO Configuration
+ 201              		.loc 1 83 9 view .LVU51
+ 202 0042 019B     		ldr	r3, [sp, #4]
+ 203              	.LBE3:
+  83:Core/Src/adc.c ****         /**ADC1 GPIO Configuration
+ 204              		.loc 1 83 9 view .LVU52
+  87:Core/Src/adc.c ****         GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
+ 205              		.loc 1 87 9 view .LVU53
+  87:Core/Src/adc.c ****         GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
+ 206              		.loc 1 87 29 is_stmt 0 view .LVU54
+ 207 0044 0123     		movs	r3, #1
+ 208 0046 0293     		str	r3, [sp, #8]
+  88:Core/Src/adc.c ****         HAL_GPIO_Init(BATT_DET_GPIO_Port, &GPIO_InitStruct);
+ 209              		.loc 1 88 9 is_stmt 1 view .LVU55
+  88:Core/Src/adc.c ****         HAL_GPIO_Init(BATT_DET_GPIO_Port, &GPIO_InitStruct);
+ 210              		.loc 1 88 30 is_stmt 0 view .LVU56
+ 211 0048 0323     		movs	r3, #3
+ 212 004a 0393     		str	r3, [sp, #12]
+  89:Core/Src/adc.c **** 
+ 213              		.loc 1 89 9 is_stmt 1 view .LVU57
+ 214 004c 02A9     		add	r1, sp, #8
+ 215 004e 0348     		ldr	r0, .L13+4
+ 216              	.LVL7:
+  89:Core/Src/adc.c **** 
+ 217              		.loc 1 89 9 is_stmt 0 view .LVU58
+ 218 0050 FFF7FEFF 		bl	HAL_GPIO_Init
+ 219              	.LVL8:
+ 220              		.loc 1 95 1 view .LVU59
+ 221 0054 DFE7     		b	.L9
+ 222              	.L14:
+ 223 0056 00BF     		.align	2
+ 224              	.L13:
+ 225 0058 00240140 		.word	1073816576
+ 226 005c 000C0140 		.word	1073810432
+ 227              		.cfi_endproc
+ 228              	.LFE144:
+ 230              		.section	.text.HAL_ADC_MspDeInit,"ax",%progbits
+ 231              		.align	1
+ARM GAS  C:\Users\wyx12\AppData\Local\Temp\ccIYb9ae.s 			page 7
+
+
+ 232              		.global	HAL_ADC_MspDeInit
+ 233              		.syntax unified
+ 234              		.thumb
+ 235              		.thumb_func
+ 237              	HAL_ADC_MspDeInit:
+ 238              	.LVL9:
+ 239              	.LFB145:
+  96:Core/Src/adc.c **** 
+  97:Core/Src/adc.c **** void HAL_ADC_MspDeInit(ADC_HandleTypeDef *adcHandle)
+  98:Core/Src/adc.c **** {
+ 240              		.loc 1 98 1 is_stmt 1 view -0
+ 241              		.cfi_startproc
+ 242              		@ args = 0, pretend = 0, frame = 0
+ 243              		@ frame_needed = 0, uses_anonymous_args = 0
+ 244              		.loc 1 98 1 is_stmt 0 view .LVU61
+ 245 0000 08B5     		push	{r3, lr}
+ 246              	.LCFI8:
+ 247              		.cfi_def_cfa_offset 8
+ 248              		.cfi_offset 3, -8
+ 249              		.cfi_offset 14, -4
+  99:Core/Src/adc.c **** 
+ 100:Core/Src/adc.c ****     if (adcHandle->Instance == ADC1)
+ 250              		.loc 1 100 5 is_stmt 1 view .LVU62
+ 251              		.loc 1 100 18 is_stmt 0 view .LVU63
+ 252 0002 0268     		ldr	r2, [r0]
+ 253              		.loc 1 100 8 view .LVU64
+ 254 0004 064B     		ldr	r3, .L19
+ 255 0006 9A42     		cmp	r2, r3
+ 256 0008 00D0     		beq	.L18
+ 257              	.LVL10:
+ 258              	.L15:
+ 101:Core/Src/adc.c ****     {
+ 102:Core/Src/adc.c ****         /* USER CODE BEGIN ADC1_MspDeInit 0 */
+ 103:Core/Src/adc.c **** 
+ 104:Core/Src/adc.c ****         /* USER CODE END ADC1_MspDeInit 0 */
+ 105:Core/Src/adc.c ****         /* Peripheral clock disable */
+ 106:Core/Src/adc.c ****         __HAL_RCC_ADC1_CLK_DISABLE();
+ 107:Core/Src/adc.c **** 
+ 108:Core/Src/adc.c ****         /**ADC1 GPIO Configuration
+ 109:Core/Src/adc.c ****         PB0     ------> ADC1_IN8
+ 110:Core/Src/adc.c ****         */
+ 111:Core/Src/adc.c ****         HAL_GPIO_DeInit(BATT_DET_GPIO_Port, BATT_DET_Pin);
+ 112:Core/Src/adc.c **** 
+ 113:Core/Src/adc.c ****         /* USER CODE BEGIN ADC1_MspDeInit 1 */
+ 114:Core/Src/adc.c **** 
+ 115:Core/Src/adc.c ****         /* USER CODE END ADC1_MspDeInit 1 */
+ 116:Core/Src/adc.c ****     }
+ 117:Core/Src/adc.c **** }
+ 259              		.loc 1 117 1 view .LVU65
+ 260 000a 08BD     		pop	{r3, pc}
+ 261              	.LVL11:
+ 262              	.L18:
+ 106:Core/Src/adc.c **** 
+ 263              		.loc 1 106 9 is_stmt 1 view .LVU66
+ 264 000c 054A     		ldr	r2, .L19+4
+ 265 000e 9369     		ldr	r3, [r2, #24]
+ 266 0010 23F40073 		bic	r3, r3, #512
+ARM GAS  C:\Users\wyx12\AppData\Local\Temp\ccIYb9ae.s 			page 8
+
+
+ 267 0014 9361     		str	r3, [r2, #24]
+ 111:Core/Src/adc.c **** 
+ 268              		.loc 1 111 9 view .LVU67
+ 269 0016 0121     		movs	r1, #1
+ 270 0018 0348     		ldr	r0, .L19+8
+ 271              	.LVL12:
+ 111:Core/Src/adc.c **** 
+ 272              		.loc 1 111 9 is_stmt 0 view .LVU68
+ 273 001a FFF7FEFF 		bl	HAL_GPIO_DeInit
+ 274              	.LVL13:
+ 275              		.loc 1 117 1 view .LVU69
+ 276 001e F4E7     		b	.L15
+ 277              	.L20:
+ 278              		.align	2
+ 279              	.L19:
+ 280 0020 00240140 		.word	1073816576
+ 281 0024 00100240 		.word	1073876992
+ 282 0028 000C0140 		.word	1073810432
+ 283              		.cfi_endproc
+ 284              	.LFE145:
+ 286              		.section	.text.Get_ADC_Value,"ax",%progbits
+ 287              		.align	1
+ 288              		.global	Get_ADC_Value
+ 289              		.syntax unified
+ 290              		.thumb
+ 291              		.thumb_func
+ 293              	Get_ADC_Value:
+ 294              	.LVL14:
+ 295              	.LFB146:
+ 118:Core/Src/adc.c **** 
+ 119:Core/Src/adc.c **** /* USER CODE BEGIN 1 */
+ 120:Core/Src/adc.c **** uint32_t Get_ADC_Value(uint32_t CH)
+ 121:Core/Src/adc.c **** {
+ 296              		.loc 1 121 1 is_stmt 1 view -0
+ 297              		.cfi_startproc
+ 298              		@ args = 0, pretend = 0, frame = 0
+ 299              		@ frame_needed = 0, uses_anonymous_args = 0
+ 300              		.loc 1 121 1 is_stmt 0 view .LVU71
+ 301 0000 10B5     		push	{r4, lr}
+ 302              	.LCFI9:
+ 303              		.cfi_def_cfa_offset 8
+ 304              		.cfi_offset 4, -8
+ 305              		.cfi_offset 14, -4
+ 122:Core/Src/adc.c ****     uint32_t Batt_ADC = 0;
+ 306              		.loc 1 122 5 is_stmt 1 view .LVU72
+ 307              	.LVL15:
+ 123:Core/Src/adc.c ****     MX_ADC1_Init();
+ 308              		.loc 1 123 5 view .LVU73
+ 309 0002 FFF7FEFF 		bl	MX_ADC1_Init
+ 310              	.LVL16:
+ 124:Core/Src/adc.c ****     HAL_ADC_Start(&hadc1);
+ 311              		.loc 1 124 5 view .LVU74
+ 312 0006 0848     		ldr	r0, .L24
+ 313 0008 FFF7FEFF 		bl	HAL_ADC_Start
+ 314              	.LVL17:
+ 125:Core/Src/adc.c ****     while (HAL_ADC_PollForConversion(&hadc1, 20) != HAL_OK)
+ 315              		.loc 1 125 5 view .LVU75
+ARM GAS  C:\Users\wyx12\AppData\Local\Temp\ccIYb9ae.s 			page 9
+
+
+ 316              	.L22:
+ 317              		.loc 1 125 50 discriminator 1 view .LVU76
+ 318              		.loc 1 125 12 is_stmt 0 discriminator 1 view .LVU77
+ 319 000c 1421     		movs	r1, #20
+ 320 000e 0648     		ldr	r0, .L24
+ 321 0010 FFF7FEFF 		bl	HAL_ADC_PollForConversion
+ 322              	.LVL18:
+ 323              		.loc 1 125 50 discriminator 1 view .LVU78
+ 324 0014 0028     		cmp	r0, #0
+ 325 0016 F9D1     		bne	.L22
+ 126:Core/Src/adc.c ****         ;
+ 127:Core/Src/adc.c ****     HAL_ADC_Stop(&hadc1);
+ 326              		.loc 1 127 5 is_stmt 1 view .LVU79
+ 327 0018 034C     		ldr	r4, .L24
+ 328 001a 2046     		mov	r0, r4
+ 329 001c FFF7FEFF 		bl	HAL_ADC_Stop
+ 330              	.LVL19:
+ 128:Core/Src/adc.c ****     Batt_ADC = HAL_ADC_GetValue(&hadc1);
+ 331              		.loc 1 128 5 view .LVU80
+ 332              		.loc 1 128 16 is_stmt 0 view .LVU81
+ 333 0020 2046     		mov	r0, r4
+ 334 0022 FFF7FEFF 		bl	HAL_ADC_GetValue
+ 335              	.LVL20:
+ 129:Core/Src/adc.c ****     return Batt_ADC;
+ 336              		.loc 1 129 5 is_stmt 1 view .LVU82
+ 130:Core/Src/adc.c **** }
+ 337              		.loc 1 130 1 is_stmt 0 view .LVU83
+ 338 0026 10BD     		pop	{r4, pc}
+ 339              	.L25:
+ 340              		.align	2
+ 341              	.L24:
+ 342 0028 00000000 		.word	hadc1
+ 343              		.cfi_endproc
+ 344              	.LFE146:
+ 346              		.global	__aeabi_ui2d
+ 347              		.global	__aeabi_ddiv
+ 348              		.global	__aeabi_d2f
+ 349              		.global	__aeabi_f2d
+ 350              		.global	__aeabi_dsub
+ 351              		.global	__aeabi_dmul
+ 352              		.global	__aeabi_fcmpgt
+ 353              		.global	__aeabi_fcmplt
+ 354              		.global	__aeabi_f2uiz
+ 355              		.section	.text.get_voltage,"ax",%progbits
+ 356              		.align	1
+ 357              		.global	get_voltage
+ 358              		.syntax unified
+ 359              		.thumb
+ 360              		.thumb_func
+ 362              	get_voltage:
+ 363              	.LFB147:
+ 131:Core/Src/adc.c **** uint32_t temp = 0;
+ 132:Core/Src/adc.c **** uint8_t get_voltage(void)
+ 133:Core/Src/adc.c **** {
+ 364              		.loc 1 133 1 is_stmt 1 view -0
+ 365              		.cfi_startproc
+ 366              		@ args = 0, pretend = 0, frame = 0
+ARM GAS  C:\Users\wyx12\AppData\Local\Temp\ccIYb9ae.s 			page 10
+
+
+ 367              		@ frame_needed = 0, uses_anonymous_args = 0
+ 368 0000 10B5     		push	{r4, lr}
+ 369              	.LCFI10:
+ 370              		.cfi_def_cfa_offset 8
+ 371              		.cfi_offset 4, -8
+ 372              		.cfi_offset 14, -4
+ 134:Core/Src/adc.c ****     temp = Get_ADC_Value(ADC_CHANNEL_VREFINT);
+ 373              		.loc 1 134 5 view .LVU85
+ 374              		.loc 1 134 12 is_stmt 0 view .LVU86
+ 375 0002 1120     		movs	r0, #17
+ 376 0004 FFF7FEFF 		bl	Get_ADC_Value
+ 377              	.LVL21:
+ 378              		.loc 1 134 10 view .LVU87
+ 379 0008 1D4B     		ldr	r3, .L33+16
+ 380 000a 1860     		str	r0, [r3]
+ 135:Core/Src/adc.c ****     float voltage = 2.5 * 4096.0 / temp;
+ 381              		.loc 1 135 5 is_stmt 1 view .LVU88
+ 382              		.loc 1 135 34 is_stmt 0 view .LVU89
+ 383 000c FFF7FEFF 		bl	__aeabi_ui2d
+ 384              	.LVL22:
+ 385 0010 0246     		mov	r2, r0
+ 386 0012 0B46     		mov	r3, r1
+ 387 0014 0020     		movs	r0, #0
+ 388 0016 1B49     		ldr	r1, .L33+20
+ 389 0018 FFF7FEFF 		bl	__aeabi_ddiv
+ 390              	.LVL23:
+ 391              		.loc 1 135 11 view .LVU90
+ 392 001c FFF7FEFF 		bl	__aeabi_d2f
+ 393              	.LVL24:
+ 136:Core/Src/adc.c ****     // float voltage = __LL_ADC_CALC_VREFANALOG_VOLTAGE(temp, LL_ADC_RESOLUTION_12B) / 1000.0f;
+ 137:Core/Src/adc.c ****     // float voltage = __LL_ADC_CALC_DATA_TO_VOLTAGE(3300, temp, LL_ADC_RESOLUTION_12B);//-》实�
+ 138:Core/Src/adc.c ****     voltage = ((float)(voltage - _MIN_VOLTAGE)) / (3.6 - _MIN_VOLTAGE) * 100;
+ 394              		.loc 1 138 5 is_stmt 1 view .LVU91
+ 395              		.loc 1 138 32 is_stmt 0 view .LVU92
+ 396 0020 FFF7FEFF 		bl	__aeabi_f2d
+ 397              	.LVL25:
+ 398              		.loc 1 138 32 view .LVU93
+ 399 0024 12A3     		adr	r3, .L33
+ 400 0026 D3E90023 		ldrd	r2, [r3]
+ 401 002a FFF7FEFF 		bl	__aeabi_dsub
+ 402              	.LVL26:
+ 403              		.loc 1 138 16 view .LVU94
+ 404 002e FFF7FEFF 		bl	__aeabi_d2f
+ 405              	.LVL27:
+ 406 0032 FFF7FEFF 		bl	__aeabi_f2d
+ 407              	.LVL28:
+ 408              		.loc 1 138 49 view .LVU95
+ 409 0036 10A3     		adr	r3, .L33+8
+ 410 0038 D3E90023 		ldrd	r2, [r3]
+ 411 003c FFF7FEFF 		bl	__aeabi_ddiv
+ 412              	.LVL29:
+ 413              		.loc 1 138 72 view .LVU96
+ 414 0040 0022     		movs	r2, #0
+ 415 0042 114B     		ldr	r3, .L33+24
+ 416 0044 FFF7FEFF 		bl	__aeabi_dmul
+ 417              	.LVL30:
+ 418              		.loc 1 138 13 view .LVU97
+ARM GAS  C:\Users\wyx12\AppData\Local\Temp\ccIYb9ae.s 			page 11
+
+
+ 419 0048 FFF7FEFF 		bl	__aeabi_d2f
+ 420              	.LVL31:
+ 421 004c 0446     		mov	r4, r0
+ 422              	.LVL32:
+ 139:Core/Src/adc.c ****     if (voltage > 100)
+ 423              		.loc 1 139 5 is_stmt 1 view .LVU98
+ 424              		.loc 1 139 8 is_stmt 0 view .LVU99
+ 425 004e 0F49     		ldr	r1, .L33+28
+ 426 0050 FFF7FEFF 		bl	__aeabi_fcmpgt
+ 427              	.LVL33:
+ 428              		.loc 1 139 8 view .LVU100
+ 429 0054 00B1     		cbz	r0, .L27
+ 140:Core/Src/adc.c ****     {
+ 141:Core/Src/adc.c ****         voltage = 100;
+ 430              		.loc 1 141 17 view .LVU101
+ 431 0056 0D4C     		ldr	r4, .L33+28
+ 432              	.LVL34:
+ 433              	.L27:
+ 142:Core/Src/adc.c ****     }
+ 143:Core/Src/adc.c ****     if (voltage < 0)
+ 434              		.loc 1 143 5 is_stmt 1 view .LVU102
+ 435              		.loc 1 143 8 is_stmt 0 view .LVU103
+ 436 0058 0021     		movs	r1, #0
+ 437 005a 2046     		mov	r0, r4
+ 438 005c FFF7FEFF 		bl	__aeabi_fcmplt
+ 439              	.LVL35:
+ 440 0060 20B9     		cbnz	r0, .L32
+ 441              	.LVL36:
+ 442              	.L28:
+ 144:Core/Src/adc.c ****     {
+ 145:Core/Src/adc.c ****         voltage = 0;
+ 146:Core/Src/adc.c ****     }
+ 147:Core/Src/adc.c ****     return voltage;
+ 443              		.loc 1 147 5 is_stmt 1 view .LVU104
+ 444              		.loc 1 147 12 is_stmt 0 view .LVU105
+ 445 0062 2046     		mov	r0, r4
+ 446 0064 FFF7FEFF 		bl	__aeabi_f2uiz
+ 447              	.LVL37:
+ 148:Core/Src/adc.c **** }
+ 448              		.loc 1 148 1 view .LVU106
+ 449 0068 C0B2     		uxtb	r0, r0
+ 450 006a 10BD     		pop	{r4, pc}
+ 451              	.LVL38:
+ 452              	.L32:
+ 145:Core/Src/adc.c ****     }
+ 453              		.loc 1 145 17 view .LVU107
+ 454 006c 0024     		movs	r4, #0
+ 455              	.LVL39:
+ 145:Core/Src/adc.c ****     }
+ 456              		.loc 1 145 17 view .LVU108
+ 457 006e F8E7     		b	.L28
+ 458              	.L34:
+ 459              		.align	3
+ 460              	.L33:
+ 461 0070 9A999999 		.word	-1717986918
+ 462 0074 99990540 		.word	1074108825
+ 463 0078 CCCCCCCC 		.word	-858993460
+ARM GAS  C:\Users\wyx12\AppData\Local\Temp\ccIYb9ae.s 			page 12
+
+
+ 464 007c CCCCEC3F 		.word	1072483532
+ 465 0080 00000000 		.word	temp
+ 466 0084 0000C440 		.word	1086586880
+ 467 0088 00005940 		.word	1079574528
+ 468 008c 0000C842 		.word	1120403456
+ 469              		.cfi_endproc
+ 470              	.LFE147:
+ 472              		.global	temp
+ 473              		.section	.bss.temp,"aw",%nobits
+ 474              		.align	2
+ 477              	temp:
+ 478 0000 00000000 		.space	4
+ 479              		.global	hadc1
+ 480              		.section	.bss.hadc1,"aw",%nobits
+ 481              		.align	2
+ 484              	hadc1:
+ 485 0000 00000000 		.space	48
+ 485      00000000 
+ 485      00000000 
+ 485      00000000 
+ 485      00000000 
+ 486              		.text
+ 487              	.Letext0:
+ 488              		.file 2 "c:\\program files (x86)\\arm gnu toolchain arm-none-eabi\\12.2 rel1\\arm-none-eabi\\inclu
+ 489              		.file 3 "c:\\program files (x86)\\arm gnu toolchain arm-none-eabi\\12.2 rel1\\arm-none-eabi\\inclu
+ 490              		.file 4 "Drivers/CMSIS/Device/ST/STM32F1xx/Include/stm32f103xe.h"
+ 491              		.file 5 "Drivers/CMSIS/Device/ST/STM32F1xx/Include/stm32f1xx.h"
+ 492              		.file 6 "Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_def.h"
+ 493              		.file 7 "Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_gpio.h"
+ 494              		.file 8 "Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_dma.h"
+ 495              		.file 9 "Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_adc.h"
+ 496              		.file 10 "Core/Inc/adc.h"
+ 497              		.file 11 "Core/Inc/main.h"
+ARM GAS  C:\Users\wyx12\AppData\Local\Temp\ccIYb9ae.s 			page 13
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 adc.c
+C:\Users\wyx12\AppData\Local\Temp\ccIYb9ae.s:19     .text.MX_ADC1_Init:00000000 $t
+C:\Users\wyx12\AppData\Local\Temp\ccIYb9ae.s:25     .text.MX_ADC1_Init:00000000 MX_ADC1_Init
+C:\Users\wyx12\AppData\Local\Temp\ccIYb9ae.s:120    .text.MX_ADC1_Init:00000054 $d
+C:\Users\wyx12\AppData\Local\Temp\ccIYb9ae.s:484    .bss.hadc1:00000000 hadc1
+C:\Users\wyx12\AppData\Local\Temp\ccIYb9ae.s:126    .text.HAL_ADC_MspInit:00000000 $t
+C:\Users\wyx12\AppData\Local\Temp\ccIYb9ae.s:132    .text.HAL_ADC_MspInit:00000000 HAL_ADC_MspInit
+C:\Users\wyx12\AppData\Local\Temp\ccIYb9ae.s:225    .text.HAL_ADC_MspInit:00000058 $d
+C:\Users\wyx12\AppData\Local\Temp\ccIYb9ae.s:231    .text.HAL_ADC_MspDeInit:00000000 $t
+C:\Users\wyx12\AppData\Local\Temp\ccIYb9ae.s:237    .text.HAL_ADC_MspDeInit:00000000 HAL_ADC_MspDeInit
+C:\Users\wyx12\AppData\Local\Temp\ccIYb9ae.s:280    .text.HAL_ADC_MspDeInit:00000020 $d
+C:\Users\wyx12\AppData\Local\Temp\ccIYb9ae.s:287    .text.Get_ADC_Value:00000000 $t
+C:\Users\wyx12\AppData\Local\Temp\ccIYb9ae.s:293    .text.Get_ADC_Value:00000000 Get_ADC_Value
+C:\Users\wyx12\AppData\Local\Temp\ccIYb9ae.s:342    .text.Get_ADC_Value:00000028 $d
+C:\Users\wyx12\AppData\Local\Temp\ccIYb9ae.s:356    .text.get_voltage:00000000 $t
+C:\Users\wyx12\AppData\Local\Temp\ccIYb9ae.s:362    .text.get_voltage:00000000 get_voltage
+C:\Users\wyx12\AppData\Local\Temp\ccIYb9ae.s:461    .text.get_voltage:00000070 $d
+C:\Users\wyx12\AppData\Local\Temp\ccIYb9ae.s:477    .bss.temp:00000000 temp
+C:\Users\wyx12\AppData\Local\Temp\ccIYb9ae.s:474    .bss.temp:00000000 $d
+C:\Users\wyx12\AppData\Local\Temp\ccIYb9ae.s:481    .bss.hadc1:00000000 $d
+
+UNDEFINED SYMBOLS
+HAL_ADC_Init
+HAL_ADC_ConfigChannel
+Error_Handler
+HAL_GPIO_Init
+HAL_GPIO_DeInit
+HAL_ADC_Start
+HAL_ADC_PollForConversion
+HAL_ADC_Stop
+HAL_ADC_GetValue
+__aeabi_ui2d
+__aeabi_ddiv
+__aeabi_d2f
+__aeabi_f2d
+__aeabi_dsub
+__aeabi_dmul
+__aeabi_fcmpgt
+__aeabi_fcmplt
+__aeabi_f2uiz

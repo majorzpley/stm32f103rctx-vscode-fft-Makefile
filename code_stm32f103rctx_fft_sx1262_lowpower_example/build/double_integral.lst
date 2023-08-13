@@ -1,0 +1,1859 @@
+ARM GAS  C:\Users\wyx12\AppData\Local\Temp\ccXgUGP1.s 			page 1
+
+
+   1              		.cpu cortex-m3
+   2              		.arch armv7-m
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 1
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.file	"double_integral.c"
+  14              		.text
+  15              	.Ltext0:
+  16              		.cfi_sections	.debug_frame
+  17              		.file 1 "Modules/fft/Src/double_integral.c"
+  18              		.global	__aeabi_fcmple
+  19              		.global	__aeabi_ui2d
+  20              		.global	__aeabi_i2d
+  21              		.global	__aeabi_dcmpge
+  22              		.global	__aeabi_d2uiz
+  23              		.global	__aeabi_ui2f
+  24              		.global	__aeabi_fdiv
+  25              		.global	__aeabi_f2d
+  26              		.global	__aeabi_d2f
+  27              		.global	__aeabi_fmul
+  28              		.global	__aeabi_i2f
+  29              		.global	__aeabi_fadd
+  30              		.section	.text.integ_init,"ax",%progbits
+  31              		.align	1
+  32              		.global	integ_init
+  33              		.syntax unified
+  34              		.thumb
+  35              		.thumb_func
+  37              	integ_init:
+  38              	.LVL0:
+  39              	.LFB100:
+   1:Modules/fft/Src/double_integral.c **** /*
+   2:Modules/fft/Src/double_integral.c ****  * @Author: MajorZpley
+   3:Modules/fft/Src/double_integral.c ****  * @Date: 2023-08-03 14:05:42
+   4:Modules/fft/Src/double_integral.c ****  * @LastEditTime: 2023-08-03 14:13:30
+   5:Modules/fft/Src/double_integral.c ****  * @LastEditors: your name
+   6:Modules/fft/Src/double_integral.c ****  * @Description:
+   7:Modules/fft/Src/double_integral.c ****  * @FilePath: \stm32f103rctx+sx1262+sound2\Modules\fft\Src\double_integral.c
+   8:Modules/fft/Src/double_integral.c ****  * practice makes perfect!
+   9:Modules/fft/Src/double_integral.c ****  */
+  10:Modules/fft/Src/double_integral.c **** /**
+  11:Modules/fft/Src/double_integral.c ****  ********************************************************************
+  12:Modules/fft/Src/double_integral.c ****  *  @filename	频域一次/二次积分
+  13:Modules/fft/Src/double_integral.c ****  *  @author  	L-KAYA
+  14:Modules/fft/Src/double_integral.c ****  *  @date    	27-July-2018
+  15:Modules/fft/Src/double_integral.c ****  *  @brief   	该文件主要用于实现加速度在频域的一次或二次积分
+  16:Modules/fft/Src/double_integral.c ****  *           	得到速度或位移，有带通滤波功能，积分后漂移较小
+  17:Modules/fft/Src/double_integral.c ****  *  			建议采样频率1kHz以上，效果较为理想
+  18:Modules/fft/Src/double_integral.c ****  ********************************************************************
+  19:Modules/fft/Src/double_integral.c ****  */
+ARM GAS  C:\Users\wyx12\AppData\Local\Temp\ccXgUGP1.s 			page 2
+
+
+  20:Modules/fft/Src/double_integral.c **** 
+  21:Modules/fft/Src/double_integral.c **** #include "double_integral.h"
+  22:Modules/fft/Src/double_integral.c **** #include "arm_const_structs.h"
+  23:Modules/fft/Src/double_integral.c **** #include "WindowCoeff.h"
+  24:Modules/fft/Src/double_integral.c **** 
+  25:Modules/fft/Src/double_integral.c **** static float fft_buf[2 * 1024] = {0}; // 8K,
+  26:Modules/fft/Src/double_integral.c **** static float wave_buf[1024] = {0};    // 1K,
+  27:Modules/fft/Src/double_integral.c **** 
+  28:Modules/fft/Src/double_integral.c **** // 结构体指针
+  29:Modules/fft/Src/double_integral.c **** 
+  30:Modules/fft/Src/double_integral.c **** dou_integ_t god;
+  31:Modules/fft/Src/double_integral.c **** dou_integ_t *integ = &god;
+  32:Modules/fft/Src/double_integral.c **** 
+  33:Modules/fft/Src/double_integral.c **** /**
+  34:Modules/fft/Src/double_integral.c ****  *  @name	频域一次/二次积分初始化函数
+  35:Modules/fft/Src/double_integral.c ****  *  @brief  初始化用于存储函数的结构体，下方可更改部分根据实际情况更改
+  36:Modules/fft/Src/double_integral.c ****  *  @pram	len	用于二次积分的数组长度，建议大于16小于4096，2的幂次
+  37:Modules/fft/Src/double_integral.c ****  *  @retval	0	成功
+  38:Modules/fft/Src/double_integral.c ****  *  		else失败
+  39:Modules/fft/Src/double_integral.c ****  */
+  40:Modules/fft/Src/double_integral.c **** int integ_init(uint16_t len, uint8_t integ_time)
+  41:Modules/fft/Src/double_integral.c **** {
+  40              		.loc 1 41 1 view -0
+  41              		.cfi_startproc
+  42              		@ args = 0, pretend = 0, frame = 0
+  43              		@ frame_needed = 0, uses_anonymous_args = 0
+  42:Modules/fft/Src/double_integral.c ****     // integ = (dou_integ_t*)MALLOC(sizeof(dou_integ_t));
+  43:Modules/fft/Src/double_integral.c ****     if (integ == NULL)
+  44              		.loc 1 43 5 view .LVU1
+  45              		.loc 1 43 15 is_stmt 0 view .LVU2
+  46 0000 9E4B     		ldr	r3, .L38
+  47 0002 1B68     		ldr	r3, [r3]
+  48              		.loc 1 43 8 view .LVU3
+  49 0004 002B     		cmp	r3, #0
+  50 0006 00F03081 		beq	.L26
+  41:Modules/fft/Src/double_integral.c ****     // integ = (dou_integ_t*)MALLOC(sizeof(dou_integ_t));
+  51              		.loc 1 41 1 view .LVU4
+  52 000a 2DE9F047 		push	{r4, r5, r6, r7, r8, r9, r10, lr}
+  53              	.LCFI0:
+  54              		.cfi_def_cfa_offset 32
+  55              		.cfi_offset 4, -32
+  56              		.cfi_offset 5, -28
+  57              		.cfi_offset 6, -24
+  58              		.cfi_offset 7, -20
+  59              		.cfi_offset 8, -16
+  60              		.cfi_offset 9, -12
+  61              		.cfi_offset 10, -8
+  62              		.cfi_offset 14, -4
+  63 000e 0546     		mov	r5, r0
+  44:Modules/fft/Src/double_integral.c ****         return -1; // 内存申请失败
+  45:Modules/fft/Src/double_integral.c **** 
+  46:Modules/fft/Src/double_integral.c ****     // 设置频域二次积分的参数(可更改)
+  47:Modules/fft/Src/double_integral.c ****     integ->smple_frq = SMPLE_FRQ;   // 采样频率
+  64              		.loc 1 47 5 is_stmt 1 view .LVU5
+  65              		.loc 1 47 22 is_stmt 0 view .LVU6
+  66 0010 9B4A     		ldr	r2, .L38+4
+  67 0012 5A60     		str	r2, [r3, #4]	@ float
+ARM GAS  C:\Users\wyx12\AppData\Local\Temp\ccXgUGP1.s 			page 3
+
+
+  48:Modules/fft/Src/double_integral.c ****     integ->gravity = GRAVITY;       // 单位变化系数（最后积分结果乘上该系数，根
+  68              		.loc 1 48 5 is_stmt 1 view .LVU7
+  69              		.loc 1 48 20 is_stmt 0 view .LVU8
+  70 0014 4FF07E52 		mov	r2, #1065353216
+  71 0018 9A61     		str	r2, [r3, #24]	@ float
+  49:Modules/fft/Src/double_integral.c ****     integ->integ_time = integ_time; // 积分次数
+  72              		.loc 1 49 5 is_stmt 1 view .LVU9
+  73              		.loc 1 49 23 is_stmt 0 view .LVU10
+  74 001a 1970     		strb	r1, [r3]
+  50:Modules/fft/Src/double_integral.c ****     integ->frq_min = FRQ_MIN;       // 高通滤波截止频率
+  75              		.loc 1 50 5 is_stmt 1 view .LVU11
+  76              		.loc 1 50 10 is_stmt 0 view .LVU12
+  77 001c 974B     		ldr	r3, .L38
+  78 001e D3F800A0 		ldr	r10, [r3]
+  79              		.loc 1 50 20 view .LVU13
+  80 0022 4FF08043 		mov	r3, #1073741824
+  81 0026 CAF81030 		str	r3, [r10, #16]	@ float
+  51:Modules/fft/Src/double_integral.c ****     integ->frq_max = FRQ_MAX;       // 低通滤波截止频率（应小于采样频率）
+  82              		.loc 1 51 5 is_stmt 1 view .LVU14
+  83              		.loc 1 51 20 is_stmt 0 view .LVU15
+  84 002a 9649     		ldr	r1, .L38+8
+  85              	.LVL1:
+  86              		.loc 1 51 20 view .LVU16
+  87 002c CAF81410 		str	r1, [r10, #20]	@ float
+  52:Modules/fft/Src/double_integral.c ****     if (integ->frq_max >= integ->smple_frq)
+  88              		.loc 1 52 5 is_stmt 1 view .LVU17
+  89              		.loc 1 52 8 is_stmt 0 view .LVU18
+  90 0030 DAF80400 		ldr	r0, [r10, #4]	@ float
+  91              	.LVL2:
+  92              		.loc 1 52 8 view .LVU19
+  93 0034 FFF7FEFF 		bl	__aeabi_fcmple
+  94              	.LVL3:
+  95 0038 0028     		cmp	r0, #0
+  96 003a 40F01981 		bne	.L27
+  53:Modules/fft/Src/double_integral.c ****         return -2;
+  54:Modules/fft/Src/double_integral.c **** 
+  55:Modules/fft/Src/double_integral.c ****     // 根据输入数组长度，计算FFT数组长度
+  56:Modules/fft/Src/double_integral.c ****     uint8_t i;
+  57:Modules/fft/Src/double_integral.c ****     for (i = 4; i < 13; i++)
+  97              		.loc 1 57 12 view .LVU20
+  98 003e 0424     		movs	r4, #4
+  99 0040 01E0     		b	.L3
+ 100              	.LVL4:
+ 101              	.L30:
+ 102              		.loc 1 57 26 is_stmt 1 discriminator 2 view .LVU21
+ 103 0042 0134     		adds	r4, r4, #1
+ 104              	.LVL5:
+ 105              		.loc 1 57 26 is_stmt 0 discriminator 2 view .LVU22
+ 106 0044 E4B2     		uxtb	r4, r4
+ 107              	.LVL6:
+ 108              	.L3:
+ 109              		.loc 1 57 19 is_stmt 1 discriminator 1 view .LVU23
+ 110 0046 0C2C     		cmp	r4, #12
+ 111 0048 23D8     		bhi	.L6
+  58:Modules/fft/Src/double_integral.c ****     { // 数组长度范围为2^4=16 ~ 2^12=4096
+  59:Modules/fft/Src/double_integral.c ****         if (POW(2, i) >= len)
+ 112              		.loc 1 59 9 view .LVU24
+ARM GAS  C:\Users\wyx12\AppData\Local\Temp\ccXgUGP1.s 			page 4
+
+
+ 113              		.loc 1 59 13 is_stmt 0 view .LVU25
+ 114 004a 2046     		mov	r0, r4
+ 115 004c FFF7FEFF 		bl	__aeabi_ui2d
+ 116              	.LVL7:
+ 117 0050 0646     		mov	r6, r0
+ 118 0052 0F46     		mov	r7, r1
+ 119 0054 0246     		mov	r2, r0
+ 120 0056 0B46     		mov	r3, r1
+ 121 0058 0020     		movs	r0, #0
+ 122 005a 4FF08041 		mov	r1, #1073741824
+ 123 005e FFF7FEFF 		bl	pow
+ 124              	.LVL8:
+ 125 0062 8046     		mov	r8, r0
+ 126 0064 8946     		mov	r9, r1
+ 127              		.loc 1 59 23 view .LVU26
+ 128 0066 2846     		mov	r0, r5
+ 129 0068 FFF7FEFF 		bl	__aeabi_i2d
+ 130              	.LVL9:
+ 131 006c 0246     		mov	r2, r0
+ 132 006e 0B46     		mov	r3, r1
+ 133              		.loc 1 59 12 view .LVU27
+ 134 0070 4046     		mov	r0, r8
+ 135 0072 4946     		mov	r1, r9
+ 136 0074 FFF7FEFF 		bl	__aeabi_dcmpge
+ 137              	.LVL10:
+ 138 0078 0028     		cmp	r0, #0
+ 139 007a E2D0     		beq	.L30
+  60:Modules/fft/Src/double_integral.c ****         {
+  61:Modules/fft/Src/double_integral.c ****             integ->fft_len = POW(2, i); // 大于并接近n的2的幂次方的FFT长度
+ 140              		.loc 1 61 13 is_stmt 1 view .LVU28
+ 141              		.loc 1 61 30 is_stmt 0 view .LVU29
+ 142 007c 3246     		mov	r2, r6
+ 143 007e 3B46     		mov	r3, r7
+ 144 0080 0020     		movs	r0, #0
+ 145 0082 4FF08041 		mov	r1, #1073741824
+ 146 0086 FFF7FEFF 		bl	pow
+ 147              	.LVL11:
+ 148              		.loc 1 61 28 view .LVU30
+ 149 008a FFF7FEFF 		bl	__aeabi_d2uiz
+ 150              	.LVL12:
+ 151 008e AAF80200 		strh	r0, [r10, #2]	@ movhi
+  62:Modules/fft/Src/double_integral.c ****             break;
+ 152              		.loc 1 62 13 is_stmt 1 view .LVU31
+ 153              	.L6:
+  63:Modules/fft/Src/double_integral.c ****         }
+  64:Modules/fft/Src/double_integral.c ****     }
+  65:Modules/fft/Src/double_integral.c **** 
+  66:Modules/fft/Src/double_integral.c ****     if (i == 13)
+ 154              		.loc 1 66 5 view .LVU32
+ 155              		.loc 1 66 8 is_stmt 0 view .LVU33
+ 156 0092 0D2C     		cmp	r4, #13
+ 157 0094 00F0EF80 		beq	.L28
+  67:Modules/fft/Src/double_integral.c ****         return -3; // 数据长度太大，范围为16~4096
+  68:Modules/fft/Src/double_integral.c **** 
+  69:Modules/fft/Src/double_integral.c ****     // 为fft_buf临时数组分配内存
+  70:Modules/fft/Src/double_integral.c ****     integ->fft_buf = fft_buf; //   (float*)MALLOC(integ->fft_len*2*(sizeof(float)));
+ 158              		.loc 1 70 5 is_stmt 1 view .LVU34
+ARM GAS  C:\Users\wyx12\AppData\Local\Temp\ccXgUGP1.s 			page 5
+
+
+ 159              		.loc 1 70 10 is_stmt 0 view .LVU35
+ 160 0098 784B     		ldr	r3, .L38
+ 161 009a 1D68     		ldr	r5, [r3]
+ 162              		.loc 1 70 20 view .LVU36
+ 163 009c 7A4B     		ldr	r3, .L38+12
+ 164 009e 2B62     		str	r3, [r5, #32]
+  71:Modules/fft/Src/double_integral.c ****     if (integ->fft_buf == NULL)
+ 165              		.loc 1 71 5 is_stmt 1 view .LVU37
+  72:Modules/fft/Src/double_integral.c ****         return -4; // 内存申请失败
+  73:Modules/fft/Src/double_integral.c **** 
+  74:Modules/fft/Src/double_integral.c ****     switch (integ->fft_len)
+ 166              		.loc 1 74 5 view .LVU38
+ 167              		.loc 1 74 18 is_stmt 0 view .LVU39
+ 168 00a0 6C88     		ldrh	r4, [r5, #2]
+ 169              	.LVL13:
+ 170              		.loc 1 74 5 view .LVU40
+ 171 00a2 B4F5807F 		cmp	r4, #256
+ 172 00a6 67D0     		beq	.L8
+ 173 00a8 0DD9     		bls	.L35
+ 174 00aa B4F5006F 		cmp	r4, #2048
+ 175 00ae 71D0     		beq	.L16
+ 176 00b0 20D9     		bls	.L36
+ 177 00b2 B4F5805F 		cmp	r4, #4096
+ 178 00b6 74D1     		bne	.L14
+  75:Modules/fft/Src/double_integral.c ****     {
+  76:Modules/fft/Src/double_integral.c ****     case 16:
+  77:Modules/fft/Src/double_integral.c ****     {
+  78:Modules/fft/Src/double_integral.c ****         integ->S = arm_cfft_sR_f32_len16;
+  79:Modules/fft/Src/double_integral.c ****         break;
+  80:Modules/fft/Src/double_integral.c ****     }
+  81:Modules/fft/Src/double_integral.c ****     case 32:
+  82:Modules/fft/Src/double_integral.c ****     {
+  83:Modules/fft/Src/double_integral.c ****         integ->S = arm_cfft_sR_f32_len32;
+  84:Modules/fft/Src/double_integral.c ****         break;
+  85:Modules/fft/Src/double_integral.c ****     }
+  86:Modules/fft/Src/double_integral.c ****     case 64:
+  87:Modules/fft/Src/double_integral.c ****     {
+  88:Modules/fft/Src/double_integral.c ****         integ->S = arm_cfft_sR_f32_len64;
+  89:Modules/fft/Src/double_integral.c ****         break;
+  90:Modules/fft/Src/double_integral.c ****     }
+  91:Modules/fft/Src/double_integral.c ****     case 128:
+  92:Modules/fft/Src/double_integral.c ****     {
+  93:Modules/fft/Src/double_integral.c ****         integ->S = arm_cfft_sR_f32_len128;
+  94:Modules/fft/Src/double_integral.c ****         break;
+  95:Modules/fft/Src/double_integral.c ****     }
+  96:Modules/fft/Src/double_integral.c ****     case 256:
+  97:Modules/fft/Src/double_integral.c ****     {
+  98:Modules/fft/Src/double_integral.c ****         integ->S = arm_cfft_sR_f32_len256;
+  99:Modules/fft/Src/double_integral.c ****         break;
+ 100:Modules/fft/Src/double_integral.c ****     }
+ 101:Modules/fft/Src/double_integral.c ****     case 512:
+ 102:Modules/fft/Src/double_integral.c ****     {
+ 103:Modules/fft/Src/double_integral.c ****         integ->S = arm_cfft_sR_f32_len512;
+ 104:Modules/fft/Src/double_integral.c ****         break;
+ 105:Modules/fft/Src/double_integral.c ****     }
+ 106:Modules/fft/Src/double_integral.c ****     case 1024:
+ 107:Modules/fft/Src/double_integral.c ****     {
+ARM GAS  C:\Users\wyx12\AppData\Local\Temp\ccXgUGP1.s 			page 6
+
+
+ 108:Modules/fft/Src/double_integral.c ****         integ->S = arm_cfft_sR_f32_len1024;
+ 109:Modules/fft/Src/double_integral.c ****         break;
+ 110:Modules/fft/Src/double_integral.c ****     }
+ 111:Modules/fft/Src/double_integral.c ****     case 2048:
+ 112:Modules/fft/Src/double_integral.c ****     {
+ 113:Modules/fft/Src/double_integral.c ****         integ->S = arm_cfft_sR_f32_len2048;
+ 114:Modules/fft/Src/double_integral.c ****         break;
+ 115:Modules/fft/Src/double_integral.c ****     }
+ 116:Modules/fft/Src/double_integral.c ****     case 4096:
+ 117:Modules/fft/Src/double_integral.c ****     {
+ 118:Modules/fft/Src/double_integral.c ****         integ->S = arm_cfft_sR_f32_len4096;
+ 179              		.loc 1 118 9 is_stmt 1 view .LVU41
+ 180              		.loc 1 118 18 is_stmt 0 view .LVU42
+ 181 00b8 744B     		ldr	r3, .L38+16
+ 182 00ba 05F12406 		add	r6, r5, #36
+ 183 00be 0FCB     		ldm	r3, {r0, r1, r2, r3}
+ 184 00c0 86E80F00 		stm	r6, {r0, r1, r2, r3}
+ 119:Modules/fft/Src/double_integral.c ****         break;
+ 185              		.loc 1 119 9 is_stmt 1 view .LVU43
+ 186 00c4 29E0     		b	.L21
+ 187              	.L35:
+  74:Modules/fft/Src/double_integral.c ****     {
+ 188              		.loc 1 74 5 is_stmt 0 view .LVU44
+ 189 00c6 402C     		cmp	r4, #64
+ 190 00c8 4FD0     		beq	.L10
+ 191 00ca 08D9     		bls	.L37
+ 192 00cc 802C     		cmp	r4, #128
+ 193 00ce 68D1     		bne	.L14
+  93:Modules/fft/Src/double_integral.c ****         break;
+ 194              		.loc 1 93 9 is_stmt 1 view .LVU45
+  93:Modules/fft/Src/double_integral.c ****         break;
+ 195              		.loc 1 93 18 is_stmt 0 view .LVU46
+ 196 00d0 6F4B     		ldr	r3, .L38+20
+ 197 00d2 05F12406 		add	r6, r5, #36
+ 198 00d6 0FCB     		ldm	r3, {r0, r1, r2, r3}
+ 199 00d8 86E80F00 		stm	r6, {r0, r1, r2, r3}
+  94:Modules/fft/Src/double_integral.c ****     }
+ 200              		.loc 1 94 9 is_stmt 1 view .LVU47
+ 201 00dc 1DE0     		b	.L21
+ 202              	.L37:
+  74:Modules/fft/Src/double_integral.c ****     {
+ 203              		.loc 1 74 5 is_stmt 0 view .LVU48
+ 204 00de 102C     		cmp	r4, #16
+ 205 00e0 15D0     		beq	.L12
+ 206 00e2 202C     		cmp	r4, #32
+ 207 00e4 5DD1     		bne	.L14
+  83:Modules/fft/Src/double_integral.c ****         break;
+ 208              		.loc 1 83 9 is_stmt 1 view .LVU49
+  83:Modules/fft/Src/double_integral.c ****         break;
+ 209              		.loc 1 83 18 is_stmt 0 view .LVU50
+ 210 00e6 6B4B     		ldr	r3, .L38+24
+ 211 00e8 05F12406 		add	r6, r5, #36
+ 212 00ec 0FCB     		ldm	r3, {r0, r1, r2, r3}
+ 213 00ee 86E80F00 		stm	r6, {r0, r1, r2, r3}
+  84:Modules/fft/Src/double_integral.c ****     }
+ 214              		.loc 1 84 9 is_stmt 1 view .LVU51
+ 215 00f2 12E0     		b	.L21
+ARM GAS  C:\Users\wyx12\AppData\Local\Temp\ccXgUGP1.s 			page 7
+
+
+ 216              	.L36:
+  74:Modules/fft/Src/double_integral.c ****     {
+ 217              		.loc 1 74 5 is_stmt 0 view .LVU52
+ 218 00f4 B4F5007F 		cmp	r4, #512
+ 219 00f8 45D0     		beq	.L18
+ 220 00fa B4F5806F 		cmp	r4, #1024
+ 221 00fe 50D1     		bne	.L14
+ 108:Modules/fft/Src/double_integral.c ****         break;
+ 222              		.loc 1 108 9 is_stmt 1 view .LVU53
+ 108:Modules/fft/Src/double_integral.c ****         break;
+ 223              		.loc 1 108 18 is_stmt 0 view .LVU54
+ 224 0100 654B     		ldr	r3, .L38+28
+ 225 0102 05F12406 		add	r6, r5, #36
+ 226 0106 0FCB     		ldm	r3, {r0, r1, r2, r3}
+ 227 0108 86E80F00 		stm	r6, {r0, r1, r2, r3}
+ 109:Modules/fft/Src/double_integral.c ****     }
+ 228              		.loc 1 109 9 is_stmt 1 view .LVU55
+ 229 010c 05E0     		b	.L21
+ 230              	.L12:
+  78:Modules/fft/Src/double_integral.c ****         break;
+ 231              		.loc 1 78 9 view .LVU56
+  78:Modules/fft/Src/double_integral.c ****         break;
+ 232              		.loc 1 78 18 is_stmt 0 view .LVU57
+ 233 010e 634B     		ldr	r3, .L38+32
+ 234 0110 05F12406 		add	r6, r5, #36
+ 235 0114 0FCB     		ldm	r3, {r0, r1, r2, r3}
+ 236 0116 86E80F00 		stm	r6, {r0, r1, r2, r3}
+  79:Modules/fft/Src/double_integral.c ****     }
+ 237              		.loc 1 79 9 is_stmt 1 view .LVU58
+ 238              	.L21:
+ 120:Modules/fft/Src/double_integral.c ****     }
+ 121:Modules/fft/Src/double_integral.c ****     default:
+ 122:Modules/fft/Src/double_integral.c ****     {
+ 123:Modules/fft/Src/double_integral.c ****         integ->S = arm_cfft_sR_f32_len1024;
+ 124:Modules/fft/Src/double_integral.c ****     }
+ 125:Modules/fft/Src/double_integral.c ****     }
+ 126:Modules/fft/Src/double_integral.c **** 
+ 127:Modules/fft/Src/double_integral.c ****     float df = (float)integ->smple_frq / (float)integ->fft_len; // 计算频率间隔（Hz/s）
+ 239              		.loc 1 127 5 view .LVU59
+ 240              		.loc 1 127 28 is_stmt 0 view .LVU60
+ 241 011a 6E68     		ldr	r6, [r5, #4]	@ float
+ 242              		.loc 1 127 42 view .LVU61
+ 243 011c 2046     		mov	r0, r4
+ 244 011e FFF7FEFF 		bl	__aeabi_ui2f
+ 245              	.LVL14:
+ 246 0122 0146     		mov	r1, r0
+ 247              		.loc 1 127 11 view .LVU62
+ 248 0124 3046     		mov	r0, r6
+ 249 0126 FFF7FEFF 		bl	__aeabi_fdiv
+ 250              	.LVL15:
+ 251 012a 0446     		mov	r4, r0
+ 252              	.LVL16:
+ 128:Modules/fft/Src/double_integral.c ****     integ->high_pass = round(integ->frq_min / df);              // 高通频率截止点
+ 253              		.loc 1 128 5 is_stmt 1 view .LVU63
+ 254              		.loc 1 128 45 is_stmt 0 view .LVU64
+ 255 012c 0146     		mov	r1, r0
+ 256 012e 2869     		ldr	r0, [r5, #16]	@ float
+ARM GAS  C:\Users\wyx12\AppData\Local\Temp\ccXgUGP1.s 			page 8
+
+
+ 257              	.LVL17:
+ 258              		.loc 1 128 45 view .LVU65
+ 259 0130 FFF7FEFF 		bl	__aeabi_fdiv
+ 260              	.LVL18:
+ 261              		.loc 1 128 24 view .LVU66
+ 262 0134 FFF7FEFF 		bl	__aeabi_f2d
+ 263              	.LVL19:
+ 264 0138 FFF7FEFF 		bl	round
+ 265              	.LVL20:
+ 266 013c FFF7FEFF 		bl	__aeabi_d2f
+ 267              	.LVL21:
+ 268              		.loc 1 128 22 view .LVU67
+ 269 0140 A860     		str	r0, [r5, #8]	@ float
+ 129:Modules/fft/Src/double_integral.c ****     integ->low_pass = round(integ->frq_max / df);               // 低通频率截止点
+ 270              		.loc 1 129 5 is_stmt 1 view .LVU68
+ 271              		.loc 1 129 44 is_stmt 0 view .LVU69
+ 272 0142 2146     		mov	r1, r4
+ 273 0144 6869     		ldr	r0, [r5, #20]	@ float
+ 274 0146 FFF7FEFF 		bl	__aeabi_fdiv
+ 275              	.LVL22:
+ 276              		.loc 1 129 23 view .LVU70
+ 277 014a FFF7FEFF 		bl	__aeabi_f2d
+ 278              	.LVL23:
+ 279 014e FFF7FEFF 		bl	round
+ 280              	.LVL24:
+ 281 0152 FFF7FEFF 		bl	__aeabi_d2f
+ 282              	.LVL25:
+ 283              		.loc 1 129 21 view .LVU71
+ 284 0156 E860     		str	r0, [r5, #12]	@ float
+ 130:Modules/fft/Src/double_integral.c **** 
+ 131:Modules/fft/Src/double_integral.c ****     float dw = 2 * PI * df;  // 圆频率间隔（rad/s）
+ 285              		.loc 1 131 5 is_stmt 1 view .LVU72
+ 286              		.loc 1 131 11 is_stmt 0 view .LVU73
+ 287 0158 5149     		ldr	r1, .L38+36
+ 288 015a 2046     		mov	r0, r4
+ 289 015c FFF7FEFF 		bl	__aeabi_fmul
+ 290              	.LVL26:
+ 291 0160 8046     		mov	r8, r0
+ 292              	.LVL27:
+ 132:Modules/fft/Src/double_integral.c ****     integ->w_vec = wave_buf; //(float*)MALLOC((integ->fft_len-1)*(sizeof(float)));
+ 293              		.loc 1 132 5 is_stmt 1 view .LVU74
+ 294              		.loc 1 132 18 is_stmt 0 view .LVU75
+ 295 0162 504B     		ldr	r3, .L38+40
+ 296 0164 EB61     		str	r3, [r5, #28]
+ 133:Modules/fft/Src/double_integral.c ****     for (int i = 0; i < (integ->fft_len / 2); i++)
+ 297              		.loc 1 133 5 is_stmt 1 view .LVU76
+ 298              	.LBB2:
+ 299              		.loc 1 133 10 view .LVU77
+ 300              	.LVL28:
+ 301              		.loc 1 133 14 is_stmt 0 view .LVU78
+ 302 0166 0025     		movs	r5, #0
+ 303              		.loc 1 133 5 view .LVU79
+ 304 0168 41E0     		b	.L22
+ 305              	.LVL29:
+ 306              	.L10:
+ 307              		.loc 1 133 5 view .LVU80
+ 308              	.LBE2:
+ARM GAS  C:\Users\wyx12\AppData\Local\Temp\ccXgUGP1.s 			page 9
+
+
+  88:Modules/fft/Src/double_integral.c ****         break;
+ 309              		.loc 1 88 9 is_stmt 1 view .LVU81
+  88:Modules/fft/Src/double_integral.c ****         break;
+ 310              		.loc 1 88 18 is_stmt 0 view .LVU82
+ 311 016a 4F4B     		ldr	r3, .L38+44
+ 312 016c 05F12406 		add	r6, r5, #36
+ 313 0170 0FCB     		ldm	r3, {r0, r1, r2, r3}
+ 314 0172 86E80F00 		stm	r6, {r0, r1, r2, r3}
+  89:Modules/fft/Src/double_integral.c ****     }
+ 315              		.loc 1 89 9 is_stmt 1 view .LVU83
+ 316 0176 D0E7     		b	.L21
+ 317              	.L8:
+  98:Modules/fft/Src/double_integral.c ****         break;
+ 318              		.loc 1 98 9 view .LVU84
+  98:Modules/fft/Src/double_integral.c ****         break;
+ 319              		.loc 1 98 18 is_stmt 0 view .LVU85
+ 320 0178 4C4B     		ldr	r3, .L38+48
+ 321 017a 05F12406 		add	r6, r5, #36
+ 322 017e 0FCB     		ldm	r3, {r0, r1, r2, r3}
+ 323 0180 86E80F00 		stm	r6, {r0, r1, r2, r3}
+  99:Modules/fft/Src/double_integral.c ****     }
+ 324              		.loc 1 99 9 is_stmt 1 view .LVU86
+ 325 0184 C9E7     		b	.L21
+ 326              	.L18:
+ 103:Modules/fft/Src/double_integral.c ****         break;
+ 327              		.loc 1 103 9 view .LVU87
+ 103:Modules/fft/Src/double_integral.c ****         break;
+ 328              		.loc 1 103 18 is_stmt 0 view .LVU88
+ 329 0186 4A4B     		ldr	r3, .L38+52
+ 330 0188 05F12406 		add	r6, r5, #36
+ 331 018c 0FCB     		ldm	r3, {r0, r1, r2, r3}
+ 332 018e 86E80F00 		stm	r6, {r0, r1, r2, r3}
+ 104:Modules/fft/Src/double_integral.c ****     }
+ 333              		.loc 1 104 9 is_stmt 1 view .LVU89
+ 334 0192 C2E7     		b	.L21
+ 335              	.L16:
+ 113:Modules/fft/Src/double_integral.c ****         break;
+ 336              		.loc 1 113 9 view .LVU90
+ 113:Modules/fft/Src/double_integral.c ****         break;
+ 337              		.loc 1 113 18 is_stmt 0 view .LVU91
+ 338 0194 474B     		ldr	r3, .L38+56
+ 339 0196 05F12406 		add	r6, r5, #36
+ 340 019a 0FCB     		ldm	r3, {r0, r1, r2, r3}
+ 341 019c 86E80F00 		stm	r6, {r0, r1, r2, r3}
+ 114:Modules/fft/Src/double_integral.c ****     }
+ 342              		.loc 1 114 9 is_stmt 1 view .LVU92
+ 343 01a0 BBE7     		b	.L21
+ 344              	.L14:
+ 123:Modules/fft/Src/double_integral.c ****     }
+ 345              		.loc 1 123 9 view .LVU93
+ 123:Modules/fft/Src/double_integral.c ****     }
+ 346              		.loc 1 123 18 is_stmt 0 view .LVU94
+ 347 01a2 3D4B     		ldr	r3, .L38+28
+ 348 01a4 05F12406 		add	r6, r5, #36
+ 349 01a8 0FCB     		ldm	r3, {r0, r1, r2, r3}
+ 350 01aa 86E80F00 		stm	r6, {r0, r1, r2, r3}
+ 351 01ae B4E7     		b	.L21
+ARM GAS  C:\Users\wyx12\AppData\Local\Temp\ccXgUGP1.s 			page 10
+
+
+ 352              	.LVL30:
+ 353              	.L23:
+ 354              	.LBB3:
+ 134:Modules/fft/Src/double_integral.c ****     {
+ 135:Modules/fft/Src/double_integral.c ****         integ->w_vec[i] = dw * i;                                  // 正离散圆频率向量
+ 355              		.loc 1 135 9 is_stmt 1 discriminator 3 view .LVU95
+ 356              		.loc 1 135 14 is_stmt 0 discriminator 3 view .LVU96
+ 357 01b0 D469     		ldr	r4, [r2, #28]
+ 358              		.loc 1 135 30 discriminator 3 view .LVU97
+ 359 01b2 2846     		mov	r0, r5
+ 360 01b4 FFF7FEFF 		bl	__aeabi_i2f
+ 361              	.LVL31:
+ 362 01b8 4146     		mov	r1, r8
+ 363 01ba FFF7FEFF 		bl	__aeabi_fmul
+ 364              	.LVL32:
+ 365              		.loc 1 135 25 discriminator 3 view .LVU98
+ 366 01be 44F82500 		str	r0, [r4, r5, lsl #2]	@ float
+ 136:Modules/fft/Src/double_integral.c ****         integ->w_vec[i] = POW(integ->w_vec[i], integ->integ_time); // 以积分次数为指数，�
+ 367              		.loc 1 136 9 is_stmt 1 discriminator 3 view .LVU99
+ 368              		.loc 1 136 27 is_stmt 0 discriminator 3 view .LVU100
+ 369 01c2 2E4B     		ldr	r3, .L38
+ 370 01c4 1B68     		ldr	r3, [r3]
+ 371 01c6 DC69     		ldr	r4, [r3, #28]
+ 372 01c8 54F82590 		ldr	r9, [r4, r5, lsl #2]	@ float
+ 373 01cc 1878     		ldrb	r0, [r3]	@ zero_extendqisi2
+ 374 01ce FFF7FEFF 		bl	__aeabi_ui2d
+ 375              	.LVL33:
+ 376 01d2 0646     		mov	r6, r0
+ 377 01d4 0F46     		mov	r7, r1
+ 378 01d6 4846     		mov	r0, r9
+ 379 01d8 FFF7FEFF 		bl	__aeabi_f2d
+ 380              	.LVL34:
+ 381 01dc 3246     		mov	r2, r6
+ 382 01de 3B46     		mov	r3, r7
+ 383 01e0 FFF7FEFF 		bl	pow
+ 384              	.LVL35:
+ 385 01e4 FFF7FEFF 		bl	__aeabi_d2f
+ 386              	.LVL36:
+ 387              		.loc 1 136 25 discriminator 3 view .LVU101
+ 388 01e8 44F82500 		str	r0, [r4, r5, lsl #2]	@ float
+ 133:Modules/fft/Src/double_integral.c ****     {
+ 389              		.loc 1 133 48 is_stmt 1 discriminator 3 view .LVU102
+ 390 01ec 0135     		adds	r5, r5, #1
+ 391              	.LVL37:
+ 392              	.L22:
+ 133:Modules/fft/Src/double_integral.c ****     {
+ 393              		.loc 1 133 23 discriminator 1 view .LVU103
+ 133:Modules/fft/Src/double_integral.c ****     {
+ 394              		.loc 1 133 31 is_stmt 0 discriminator 1 view .LVU104
+ 395 01ee 234B     		ldr	r3, .L38
+ 396 01f0 1A68     		ldr	r2, [r3]
+ 397 01f2 5388     		ldrh	r3, [r2, #2]
+ 133:Modules/fft/Src/double_integral.c ****     {
+ 398              		.loc 1 133 41 discriminator 1 view .LVU105
+ 399 01f4 5C08     		lsrs	r4, r3, #1
+ 133:Modules/fft/Src/double_integral.c ****     {
+ 400              		.loc 1 133 23 discriminator 1 view .LVU106
+ARM GAS  C:\Users\wyx12\AppData\Local\Temp\ccXgUGP1.s 			page 11
+
+
+ 401 01f6 B5EB530F 		cmp	r5, r3, lsr #1
+ 402 01fa D9DB     		blt	.L23
+ 403 01fc 2CE0     		b	.L24
+ 404              	.LVL38:
+ 405              	.L25:
+ 133:Modules/fft/Src/double_integral.c ****     {
+ 406              		.loc 1 133 23 discriminator 1 view .LVU107
+ 407              	.LBE3:
+ 408              	.LBB4:
+ 137:Modules/fft/Src/double_integral.c ****     }
+ 138:Modules/fft/Src/double_integral.c ****     for (int i = integ->fft_len / 2; i < (integ->fft_len - 1); i++)
+ 139:Modules/fft/Src/double_integral.c ****     {
+ 140:Modules/fft/Src/double_integral.c ****         integ->w_vec[i] = -dw * (integ->fft_len / 2 - 1) + dw * (i - integ->fft_len / 2); // 负离
+ 409              		.loc 1 140 9 is_stmt 1 discriminator 3 view .LVU108
+ 410              		.loc 1 140 27 is_stmt 0 discriminator 3 view .LVU109
+ 411 01fe 08F10046 		add	r6, r8, #-2147483648
+ 412              		.loc 1 140 49 discriminator 3 view .LVU110
+ 413 0202 5D08     		lsrs	r5, r3, #1
+ 414              		.loc 1 140 31 discriminator 3 view .LVU111
+ 415 0204 681E     		subs	r0, r5, #1
+ 416 0206 FFF7FEFF 		bl	__aeabi_i2f
+ 417              	.LVL39:
+ 418 020a 3146     		mov	r1, r6
+ 419 020c FFF7FEFF 		bl	__aeabi_fmul
+ 420              	.LVL40:
+ 421 0210 0646     		mov	r6, r0
+ 422              		.loc 1 140 63 discriminator 3 view .LVU112
+ 423 0212 601B     		subs	r0, r4, r5
+ 424 0214 FFF7FEFF 		bl	__aeabi_i2f
+ 425              	.LVL41:
+ 426 0218 4146     		mov	r1, r8
+ 427 021a FFF7FEFF 		bl	__aeabi_fmul
+ 428              	.LVL42:
+ 429 021e 0146     		mov	r1, r0
+ 430              		.loc 1 140 14 discriminator 3 view .LVU113
+ 431 0220 FD69     		ldr	r5, [r7, #28]
+ 432              		.loc 1 140 58 discriminator 3 view .LVU114
+ 433 0222 3046     		mov	r0, r6
+ 434 0224 FFF7FEFF 		bl	__aeabi_fadd
+ 435              	.LVL43:
+ 436              		.loc 1 140 25 discriminator 3 view .LVU115
+ 437 0228 45F82400 		str	r0, [r5, r4, lsl #2]	@ float
+ 141:Modules/fft/Src/double_integral.c ****         integ->w_vec[i] = POW(integ->w_vec[i], integ->integ_time);                        // 以积
+ 438              		.loc 1 141 9 is_stmt 1 discriminator 3 view .LVU116
+ 439              		.loc 1 141 27 is_stmt 0 discriminator 3 view .LVU117
+ 440 022c 134B     		ldr	r3, .L38
+ 441 022e 1B68     		ldr	r3, [r3]
+ 442 0230 DD69     		ldr	r5, [r3, #28]
+ 443 0232 55F82490 		ldr	r9, [r5, r4, lsl #2]	@ float
+ 444 0236 1878     		ldrb	r0, [r3]	@ zero_extendqisi2
+ 445 0238 FFF7FEFF 		bl	__aeabi_ui2d
+ 446              	.LVL44:
+ 447 023c 0646     		mov	r6, r0
+ 448 023e 0F46     		mov	r7, r1
+ 449 0240 4846     		mov	r0, r9
+ 450 0242 FFF7FEFF 		bl	__aeabi_f2d
+ 451              	.LVL45:
+ARM GAS  C:\Users\wyx12\AppData\Local\Temp\ccXgUGP1.s 			page 12
+
+
+ 452 0246 3246     		mov	r2, r6
+ 453 0248 3B46     		mov	r3, r7
+ 454 024a FFF7FEFF 		bl	pow
+ 455              	.LVL46:
+ 456 024e FFF7FEFF 		bl	__aeabi_d2f
+ 457              	.LVL47:
+ 458              		.loc 1 141 25 discriminator 3 view .LVU118
+ 459 0252 45F82400 		str	r0, [r5, r4, lsl #2]	@ float
+ 138:Modules/fft/Src/double_integral.c ****     {
+ 460              		.loc 1 138 65 is_stmt 1 discriminator 3 view .LVU119
+ 461 0256 0134     		adds	r4, r4, #1
+ 462              	.LVL48:
+ 463              	.L24:
+ 138:Modules/fft/Src/double_integral.c ****     {
+ 464              		.loc 1 138 40 discriminator 1 view .LVU120
+ 138:Modules/fft/Src/double_integral.c ****     {
+ 465              		.loc 1 138 48 is_stmt 0 discriminator 1 view .LVU121
+ 466 0258 084B     		ldr	r3, .L38
+ 467 025a 1F68     		ldr	r7, [r3]
+ 468 025c 7B88     		ldrh	r3, [r7, #2]
+ 138:Modules/fft/Src/double_integral.c ****     {
+ 469              		.loc 1 138 58 discriminator 1 view .LVU122
+ 470 025e 5A1E     		subs	r2, r3, #1
+ 138:Modules/fft/Src/double_integral.c ****     {
+ 471              		.loc 1 138 40 discriminator 1 view .LVU123
+ 472 0260 A242     		cmp	r2, r4
+ 473 0262 CCDC     		bgt	.L25
+ 474              	.LBE4:
+ 142:Modules/fft/Src/double_integral.c ****     }
+ 143:Modules/fft/Src/double_integral.c **** 
+ 144:Modules/fft/Src/double_integral.c ****     return 0;
+ 475              		.loc 1 144 12 view .LVU124
+ 476 0264 0020     		movs	r0, #0
+ 477              	.LVL49:
+ 478              	.L1:
+ 145:Modules/fft/Src/double_integral.c **** }
+ 479              		.loc 1 145 1 view .LVU125
+ 480 0266 BDE8F087 		pop	{r4, r5, r6, r7, r8, r9, r10, pc}
+ 481              	.LVL50:
+ 482              	.L26:
+ 483              	.LCFI1:
+ 484              		.cfi_def_cfa_offset 0
+ 485              		.cfi_restore 4
+ 486              		.cfi_restore 5
+ 487              		.cfi_restore 6
+ 488              		.cfi_restore 7
+ 489              		.cfi_restore 8
+ 490              		.cfi_restore 9
+ 491              		.cfi_restore 10
+ 492              		.cfi_restore 14
+  44:Modules/fft/Src/double_integral.c **** 
+ 493              		.loc 1 44 16 view .LVU126
+ 494 026a 4FF0FF30 		mov	r0, #-1
+ 495              	.LVL51:
+ 496              		.loc 1 145 1 view .LVU127
+ 497 026e 7047     		bx	lr
+ 498              	.LVL52:
+ARM GAS  C:\Users\wyx12\AppData\Local\Temp\ccXgUGP1.s 			page 13
+
+
+ 499              	.L27:
+ 500              	.LCFI2:
+ 501              		.cfi_def_cfa_offset 32
+ 502              		.cfi_offset 4, -32
+ 503              		.cfi_offset 5, -28
+ 504              		.cfi_offset 6, -24
+ 505              		.cfi_offset 7, -20
+ 506              		.cfi_offset 8, -16
+ 507              		.cfi_offset 9, -12
+ 508              		.cfi_offset 10, -8
+ 509              		.cfi_offset 14, -4
+  53:Modules/fft/Src/double_integral.c **** 
+ 510              		.loc 1 53 16 view .LVU128
+ 511 0270 6FF00100 		mvn	r0, #1
+ 512 0274 F7E7     		b	.L1
+ 513              	.LVL53:
+ 514              	.L28:
+  67:Modules/fft/Src/double_integral.c **** 
+ 515              		.loc 1 67 16 view .LVU129
+ 516 0276 6FF00200 		mvn	r0, #2
+ 517 027a F4E7     		b	.L1
+ 518              	.L39:
+ 519              		.align	2
+ 520              	.L38:
+ 521 027c 00000000 		.word	integ
+ 522 0280 00606A47 		.word	1198153728
+ 523 0284 0060EA46 		.word	1189765120
+ 524 0288 00000000 		.word	fft_buf
+ 525 028c 00000000 		.word	arm_cfft_sR_f32_len4096
+ 526 0290 00000000 		.word	arm_cfft_sR_f32_len128
+ 527 0294 00000000 		.word	arm_cfft_sR_f32_len32
+ 528 0298 00000000 		.word	arm_cfft_sR_f32_len1024
+ 529 029c 00000000 		.word	arm_cfft_sR_f32_len16
+ 530 02a0 DB0FC940 		.word	1086918619
+ 531 02a4 00000000 		.word	wave_buf
+ 532 02a8 00000000 		.word	arm_cfft_sR_f32_len64
+ 533 02ac 00000000 		.word	arm_cfft_sR_f32_len256
+ 534 02b0 00000000 		.word	arm_cfft_sR_f32_len512
+ 535 02b4 00000000 		.word	arm_cfft_sR_f32_len2048
+ 536              		.cfi_endproc
+ 537              	.LFE100:
+ 539              		.section	.text.integ_deinit,"ax",%progbits
+ 540              		.align	1
+ 541              		.global	integ_deinit
+ 542              		.syntax unified
+ 543              		.thumb
+ 544              		.thumb_func
+ 546              	integ_deinit:
+ 547              	.LFB101:
+ 146:Modules/fft/Src/double_integral.c **** 
+ 147:Modules/fft/Src/double_integral.c **** /**
+ 148:Modules/fft/Src/double_integral.c ****  *  @name	频域一次/二次积分去初始化函数
+ 149:Modules/fft/Src/double_integral.c ****  *  @brief	不需要用到频域积分后可去初始化，释放内存空间
+ 150:Modules/fft/Src/double_integral.c ****  *  @pram	无
+ 151:Modules/fft/Src/double_integral.c ****  *  @retval	无
+ 152:Modules/fft/Src/double_integral.c ****  */
+ 153:Modules/fft/Src/double_integral.c **** void integ_deinit()
+ARM GAS  C:\Users\wyx12\AppData\Local\Temp\ccXgUGP1.s 			page 14
+
+
+ 154:Modules/fft/Src/double_integral.c **** {
+ 548              		.loc 1 154 1 is_stmt 1 view -0
+ 549              		.cfi_startproc
+ 550              		@ args = 0, pretend = 0, frame = 0
+ 551              		@ frame_needed = 0, uses_anonymous_args = 0
+ 552 0000 38B5     		push	{r3, r4, r5, lr}
+ 553              	.LCFI3:
+ 554              		.cfi_def_cfa_offset 16
+ 555              		.cfi_offset 3, -16
+ 556              		.cfi_offset 4, -12
+ 557              		.cfi_offset 5, -8
+ 558              		.cfi_offset 14, -4
+ 155:Modules/fft/Src/double_integral.c ****     free(integ->w_vec);
+ 559              		.loc 1 155 5 view .LVU131
+ 560              		.loc 1 155 15 is_stmt 0 view .LVU132
+ 561 0002 084C     		ldr	r4, .L42
+ 562 0004 2368     		ldr	r3, [r4]
+ 563              		.loc 1 155 5 view .LVU133
+ 564 0006 D869     		ldr	r0, [r3, #28]
+ 565 0008 FFF7FEFF 		bl	free
+ 566              	.LVL54:
+ 156:Modules/fft/Src/double_integral.c ****     integ->w_vec = NULL;
+ 567              		.loc 1 156 5 is_stmt 1 view .LVU134
+ 568              		.loc 1 156 10 is_stmt 0 view .LVU135
+ 569 000c 2368     		ldr	r3, [r4]
+ 570              		.loc 1 156 18 view .LVU136
+ 571 000e 0025     		movs	r5, #0
+ 572 0010 DD61     		str	r5, [r3, #28]
+ 157:Modules/fft/Src/double_integral.c ****     free(integ->fft_buf);
+ 573              		.loc 1 157 5 is_stmt 1 view .LVU137
+ 574 0012 186A     		ldr	r0, [r3, #32]
+ 575 0014 FFF7FEFF 		bl	free
+ 576              	.LVL55:
+ 158:Modules/fft/Src/double_integral.c ****     integ->fft_buf = NULL;
+ 577              		.loc 1 158 5 view .LVU138
+ 578              		.loc 1 158 10 is_stmt 0 view .LVU139
+ 579 0018 2068     		ldr	r0, [r4]
+ 580              		.loc 1 158 20 view .LVU140
+ 581 001a 0562     		str	r5, [r0, #32]
+ 159:Modules/fft/Src/double_integral.c ****     free(integ);
+ 582              		.loc 1 159 5 is_stmt 1 view .LVU141
+ 583 001c FFF7FEFF 		bl	free
+ 584              	.LVL56:
+ 160:Modules/fft/Src/double_integral.c ****     integ = NULL;
+ 585              		.loc 1 160 5 view .LVU142
+ 586              		.loc 1 160 11 is_stmt 0 view .LVU143
+ 587 0020 2560     		str	r5, [r4]
+ 161:Modules/fft/Src/double_integral.c **** }
+ 588              		.loc 1 161 1 view .LVU144
+ 589 0022 38BD     		pop	{r3, r4, r5, pc}
+ 590              	.L43:
+ 591              		.align	2
+ 592              	.L42:
+ 593 0024 00000000 		.word	integ
+ 594              		.cfi_endproc
+ 595              	.LFE101:
+ 597              		.global	__aeabi_f2iz
+ARM GAS  C:\Users\wyx12\AppData\Local\Temp\ccXgUGP1.s 			page 15
+
+
+ 598              		.global	__aeabi_fcmplt
+ 599              		.global	__aeabi_f2uiz
+ 600              		.section	.text.GetMagAndFreq,"ax",%progbits
+ 601              		.align	1
+ 602              		.global	GetMagAndFreq
+ 603              		.syntax unified
+ 604              		.thumb
+ 605              		.thumb_func
+ 607              	GetMagAndFreq:
+ 608              	.LVL57:
+ 609              	.LFB102:
+ 162:Modules/fft/Src/double_integral.c **** 
+ 163:Modules/fft/Src/double_integral.c **** void GetMagAndFreq(float *outMag, float *outFreq)
+ 164:Modules/fft/Src/double_integral.c **** {
+ 610              		.loc 1 164 1 is_stmt 1 view -0
+ 611              		.cfi_startproc
+ 612              		@ args = 0, pretend = 0, frame = 8
+ 613              		@ frame_needed = 0, uses_anonymous_args = 0
+ 614              		.loc 1 164 1 is_stmt 0 view .LVU146
+ 615 0000 2DE9F04F 		push	{r4, r5, r6, r7, r8, r9, r10, fp, lr}
+ 616              	.LCFI4:
+ 617              		.cfi_def_cfa_offset 36
+ 618              		.cfi_offset 4, -36
+ 619              		.cfi_offset 5, -32
+ 620              		.cfi_offset 6, -28
+ 621              		.cfi_offset 7, -24
+ 622              		.cfi_offset 8, -20
+ 623              		.cfi_offset 9, -16
+ 624              		.cfi_offset 10, -12
+ 625              		.cfi_offset 11, -8
+ 626              		.cfi_offset 14, -4
+ 627 0004 83B0     		sub	sp, sp, #12
+ 628              	.LCFI5:
+ 629              		.cfi_def_cfa_offset 48
+ 630 0006 8346     		mov	fp, r0
+ 631 0008 0191     		str	r1, [sp, #4]
+ 165:Modules/fft/Src/double_integral.c ****     signed short lX, lY;
+ 632              		.loc 1 165 5 is_stmt 1 view .LVU147
+ 166:Modules/fft/Src/double_integral.c ****     float X, Y, Mag;
+ 633              		.loc 1 166 5 view .LVU148
+ 167:Modules/fft/Src/double_integral.c ****     float magmax = -10000;
+ 634              		.loc 1 167 5 view .LVU149
+ 635              	.LVL58:
+ 168:Modules/fft/Src/double_integral.c ****     unsigned short i, j = 0;
+ 636              		.loc 1 168 5 view .LVU150
+ 169:Modules/fft/Src/double_integral.c **** 
+ 170:Modules/fft/Src/double_integral.c ****     for (i = 1; i < integ->fft_len / 2; i++)
+ 637              		.loc 1 170 5 view .LVU151
+ 168:Modules/fft/Src/double_integral.c ****     unsigned short i, j = 0;
+ 638              		.loc 1 168 23 is_stmt 0 view .LVU152
+ 639 000a 4FF0000A 		mov	r10, #0
+ 640              		.loc 1 170 12 view .LVU153
+ 641 000e 0124     		movs	r4, #1
+ 167:Modules/fft/Src/double_integral.c ****     unsigned short i, j = 0;
+ 642              		.loc 1 167 11 view .LVU154
+ 643 0010 DFF8E890 		ldr	r9, .L51
+ 644              		.loc 1 170 5 view .LVU155
+ARM GAS  C:\Users\wyx12\AppData\Local\Temp\ccXgUGP1.s 			page 16
+
+
+ 645 0014 01E0     		b	.L45
+ 646              	.LVL59:
+ 647              	.L46:
+ 648              		.loc 1 170 42 is_stmt 1 discriminator 2 view .LVU156
+ 649 0016 0134     		adds	r4, r4, #1
+ 650              	.LVL60:
+ 651              		.loc 1 170 42 is_stmt 0 discriminator 2 view .LVU157
+ 652 0018 A4B2     		uxth	r4, r4
+ 653              	.LVL61:
+ 654              	.L45:
+ 655              		.loc 1 170 19 is_stmt 1 discriminator 1 view .LVU158
+ 656              		.loc 1 170 26 is_stmt 0 discriminator 1 view .LVU159
+ 657 001a 394B     		ldr	r3, .L51+4
+ 658 001c 1B68     		ldr	r3, [r3]
+ 659 001e B3F80280 		ldrh	r8, [r3, #2]
+ 660              		.loc 1 170 19 discriminator 1 view .LVU160
+ 661 0022 B4EB580F 		cmp	r4, r8, lsr #1
+ 662 0026 47D2     		bcs	.L50
+ 171:Modules/fft/Src/double_integral.c ****     {
+ 172:Modules/fft/Src/double_integral.c ****         lX = integ->fft_buf[2 * i];     // 高16位实部
+ 663              		.loc 1 172 9 is_stmt 1 view .LVU161
+ 664              		.loc 1 172 19 is_stmt 0 view .LVU162
+ 665 0028 1D6A     		ldr	r5, [r3, #32]
+ 666              		.loc 1 172 28 view .LVU163
+ 667 002a E700     		lsls	r7, r4, #3
+ 668              		.loc 1 172 12 view .LVU164
+ 669 002c 55F83400 		ldr	r0, [r5, r4, lsl #3]	@ float
+ 670 0030 FFF7FEFF 		bl	__aeabi_f2iz
+ 671              	.LVL62:
+ 672 0034 06B2     		sxth	r6, r0
+ 673              	.LVL63:
+ 173:Modules/fft/Src/double_integral.c ****         lY = integ->fft_buf[2 * i + 1]; // 低16位虚部
+ 674              		.loc 1 173 9 is_stmt 1 view .LVU165
+ 675              		.loc 1 173 28 is_stmt 0 view .LVU166
+ 676 0036 3D44     		add	r5, r5, r7
+ 677              		.loc 1 173 12 view .LVU167
+ 678 0038 6868     		ldr	r0, [r5, #4]	@ float
+ 679 003a FFF7FEFF 		bl	__aeabi_f2iz
+ 680              	.LVL64:
+ 681 003e 05B2     		sxth	r5, r0
+ 682              	.LVL65:
+ 174:Modules/fft/Src/double_integral.c **** 
+ 175:Modules/fft/Src/double_integral.c ****         // 除以32768再乘65536是为了符合浮点数计算规律
+ 176:Modules/fft/Src/double_integral.c ****         X = integ->fft_len * ((float)lX) / 32768;
+ 683              		.loc 1 176 9 is_stmt 1 view .LVU168
+ 684              		.loc 1 176 28 is_stmt 0 view .LVU169
+ 685 0040 4046     		mov	r0, r8
+ 686 0042 FFF7FEFF 		bl	__aeabi_i2f
+ 687              	.LVL66:
+ 688 0046 0746     		mov	r7, r0
+ 689              		.loc 1 176 31 view .LVU170
+ 690 0048 3046     		mov	r0, r6
+ 691 004a FFF7FEFF 		bl	__aeabi_i2f
+ 692              	.LVL67:
+ 693 004e 0146     		mov	r1, r0
+ 694              		.loc 1 176 28 view .LVU171
+ 695 0050 3846     		mov	r0, r7
+ARM GAS  C:\Users\wyx12\AppData\Local\Temp\ccXgUGP1.s 			page 17
+
+
+ 696 0052 FFF7FEFF 		bl	__aeabi_fmul
+ 697              	.LVL68:
+ 698              		.loc 1 176 11 view .LVU172
+ 699 0056 4FF06051 		mov	r1, #939524096
+ 700 005a FFF7FEFF 		bl	__aeabi_fmul
+ 701              	.LVL69:
+ 702 005e 0646     		mov	r6, r0
+ 703              	.LVL70:
+ 177:Modules/fft/Src/double_integral.c ****         Y = integ->fft_len * ((float)lY) / 32768;
+ 704              		.loc 1 177 9 is_stmt 1 view .LVU173
+ 705              		.loc 1 177 31 is_stmt 0 view .LVU174
+ 706 0060 2846     		mov	r0, r5
+ 707              	.LVL71:
+ 708              		.loc 1 177 31 view .LVU175
+ 709 0062 FFF7FEFF 		bl	__aeabi_i2f
+ 710              	.LVL72:
+ 711 0066 0146     		mov	r1, r0
+ 712              		.loc 1 177 28 view .LVU176
+ 713 0068 3846     		mov	r0, r7
+ 714 006a FFF7FEFF 		bl	__aeabi_fmul
+ 715              	.LVL73:
+ 716              		.loc 1 177 11 view .LVU177
+ 717 006e 4FF06051 		mov	r1, #939524096
+ 718 0072 FFF7FEFF 		bl	__aeabi_fmul
+ 719              	.LVL74:
+ 720 0076 0546     		mov	r5, r0
+ 721              	.LVL75:
+ 178:Modules/fft/Src/double_integral.c ****         Mag = (float)sqrt(X * X + Y * Y) / integ->fft_len;
+ 722              		.loc 1 178 9 is_stmt 1 view .LVU178
+ 723              		.loc 1 178 29 is_stmt 0 view .LVU179
+ 724 0078 3146     		mov	r1, r6
+ 725 007a 3046     		mov	r0, r6
+ 726              	.LVL76:
+ 727              		.loc 1 178 29 view .LVU180
+ 728 007c FFF7FEFF 		bl	__aeabi_fmul
+ 729              	.LVL77:
+ 730 0080 0646     		mov	r6, r0
+ 731              	.LVL78:
+ 732              		.loc 1 178 37 view .LVU181
+ 733 0082 2946     		mov	r1, r5
+ 734 0084 2846     		mov	r0, r5
+ 735 0086 FFF7FEFF 		bl	__aeabi_fmul
+ 736              	.LVL79:
+ 737 008a 0146     		mov	r1, r0
+ 738              		.loc 1 178 33 view .LVU182
+ 739 008c 3046     		mov	r0, r6
+ 740 008e FFF7FEFF 		bl	__aeabi_fadd
+ 741              	.LVL80:
+ 742              		.loc 1 178 22 view .LVU183
+ 743 0092 FFF7FEFF 		bl	__aeabi_f2d
+ 744              	.LVL81:
+ 745 0096 FFF7FEFF 		bl	sqrt
+ 746              	.LVL82:
+ 747              		.loc 1 178 15 view .LVU184
+ 748 009a FFF7FEFF 		bl	__aeabi_d2f
+ 749              	.LVL83:
+ 750              		.loc 1 178 13 view .LVU185
+ARM GAS  C:\Users\wyx12\AppData\Local\Temp\ccXgUGP1.s 			page 18
+
+
+ 751 009e 3946     		mov	r1, r7
+ 752 00a0 FFF7FEFF 		bl	__aeabi_fdiv
+ 753              	.LVL84:
+ 754 00a4 0546     		mov	r5, r0
+ 755              	.LVL85:
+ 179:Modules/fft/Src/double_integral.c **** 
+ 180:Modules/fft/Src/double_integral.c ****         if (Mag > magmax)
+ 756              		.loc 1 180 9 is_stmt 1 view .LVU186
+ 757              		.loc 1 180 12 is_stmt 0 view .LVU187
+ 758 00a6 0146     		mov	r1, r0
+ 759 00a8 4846     		mov	r0, r9
+ 760              	.LVL86:
+ 761              		.loc 1 180 12 view .LVU188
+ 762 00aa FFF7FEFF 		bl	__aeabi_fcmplt
+ 763              	.LVL87:
+ 764              		.loc 1 180 12 view .LVU189
+ 765 00ae 0028     		cmp	r0, #0
+ 766 00b0 B1D0     		beq	.L46
+ 181:Modules/fft/Src/double_integral.c ****         {
+ 182:Modules/fft/Src/double_integral.c ****             j = i;
+ 767              		.loc 1 182 15 view .LVU190
+ 768 00b2 A246     		mov	r10, r4
+ 769              	.LVL88:
+ 183:Modules/fft/Src/double_integral.c ****             magmax = Mag;
+ 770              		.loc 1 183 20 view .LVU191
+ 771 00b4 A946     		mov	r9, r5
+ 772              	.LVL89:
+ 773              		.loc 1 183 20 view .LVU192
+ 774 00b6 AEE7     		b	.L46
+ 775              	.LVL90:
+ 776              	.L50:
+ 184:Modules/fft/Src/double_integral.c ****         }
+ 185:Modules/fft/Src/double_integral.c ****     }
+ 186:Modules/fft/Src/double_integral.c **** 
+ 187:Modules/fft/Src/double_integral.c ****     *outMag = (unsigned long)(magmax * 65536);
+ 777              		.loc 1 187 5 is_stmt 1 view .LVU193
+ 778              		.loc 1 187 38 is_stmt 0 view .LVU194
+ 779 00b8 4FF08F41 		mov	r1, #1199570944
+ 780 00bc 4846     		mov	r0, r9
+ 781 00be FFF7FEFF 		bl	__aeabi_fmul
+ 782              	.LVL91:
+ 783              		.loc 1 187 15 view .LVU195
+ 784 00c2 FFF7FEFF 		bl	__aeabi_f2uiz
+ 785              	.LVL92:
+ 786              		.loc 1 187 13 view .LVU196
+ 787 00c6 FFF7FEFF 		bl	__aeabi_ui2f
+ 788              	.LVL93:
+ 789 00ca CBF80000 		str	r0, [fp]	@ float
+ 188:Modules/fft/Src/double_integral.c ****     *outFreq = (float)(j * integ->smple_frq) / integ->fft_len;
+ 790              		.loc 1 188 5 is_stmt 1 view .LVU197
+ 791              		.loc 1 188 33 is_stmt 0 view .LVU198
+ 792 00ce 0C4B     		ldr	r3, .L51+4
+ 793 00d0 1D68     		ldr	r5, [r3]
+ 794 00d2 6C68     		ldr	r4, [r5, #4]	@ float
+ 795              	.LVL94:
+ 796              		.loc 1 188 16 view .LVU199
+ 797 00d4 5046     		mov	r0, r10
+ARM GAS  C:\Users\wyx12\AppData\Local\Temp\ccXgUGP1.s 			page 19
+
+
+ 798 00d6 FFF7FEFF 		bl	__aeabi_i2f
+ 799              	.LVL95:
+ 800 00da 2146     		mov	r1, r4
+ 801 00dc FFF7FEFF 		bl	__aeabi_fmul
+ 802              	.LVL96:
+ 803 00e0 0446     		mov	r4, r0
+ 804              		.loc 1 188 46 view .LVU200
+ 805 00e2 6888     		ldrh	r0, [r5, #2]
+ 806 00e4 FFF7FEFF 		bl	__aeabi_i2f
+ 807              	.LVL97:
+ 808 00e8 0146     		mov	r1, r0
+ 809 00ea 2046     		mov	r0, r4
+ 810 00ec FFF7FEFF 		bl	__aeabi_fdiv
+ 811              	.LVL98:
+ 812              		.loc 1 188 14 view .LVU201
+ 813 00f0 019B     		ldr	r3, [sp, #4]
+ 814 00f2 1860     		str	r0, [r3]	@ float
+ 189:Modules/fft/Src/double_integral.c **** }
+ 815              		.loc 1 189 1 view .LVU202
+ 816 00f4 03B0     		add	sp, sp, #12
+ 817              	.LCFI6:
+ 818              		.cfi_def_cfa_offset 36
+ 819              		@ sp needed
+ 820 00f6 BDE8F08F 		pop	{r4, r5, r6, r7, r8, r9, r10, fp, pc}
+ 821              	.LVL99:
+ 822              	.L52:
+ 823              		.loc 1 189 1 view .LVU203
+ 824 00fa 00BF     		.align	2
+ 825              	.L51:
+ 826 00fc 00401CC6 		.word	-971227136
+ 827 0100 00000000 		.word	integ
+ 828              		.cfi_endproc
+ 829              	.LFE102:
+ 831              		.global	__aeabi_fcmpgt
+ 832              		.global	__aeabi_fsub
+ 833              		.global	__aeabi_fcmpge
+ 834              		.section	.text.frq_domain_integral,"ax",%progbits
+ 835              		.align	1
+ 836              		.global	frq_domain_integral
+ 837              		.syntax unified
+ 838              		.thumb
+ 839              		.thumb_func
+ 841              	frq_domain_integral:
+ 842              	.LVL100:
+ 843              	.LFB103:
+ 190:Modules/fft/Src/double_integral.c **** 
+ 191:Modules/fft/Src/double_integral.c **** /**
+ 192:Modules/fft/Src/double_integral.c ****  *  @name	频域一次/二次积分函数
+ 193:Modules/fft/Src/double_integral.c ****  *  @brief	计算一次/二次积分
+ 194:Modules/fft/Src/double_integral.c ****  *  @pram	inputbuf	输入数组
+ 195:Modules/fft/Src/double_integral.c ****  *  		outputbuf	输出数组（长度大于等于输入数组且需为2^(4~12)）
+ 196:Modules/fft/Src/double_integral.c ****  *  @retval	0			成功
+ 197:Modules/fft/Src/double_integral.c ****  *  		else		失败
+ 198:Modules/fft/Src/double_integral.c ****  */
+ 199:Modules/fft/Src/double_integral.c **** int frq_domain_integral(float *inputbuf, float *outputbuf, float *mag, float *freq)
+ 200:Modules/fft/Src/double_integral.c **** {
+ 844              		.loc 1 200 1 is_stmt 1 view -0
+ARM GAS  C:\Users\wyx12\AppData\Local\Temp\ccXgUGP1.s 			page 20
+
+
+ 845              		.cfi_startproc
+ 846              		@ args = 0, pretend = 0, frame = 0
+ 847              		@ frame_needed = 0, uses_anonymous_args = 0
+ 848              		.loc 1 200 1 is_stmt 0 view .LVU205
+ 849 0000 2DE9F041 		push	{r4, r5, r6, r7, r8, lr}
+ 850              	.LCFI7:
+ 851              		.cfi_def_cfa_offset 24
+ 852              		.cfi_offset 4, -24
+ 853              		.cfi_offset 5, -20
+ 854              		.cfi_offset 6, -16
+ 855              		.cfi_offset 7, -12
+ 856              		.cfi_offset 8, -8
+ 857              		.cfi_offset 14, -4
+ 858 0004 9846     		mov	r8, r3
+ 201:Modules/fft/Src/double_integral.c **** 
+ 202:Modules/fft/Src/double_integral.c ****     if (integ == NULL)
+ 859              		.loc 1 202 5 is_stmt 1 view .LVU206
+ 860              		.loc 1 202 15 is_stmt 0 view .LVU207
+ 861 0006 774B     		ldr	r3, .L81
+ 862              	.LVL101:
+ 863              		.loc 1 202 15 view .LVU208
+ 864 0008 1B68     		ldr	r3, [r3]
+ 865              		.loc 1 202 8 view .LVU209
+ 866 000a 002B     		cmp	r3, #0
+ 867 000c 00F0E780 		beq	.L77
+ 868 0010 0E46     		mov	r6, r1
+ 869 0012 1746     		mov	r7, r2
+ 870              	.LBB5:
+ 203:Modules/fft/Src/double_integral.c ****         return -1;
+ 204:Modules/fft/Src/double_integral.c **** 
+ 205:Modules/fft/Src/double_integral.c ****     for (int i = 0; i < integ->fft_len; i++)
+ 871              		.loc 1 205 14 view .LVU210
+ 872 0014 0024     		movs	r4, #0
+ 873 0016 0CE0     		b	.L55
+ 874              	.LVL102:
+ 875              	.L56:
+ 206:Modules/fft/Src/double_integral.c ****     {                                        // 生成FFT数组
+ 207:Modules/fft/Src/double_integral.c ****         integ->fft_buf[2 * i] = inputbuf[i]; // 实部为加速度值
+ 876              		.loc 1 207 9 is_stmt 1 discriminator 3 view .LVU211
+ 877              		.loc 1 207 14 is_stmt 0 discriminator 3 view .LVU212
+ 878 0018 2B6A     		ldr	r3, [r5, #32]
+ 879              		.loc 1 207 23 discriminator 3 view .LVU213
+ 880 001a E500     		lsls	r5, r4, #3
+ 881              		.loc 1 207 41 discriminator 3 view .LVU214
+ 882 001c 50F82420 		ldr	r2, [r0, r4, lsl #2]	@ float
+ 883              		.loc 1 207 31 discriminator 3 view .LVU215
+ 884 0020 43F83420 		str	r2, [r3, r4, lsl #3]	@ float
+ 208:Modules/fft/Src/double_integral.c ****         integ->fft_buf[2 * i + 1] = 0;       // 虚部为0
+ 885              		.loc 1 208 9 is_stmt 1 discriminator 3 view .LVU216
+ 886              		.loc 1 208 14 is_stmt 0 discriminator 3 view .LVU217
+ 887 0024 6F4B     		ldr	r3, .L81
+ 888 0026 1B68     		ldr	r3, [r3]
+ 889 0028 1B6A     		ldr	r3, [r3, #32]
+ 890              		.loc 1 208 23 discriminator 3 view .LVU218
+ 891 002a 0435     		adds	r5, r5, #4
+ 892              		.loc 1 208 35 discriminator 3 view .LVU219
+ 893 002c 0022     		movs	r2, #0
+ARM GAS  C:\Users\wyx12\AppData\Local\Temp\ccXgUGP1.s 			page 21
+
+
+ 894 002e 5A51     		str	r2, [r3, r5]	@ float
+ 205:Modules/fft/Src/double_integral.c ****     {                                        // 生成FFT数组
+ 895              		.loc 1 205 42 is_stmt 1 discriminator 3 view .LVU220
+ 896 0030 0134     		adds	r4, r4, #1
+ 897              	.LVL103:
+ 898              	.L55:
+ 205:Modules/fft/Src/double_integral.c ****     {                                        // 生成FFT数组
+ 899              		.loc 1 205 23 discriminator 1 view .LVU221
+ 205:Modules/fft/Src/double_integral.c ****     {                                        // 生成FFT数组
+ 900              		.loc 1 205 30 is_stmt 0 discriminator 1 view .LVU222
+ 901 0032 6C4B     		ldr	r3, .L81
+ 902 0034 1D68     		ldr	r5, [r3]
+ 903 0036 6B88     		ldrh	r3, [r5, #2]
+ 205:Modules/fft/Src/double_integral.c ****     {                                        // 生成FFT数组
+ 904              		.loc 1 205 23 discriminator 1 view .LVU223
+ 905 0038 A342     		cmp	r3, r4
+ 906 003a EDDC     		bgt	.L56
+ 907              	.LBE5:
+ 209:Modules/fft/Src/double_integral.c ****     }
+ 210:Modules/fft/Src/double_integral.c **** 
+ 211:Modules/fft/Src/double_integral.c ****     arm_cmplx_mult_real_f32(integ->fft_buf, &WindowCoef1024[0], integ->fft_buf, integ->fft_len); //
+ 908              		.loc 1 211 5 is_stmt 1 view .LVU224
+ 909              		.loc 1 211 34 is_stmt 0 view .LVU225
+ 910 003c 286A     		ldr	r0, [r5, #32]
+ 911              	.LVL104:
+ 912              		.loc 1 211 5 view .LVU226
+ 913 003e 0246     		mov	r2, r0
+ 914 0040 6949     		ldr	r1, .L81+4
+ 915              	.LVL105:
+ 916              		.loc 1 211 5 view .LVU227
+ 917 0042 FFF7FEFF 		bl	arm_cmplx_mult_real_f32
+ 918              	.LVL106:
+ 212:Modules/fft/Src/double_integral.c **** 
+ 213:Modules/fft/Src/double_integral.c ****     arm_cfft_f32(&integ->S, integ->fft_buf, 0, 1); // 计算FFT,结果保存在fft_buf中
+ 919              		.loc 1 213 5 is_stmt 1 view .LVU228
+ 920              		.loc 1 213 24 is_stmt 0 view .LVU229
+ 921 0046 674B     		ldr	r3, .L81
+ 922 0048 1868     		ldr	r0, [r3]
+ 923              		.loc 1 213 5 view .LVU230
+ 924 004a 0123     		movs	r3, #1
+ 925 004c 0022     		movs	r2, #0
+ 926 004e 016A     		ldr	r1, [r0, #32]
+ 927 0050 2430     		adds	r0, r0, #36
+ 928 0052 FFF7FEFF 		bl	arm_cfft_f32
+ 929              	.LVL107:
+ 214:Modules/fft/Src/double_integral.c **** 
+ 215:Modules/fft/Src/double_integral.c ****     if ((mag != NULL) && (freq != NULL))
+ 930              		.loc 1 215 5 is_stmt 1 view .LVU231
+ 931              		.loc 1 215 8 is_stmt 0 view .LVU232
+ 932 0056 37B1     		cbz	r7, .L57
+ 933              		.loc 1 215 23 discriminator 1 view .LVU233
+ 934 0058 B8F1000F 		cmp	r8, #0
+ 935 005c 03D0     		beq	.L57
+ 216:Modules/fft/Src/double_integral.c ****     {
+ 217:Modules/fft/Src/double_integral.c ****         GetMagAndFreq(mag, freq);
+ 936              		.loc 1 217 9 is_stmt 1 view .LVU234
+ 937 005e 4146     		mov	r1, r8
+ARM GAS  C:\Users\wyx12\AppData\Local\Temp\ccXgUGP1.s 			page 22
+
+
+ 938 0060 3846     		mov	r0, r7
+ 939 0062 FFF7FEFF 		bl	GetMagAndFreq
+ 940              	.LVL108:
+ 941              	.L57:
+ 942              	.LBB6:
+ 205:Modules/fft/Src/double_integral.c ****     {                                        // 生成FFT数组
+ 943              		.loc 1 205 14 is_stmt 0 discriminator 1 view .LVU235
+ 944 0066 0124     		movs	r4, #1
+ 945              	.LVL109:
+ 205:Modules/fft/Src/double_integral.c ****     {                                        // 生成FFT数组
+ 946              		.loc 1 205 14 discriminator 1 view .LVU236
+ 947 0068 16E0     		b	.L58
+ 948              	.LVL110:
+ 949              	.L59:
+ 205:Modules/fft/Src/double_integral.c ****     {                                        // 生成FFT数组
+ 950              		.loc 1 205 14 discriminator 1 view .LVU237
+ 951              	.LBE6:
+ 952              	.LBB7:
+ 218:Modules/fft/Src/double_integral.c ****     }
+ 219:Modules/fft/Src/double_integral.c **** 
+ 220:Modules/fft/Src/double_integral.c ****     for (int i = 1; i < integ->fft_len - 1; i++)
+ 221:Modules/fft/Src/double_integral.c ****     {
+ 222:Modules/fft/Src/double_integral.c ****         integ->fft_buf[2 * i] /= integ->w_vec[i];
+ 953              		.loc 1 222 9 is_stmt 1 discriminator 3 view .LVU238
+ 954              		.loc 1 222 14 is_stmt 0 discriminator 3 view .LVU239
+ 955 006a 176A     		ldr	r7, [r2, #32]
+ 956              		.loc 1 222 23 discriminator 3 view .LVU240
+ 957 006c E500     		lsls	r5, r4, #3
+ 958              		.loc 1 222 39 discriminator 3 view .LVU241
+ 959 006e D369     		ldr	r3, [r2, #28]
+ 960              		.loc 1 222 31 discriminator 3 view .LVU242
+ 961 0070 53F82410 		ldr	r1, [r3, r4, lsl #2]	@ float
+ 962 0074 57F83400 		ldr	r0, [r7, r4, lsl #3]	@ float
+ 963 0078 FFF7FEFF 		bl	__aeabi_fdiv
+ 964              	.LVL111:
+ 965 007c 47F83400 		str	r0, [r7, r4, lsl #3]	@ float
+ 223:Modules/fft/Src/double_integral.c ****         integ->fft_buf[2 * i + 1] /= integ->w_vec[i];
+ 966              		.loc 1 223 9 is_stmt 1 discriminator 3 view .LVU243
+ 967              		.loc 1 223 14 is_stmt 0 discriminator 3 view .LVU244
+ 968 0080 584B     		ldr	r3, .L81
+ 969 0082 1B68     		ldr	r3, [r3]
+ 970 0084 1F6A     		ldr	r7, [r3, #32]
+ 971              		.loc 1 223 23 discriminator 3 view .LVU245
+ 972 0086 0435     		adds	r5, r5, #4
+ 973              		.loc 1 223 43 discriminator 3 view .LVU246
+ 974 0088 DB69     		ldr	r3, [r3, #28]
+ 975              		.loc 1 223 35 discriminator 3 view .LVU247
+ 976 008a 53F82410 		ldr	r1, [r3, r4, lsl #2]	@ float
+ 977 008e 7859     		ldr	r0, [r7, r5]	@ float
+ 978 0090 FFF7FEFF 		bl	__aeabi_fdiv
+ 979              	.LVL112:
+ 980 0094 7851     		str	r0, [r7, r5]	@ float
+ 220:Modules/fft/Src/double_integral.c ****     {
+ 981              		.loc 1 220 46 is_stmt 1 discriminator 3 view .LVU248
+ 982 0096 0134     		adds	r4, r4, #1
+ 983              	.LVL113:
+ 984              	.L58:
+ARM GAS  C:\Users\wyx12\AppData\Local\Temp\ccXgUGP1.s 			page 23
+
+
+ 220:Modules/fft/Src/double_integral.c ****     {
+ 985              		.loc 1 220 23 discriminator 1 view .LVU249
+ 220:Modules/fft/Src/double_integral.c ****     {
+ 986              		.loc 1 220 30 is_stmt 0 discriminator 1 view .LVU250
+ 987 0098 524B     		ldr	r3, .L81
+ 988 009a 1A68     		ldr	r2, [r3]
+ 989 009c 5388     		ldrh	r3, [r2, #2]
+ 220:Modules/fft/Src/double_integral.c ****     {
+ 990              		.loc 1 220 40 discriminator 1 view .LVU251
+ 991 009e 013B     		subs	r3, r3, #1
+ 220:Modules/fft/Src/double_integral.c ****     {
+ 992              		.loc 1 220 23 discriminator 1 view .LVU252
+ 993 00a0 A342     		cmp	r3, r4
+ 994 00a2 E2DC     		bgt	.L59
+ 995              	.LBE7:
+ 224:Modules/fft/Src/double_integral.c ****     }
+ 225:Modules/fft/Src/double_integral.c **** 
+ 226:Modules/fft/Src/double_integral.c ****     if (integ->integ_time == 2)
+ 996              		.loc 1 226 5 is_stmt 1 view .LVU253
+ 997              		.loc 1 226 14 is_stmt 0 view .LVU254
+ 998 00a4 1378     		ldrb	r3, [r2]	@ zero_extendqisi2
+ 999              		.loc 1 226 8 view .LVU255
+ 1000 00a6 022B     		cmp	r3, #2
+ 1001 00a8 18D0     		beq	.L78
+ 1002              	.LBB8:
+ 1003              	.LBB9:
+ 227:Modules/fft/Src/double_integral.c ****     {
+ 228:Modules/fft/Src/double_integral.c ****         for (int i = 0; i < integ->fft_len; i++)
+ 229:Modules/fft/Src/double_integral.c ****         {                                                           // 进行积分频域变换和�
+ 230:Modules/fft/Src/double_integral.c ****             integ->fft_buf[2 * i] = -integ->fft_buf[2 * i];         // 频域变换即fft数组中�
+ 231:Modules/fft/Src/double_integral.c ****             integ->fft_buf[2 * i + 1] = -integ->fft_buf[2 * i + 1]; // 2次积分相位变换为旋
+ 232:Modules/fft/Src/double_integral.c ****         }
+ 233:Modules/fft/Src/double_integral.c ****     }
+ 234:Modules/fft/Src/double_integral.c ****     else
+ 235:Modules/fft/Src/double_integral.c ****     {
+ 236:Modules/fft/Src/double_integral.c ****         float temp;
+ 237:Modules/fft/Src/double_integral.c ****         for (int i = 0; i < integ->fft_len; i++)
+ 1004              		.loc 1 237 18 view .LVU256
+ 1005 00aa 0023     		movs	r3, #0
+ 1006 00ac 27E0     		b	.L61
+ 1007              	.LVL114:
+ 1008              	.L62:
+ 1009              		.loc 1 237 18 view .LVU257
+ 1010              	.LBE9:
+ 1011              	.LBE8:
+ 1012              	.LBB11:
+ 230:Modules/fft/Src/double_integral.c ****             integ->fft_buf[2 * i + 1] = -integ->fft_buf[2 * i + 1]; // 2次积分相位变换为旋
+ 1013              		.loc 1 230 13 is_stmt 1 discriminator 3 view .LVU258
+ 230:Modules/fft/Src/double_integral.c ****             integ->fft_buf[2 * i + 1] = -integ->fft_buf[2 * i + 1]; // 2次积分相位变换为旋
+ 1014              		.loc 1 230 43 is_stmt 0 discriminator 3 view .LVU259
+ 1015 00ae 106A     		ldr	r0, [r2, #32]
+ 230:Modules/fft/Src/double_integral.c ****             integ->fft_buf[2 * i + 1] = -integ->fft_buf[2 * i + 1]; // 2次积分相位变换为旋
+ 1016              		.loc 1 230 52 discriminator 3 view .LVU260
+ 1017 00b0 DA00     		lsls	r2, r3, #3
+ 1018 00b2 50F83310 		ldr	r1, [r0, r3, lsl #3]	@ float
+ 230:Modules/fft/Src/double_integral.c ****             integ->fft_buf[2 * i + 1] = -integ->fft_buf[2 * i + 1]; // 2次积分相位变换为旋
+ 1019              		.loc 1 230 37 discriminator 3 view .LVU261
+ARM GAS  C:\Users\wyx12\AppData\Local\Temp\ccXgUGP1.s 			page 24
+
+
+ 1020 00b6 01F10041 		add	r1, r1, #-2147483648
+ 230:Modules/fft/Src/double_integral.c ****             integ->fft_buf[2 * i + 1] = -integ->fft_buf[2 * i + 1]; // 2次积分相位变换为旋
+ 1021              		.loc 1 230 35 discriminator 3 view .LVU262
+ 1022 00ba 40F83310 		str	r1, [r0, r3, lsl #3]	@ float
+ 231:Modules/fft/Src/double_integral.c ****         }
+ 1023              		.loc 1 231 13 is_stmt 1 discriminator 3 view .LVU263
+ 231:Modules/fft/Src/double_integral.c ****         }
+ 1024              		.loc 1 231 47 is_stmt 0 discriminator 3 view .LVU264
+ 1025 00be 4949     		ldr	r1, .L81
+ 1026 00c0 0968     		ldr	r1, [r1]
+ 1027 00c2 086A     		ldr	r0, [r1, #32]
+ 231:Modules/fft/Src/double_integral.c ****         }
+ 1028              		.loc 1 231 56 discriminator 3 view .LVU265
+ 1029 00c4 0432     		adds	r2, r2, #4
+ 1030 00c6 8158     		ldr	r1, [r0, r2]	@ float
+ 231:Modules/fft/Src/double_integral.c ****         }
+ 1031              		.loc 1 231 41 discriminator 3 view .LVU266
+ 1032 00c8 01F10041 		add	r1, r1, #-2147483648
+ 231:Modules/fft/Src/double_integral.c ****         }
+ 1033              		.loc 1 231 39 discriminator 3 view .LVU267
+ 1034 00cc 8150     		str	r1, [r0, r2]	@ float
+ 228:Modules/fft/Src/double_integral.c ****         {                                                           // 进行积分频域变换和�
+ 1035              		.loc 1 228 46 is_stmt 1 discriminator 3 view .LVU268
+ 1036 00ce 0133     		adds	r3, r3, #1
+ 1037              	.LVL115:
+ 1038              	.L60:
+ 228:Modules/fft/Src/double_integral.c ****         {                                                           // 进行积分频域变换和�
+ 1039              		.loc 1 228 27 discriminator 1 view .LVU269
+ 228:Modules/fft/Src/double_integral.c ****         {                                                           // 进行积分频域变换和�
+ 1040              		.loc 1 228 34 is_stmt 0 discriminator 1 view .LVU270
+ 1041 00d0 444A     		ldr	r2, .L81
+ 1042 00d2 1268     		ldr	r2, [r2]
+ 1043 00d4 5188     		ldrh	r1, [r2, #2]
+ 228:Modules/fft/Src/double_integral.c ****         {                                                           // 进行积分频域变换和�
+ 1044              		.loc 1 228 27 discriminator 1 view .LVU271
+ 1045 00d6 9942     		cmp	r1, r3
+ 1046 00d8 E9DC     		bgt	.L62
+ 1047 00da 15E0     		b	.L63
+ 1048              	.LVL116:
+ 1049              	.L78:
+ 228:Modules/fft/Src/double_integral.c ****         {                                                           // 进行积分频域变换和�
+ 1050              		.loc 1 228 18 view .LVU272
+ 1051 00dc 0023     		movs	r3, #0
+ 1052 00de F7E7     		b	.L60
+ 1053              	.LVL117:
+ 1054              	.L64:
+ 228:Modules/fft/Src/double_integral.c ****         {                                                           // 进行积分频域变换和�
+ 1055              		.loc 1 228 18 view .LVU273
+ 1056              	.LBE11:
+ 1057              	.LBB12:
+ 1058              	.LBB10:
+ 238:Modules/fft/Src/double_integral.c ****         {
+ 239:Modules/fft/Src/double_integral.c ****             temp = -integ->fft_buf[2 * i];                     // 1次积分相位变换为逆时�
+ 1059              		.loc 1 239 13 is_stmt 1 discriminator 3 view .LVU274
+ 1060              		.loc 1 239 26 is_stmt 0 discriminator 3 view .LVU275
+ 1061 00e0 106A     		ldr	r0, [r2, #32]
+ 1062              		.loc 1 239 35 discriminator 3 view .LVU276
+ARM GAS  C:\Users\wyx12\AppData\Local\Temp\ccXgUGP1.s 			page 25
+
+
+ 1063 00e2 DA00     		lsls	r2, r3, #3
+ 1064 00e4 50F83310 		ldr	r1, [r0, r3, lsl #3]	@ float
+ 1065              		.loc 1 239 18 discriminator 3 view .LVU277
+ 1066 00e8 01F10041 		add	r1, r1, #-2147483648
+ 1067              	.LVL118:
+ 240:Modules/fft/Src/double_integral.c ****             integ->fft_buf[2 * i] = integ->fft_buf[2 * i + 1]; // 实部等于虚部，虚部等于
+ 1068              		.loc 1 240 13 is_stmt 1 discriminator 3 view .LVU278
+ 1069              		.loc 1 240 51 is_stmt 0 discriminator 3 view .LVU279
+ 1070 00ec 0432     		adds	r2, r2, #4
+ 1071 00ee 8458     		ldr	r4, [r0, r2]	@ float
+ 1072              		.loc 1 240 35 discriminator 3 view .LVU280
+ 1073 00f0 40F83340 		str	r4, [r0, r3, lsl #3]	@ float
+ 241:Modules/fft/Src/double_integral.c ****             integ->fft_buf[2 * i + 1] = temp;
+ 1074              		.loc 1 241 13 is_stmt 1 discriminator 3 view .LVU281
+ 1075              		.loc 1 241 18 is_stmt 0 discriminator 3 view .LVU282
+ 1076 00f4 3B48     		ldr	r0, .L81
+ 1077 00f6 0068     		ldr	r0, [r0]
+ 1078 00f8 006A     		ldr	r0, [r0, #32]
+ 1079              		.loc 1 241 39 discriminator 3 view .LVU283
+ 1080 00fa 8150     		str	r1, [r0, r2]	@ float
+ 237:Modules/fft/Src/double_integral.c ****         {
+ 1081              		.loc 1 237 46 is_stmt 1 discriminator 3 view .LVU284
+ 1082 00fc 0133     		adds	r3, r3, #1
+ 1083              	.LVL119:
+ 1084              	.L61:
+ 237:Modules/fft/Src/double_integral.c ****         {
+ 1085              		.loc 1 237 27 discriminator 1 view .LVU285
+ 237:Modules/fft/Src/double_integral.c ****         {
+ 1086              		.loc 1 237 34 is_stmt 0 discriminator 1 view .LVU286
+ 1087 00fe 394A     		ldr	r2, .L81
+ 1088 0100 1268     		ldr	r2, [r2]
+ 1089 0102 5188     		ldrh	r1, [r2, #2]
+ 237:Modules/fft/Src/double_integral.c ****         {
+ 1090              		.loc 1 237 27 discriminator 1 view .LVU287
+ 1091 0104 9942     		cmp	r1, r3
+ 1092 0106 EBDC     		bgt	.L64
+ 1093              	.LVL120:
+ 1094              	.L63:
+ 237:Modules/fft/Src/double_integral.c ****         {
+ 1095              		.loc 1 237 18 discriminator 1 view .LVU288
+ 1096 0108 0025     		movs	r5, #0
+ 1097 010a 0AE0     		b	.L65
+ 1098              	.LVL121:
+ 1099              	.L66:
+ 237:Modules/fft/Src/double_integral.c ****         {
+ 1100              		.loc 1 237 18 discriminator 1 view .LVU289
+ 1101              	.LBE10:
+ 1102              	.LBE12:
+ 1103              	.LBB13:
+ 242:Modules/fft/Src/double_integral.c ****         }
+ 243:Modules/fft/Src/double_integral.c ****     }
+ 244:Modules/fft/Src/double_integral.c **** 
+ 245:Modules/fft/Src/double_integral.c ****     //	for(int i=0; i<integ->fft_len-integ->low_pass; i++){					        //清除频域中的低频�
+ 246:Modules/fft/Src/double_integral.c ****     //		integ->fft_buf[2*i  ] = 0;
+ 247:Modules/fft/Src/double_integral.c ****     //		integ->fft_buf[2*i+1] = 0;
+ 248:Modules/fft/Src/double_integral.c ****     //	}
+ 249:Modules/fft/Src/double_integral.c ****     //	for(int i=integ->fft_len-integ->high_pass; i<integ->fft_len; i++){		//清除频域中的高�
+ARM GAS  C:\Users\wyx12\AppData\Local\Temp\ccXgUGP1.s 			page 26
+
+
+ 250:Modules/fft/Src/double_integral.c ****     //		integ->fft_buf[2*i  ] = 0;
+ 251:Modules/fft/Src/double_integral.c ****     //		integ->fft_buf[2*i+1] = 0;
+ 252:Modules/fft/Src/double_integral.c ****     //	}
+ 253:Modules/fft/Src/double_integral.c **** 
+ 254:Modules/fft/Src/double_integral.c ****     for (int i = 0; i < integ->fft_len / 2; i++)
+ 255:Modules/fft/Src/double_integral.c ****     { // 消除指定正频带外的频率成分
+ 256:Modules/fft/Src/double_integral.c ****         if ((i < integ->high_pass) || (i > integ->low_pass))
+ 257:Modules/fft/Src/double_integral.c ****         {
+ 258:Modules/fft/Src/double_integral.c ****             integ->fft_buf[2 * i] = 0;
+ 1104              		.loc 1 258 13 is_stmt 1 view .LVU290
+ 1105              		.loc 1 258 18 is_stmt 0 view .LVU291
+ 1106 010c 396A     		ldr	r1, [r7, #32]
+ 1107              		.loc 1 258 27 view .LVU292
+ 1108 010e EB00     		lsls	r3, r5, #3
+ 1109              		.loc 1 258 35 view .LVU293
+ 1110 0110 0022     		movs	r2, #0
+ 1111 0112 41F83520 		str	r2, [r1, r5, lsl #3]	@ float
+ 259:Modules/fft/Src/double_integral.c ****             integ->fft_buf[2 * i + 1] = 0;
+ 1112              		.loc 1 259 13 is_stmt 1 view .LVU294
+ 1113              		.loc 1 259 18 is_stmt 0 view .LVU295
+ 1114 0116 3349     		ldr	r1, .L81
+ 1115 0118 0968     		ldr	r1, [r1]
+ 1116 011a 096A     		ldr	r1, [r1, #32]
+ 1117              		.loc 1 259 27 view .LVU296
+ 1118 011c 0433     		adds	r3, r3, #4
+ 1119              		.loc 1 259 39 view .LVU297
+ 1120 011e CA50     		str	r2, [r1, r3]	@ float
+ 1121              	.L67:
+ 254:Modules/fft/Src/double_integral.c ****     { // 消除指定正频带外的频率成分
+ 1122              		.loc 1 254 46 is_stmt 1 discriminator 2 view .LVU298
+ 1123 0120 0135     		adds	r5, r5, #1
+ 1124              	.LVL122:
+ 1125              	.L65:
+ 254:Modules/fft/Src/double_integral.c ****     { // 消除指定正频带外的频率成分
+ 1126              		.loc 1 254 23 discriminator 1 view .LVU299
+ 254:Modules/fft/Src/double_integral.c ****     { // 消除指定正频带外的频率成分
+ 1127              		.loc 1 254 30 is_stmt 0 discriminator 1 view .LVU300
+ 1128 0122 304B     		ldr	r3, .L81
+ 1129 0124 1F68     		ldr	r7, [r3]
+ 1130 0126 7B88     		ldrh	r3, [r7, #2]
+ 254:Modules/fft/Src/double_integral.c ****     { // 消除指定正频带外的频率成分
+ 1131              		.loc 1 254 40 discriminator 1 view .LVU301
+ 1132 0128 5C08     		lsrs	r4, r3, #1
+ 254:Modules/fft/Src/double_integral.c ****     { // 消除指定正频带外的频率成分
+ 1133              		.loc 1 254 23 discriminator 1 view .LVU302
+ 1134 012a B5EB530F 		cmp	r5, r3, lsr #1
+ 1135 012e 1ADA     		bge	.L70
+ 256:Modules/fft/Src/double_integral.c ****         {
+ 1136              		.loc 1 256 9 is_stmt 1 view .LVU303
+ 256:Modules/fft/Src/double_integral.c ****         {
+ 1137              		.loc 1 256 16 is_stmt 0 view .LVU304
+ 1138 0130 2846     		mov	r0, r5
+ 1139 0132 FFF7FEFF 		bl	__aeabi_i2f
+ 1140              	.LVL123:
+ 1141 0136 0446     		mov	r4, r0
+ 256:Modules/fft/Src/double_integral.c ****         {
+ 1142              		.loc 1 256 12 view .LVU305
+ARM GAS  C:\Users\wyx12\AppData\Local\Temp\ccXgUGP1.s 			page 27
+
+
+ 1143 0138 B968     		ldr	r1, [r7, #8]	@ float
+ 1144 013a FFF7FEFF 		bl	__aeabi_fcmplt
+ 1145              	.LVL124:
+ 1146 013e 0028     		cmp	r0, #0
+ 1147 0140 E4D1     		bne	.L66
+ 256:Modules/fft/Src/double_integral.c ****         {
+ 1148              		.loc 1 256 36 discriminator 1 view .LVU306
+ 1149 0142 F968     		ldr	r1, [r7, #12]	@ float
+ 1150 0144 2046     		mov	r0, r4
+ 1151 0146 FFF7FEFF 		bl	__aeabi_fcmpgt
+ 1152              	.LVL125:
+ 1153 014a 0028     		cmp	r0, #0
+ 1154 014c E8D0     		beq	.L67
+ 1155 014e DDE7     		b	.L66
+ 1156              	.LVL126:
+ 1157              	.L71:
+ 256:Modules/fft/Src/double_integral.c ****         {
+ 1158              		.loc 1 256 36 discriminator 1 view .LVU307
+ 1159              	.LBE13:
+ 1160              	.LBB14:
+ 260:Modules/fft/Src/double_integral.c ****         }
+ 261:Modules/fft/Src/double_integral.c ****     }
+ 262:Modules/fft/Src/double_integral.c ****     for (int i = integ->fft_len / 2; i < integ->fft_len; i++)
+ 263:Modules/fft/Src/double_integral.c ****     { // 消除指定负频带外的频率成分
+ 264:Modules/fft/Src/double_integral.c **** 
+ 265:Modules/fft/Src/double_integral.c ****         if ((i < (integ->fft_len - integ->low_pass)) || (i >= (integ->fft_len - integ->high_pass)))
+ 266:Modules/fft/Src/double_integral.c ****         {
+ 267:Modules/fft/Src/double_integral.c ****             integ->fft_buf[2 * i] = 0;
+ 1161              		.loc 1 267 13 is_stmt 1 view .LVU308
+ 1162              		.loc 1 267 18 is_stmt 0 view .LVU309
+ 1163 0150 296A     		ldr	r1, [r5, #32]
+ 1164              		.loc 1 267 27 view .LVU310
+ 1165 0152 E300     		lsls	r3, r4, #3
+ 1166              		.loc 1 267 35 view .LVU311
+ 1167 0154 0022     		movs	r2, #0
+ 1168 0156 41F83420 		str	r2, [r1, r4, lsl #3]	@ float
+ 268:Modules/fft/Src/double_integral.c ****             integ->fft_buf[2 * i + 1] = 0;
+ 1169              		.loc 1 268 13 is_stmt 1 view .LVU312
+ 1170              		.loc 1 268 18 is_stmt 0 view .LVU313
+ 1171 015a 2249     		ldr	r1, .L81
+ 1172 015c 0968     		ldr	r1, [r1]
+ 1173 015e 096A     		ldr	r1, [r1, #32]
+ 1174              		.loc 1 268 27 view .LVU314
+ 1175 0160 0433     		adds	r3, r3, #4
+ 1176              		.loc 1 268 39 view .LVU315
+ 1177 0162 CA50     		str	r2, [r1, r3]	@ float
+ 1178              	.L72:
+ 262:Modules/fft/Src/double_integral.c ****     { // 消除指定负频带外的频率成分
+ 1179              		.loc 1 262 59 is_stmt 1 discriminator 2 view .LVU316
+ 1180 0164 0134     		adds	r4, r4, #1
+ 1181              	.LVL127:
+ 1182              	.L70:
+ 262:Modules/fft/Src/double_integral.c ****     { // 消除指定负频带外的频率成分
+ 1183              		.loc 1 262 40 discriminator 1 view .LVU317
+ 262:Modules/fft/Src/double_integral.c ****     { // 消除指定负频带外的频率成分
+ 1184              		.loc 1 262 47 is_stmt 0 discriminator 1 view .LVU318
+ 1185 0166 1F4B     		ldr	r3, .L81
+ARM GAS  C:\Users\wyx12\AppData\Local\Temp\ccXgUGP1.s 			page 28
+
+
+ 1186 0168 1D68     		ldr	r5, [r3]
+ 1187 016a B5F80280 		ldrh	r8, [r5, #2]
+ 262:Modules/fft/Src/double_integral.c ****     { // 消除指定负频带外的频率成分
+ 1188              		.loc 1 262 40 discriminator 1 view .LVU319
+ 1189 016e A045     		cmp	r8, r4
+ 1190 0170 1BDD     		ble	.L80
+ 265:Modules/fft/Src/double_integral.c ****         {
+ 1191              		.loc 1 265 9 is_stmt 1 view .LVU320
+ 265:Modules/fft/Src/double_integral.c ****         {
+ 1192              		.loc 1 265 16 is_stmt 0 view .LVU321
+ 1193 0172 2046     		mov	r0, r4
+ 1194 0174 FFF7FEFF 		bl	__aeabi_i2f
+ 1195              	.LVL128:
+ 1196 0178 0746     		mov	r7, r0
+ 265:Modules/fft/Src/double_integral.c ****         {
+ 1197              		.loc 1 265 34 view .LVU322
+ 1198 017a 4046     		mov	r0, r8
+ 1199 017c FFF7FEFF 		bl	__aeabi_i2f
+ 1200              	.LVL129:
+ 1201 0180 8046     		mov	r8, r0
+ 1202 0182 E968     		ldr	r1, [r5, #12]	@ float
+ 1203 0184 FFF7FEFF 		bl	__aeabi_fsub
+ 1204              	.LVL130:
+ 1205 0188 0146     		mov	r1, r0
+ 265:Modules/fft/Src/double_integral.c ****         {
+ 1206              		.loc 1 265 12 view .LVU323
+ 1207 018a 3846     		mov	r0, r7
+ 1208 018c FFF7FEFF 		bl	__aeabi_fcmplt
+ 1209              	.LVL131:
+ 1210 0190 0028     		cmp	r0, #0
+ 1211 0192 DDD1     		bne	.L71
+ 265:Modules/fft/Src/double_integral.c ****         {
+ 1212              		.loc 1 265 79 discriminator 1 view .LVU324
+ 1213 0194 A968     		ldr	r1, [r5, #8]	@ float
+ 1214 0196 4046     		mov	r0, r8
+ 1215 0198 FFF7FEFF 		bl	__aeabi_fsub
+ 1216              	.LVL132:
+ 1217 019c 0146     		mov	r1, r0
+ 265:Modules/fft/Src/double_integral.c ****         {
+ 1218              		.loc 1 265 54 discriminator 1 view .LVU325
+ 1219 019e 3846     		mov	r0, r7
+ 1220 01a0 FFF7FEFF 		bl	__aeabi_fcmpge
+ 1221              	.LVL133:
+ 1222 01a4 0028     		cmp	r0, #0
+ 1223 01a6 DDD0     		beq	.L72
+ 1224 01a8 D2E7     		b	.L71
+ 1225              	.L80:
+ 1226              	.LBE14:
+ 269:Modules/fft/Src/double_integral.c ****         }
+ 270:Modules/fft/Src/double_integral.c ****     }
+ 271:Modules/fft/Src/double_integral.c **** 
+ 272:Modules/fft/Src/double_integral.c ****     arm_cfft_f32(&integ->S, integ->fft_buf, 1, 1); // 计算IFFT,结果保存在fft_buf中
+ 1227              		.loc 1 272 5 is_stmt 1 view .LVU326
+ 1228 01aa 0123     		movs	r3, #1
+ 1229 01ac 1A46     		mov	r2, r3
+ 1230 01ae 296A     		ldr	r1, [r5, #32]
+ 1231 01b0 05F12400 		add	r0, r5, #36
+ARM GAS  C:\Users\wyx12\AppData\Local\Temp\ccXgUGP1.s 			page 29
+
+
+ 1232 01b4 FFF7FEFF 		bl	arm_cfft_f32
+ 1233              	.LVL134:
+ 273:Modules/fft/Src/double_integral.c **** 
+ 274:Modules/fft/Src/double_integral.c ****     for (int i = 0; i < integ->fft_len; i++)
+ 1234              		.loc 1 274 5 view .LVU327
+ 1235              	.LBB15:
+ 1236              		.loc 1 274 10 view .LVU328
+ 1237              		.loc 1 274 14 is_stmt 0 view .LVU329
+ 1238 01b8 0024     		movs	r4, #0
+ 1239              	.LVL135:
+ 1240              		.loc 1 274 5 view .LVU330
+ 1241 01ba 08E0     		b	.L75
+ 1242              	.LVL136:
+ 1243              	.L76:
+ 275:Modules/fft/Src/double_integral.c ****     {
+ 276:Modules/fft/Src/double_integral.c ****         outputbuf[i] = integ->fft_buf[2 * i] * integ->gravity; // 取逆变换的实部并乘以单
+ 1244              		.loc 1 276 9 is_stmt 1 discriminator 3 view .LVU331
+ 1245              		.loc 1 276 29 is_stmt 0 discriminator 3 view .LVU332
+ 1246 01bc 1A6A     		ldr	r2, [r3, #32]
+ 1247              		.loc 1 276 46 discriminator 3 view .LVU333
+ 1248 01be 9969     		ldr	r1, [r3, #24]	@ float
+ 1249 01c0 52F83400 		ldr	r0, [r2, r4, lsl #3]	@ float
+ 1250 01c4 FFF7FEFF 		bl	__aeabi_fmul
+ 1251              	.LVL137:
+ 1252              		.loc 1 276 22 discriminator 3 view .LVU334
+ 1253 01c8 46F82400 		str	r0, [r6, r4, lsl #2]	@ float
+ 274:Modules/fft/Src/double_integral.c ****     {
+ 1254              		.loc 1 274 42 is_stmt 1 discriminator 3 view .LVU335
+ 1255 01cc 0134     		adds	r4, r4, #1
+ 1256              	.LVL138:
+ 1257              	.L75:
+ 274:Modules/fft/Src/double_integral.c ****     {
+ 1258              		.loc 1 274 23 discriminator 1 view .LVU336
+ 274:Modules/fft/Src/double_integral.c ****     {
+ 1259              		.loc 1 274 30 is_stmt 0 discriminator 1 view .LVU337
+ 1260 01ce 054B     		ldr	r3, .L81
+ 1261 01d0 1B68     		ldr	r3, [r3]
+ 1262 01d2 5A88     		ldrh	r2, [r3, #2]
+ 274:Modules/fft/Src/double_integral.c ****     {
+ 1263              		.loc 1 274 23 discriminator 1 view .LVU338
+ 1264 01d4 A242     		cmp	r2, r4
+ 1265 01d6 F1DC     		bgt	.L76
+ 1266              	.LBE15:
+ 277:Modules/fft/Src/double_integral.c ****     }
+ 278:Modules/fft/Src/double_integral.c **** 
+ 279:Modules/fft/Src/double_integral.c ****     return 0;
+ 1267              		.loc 1 279 12 view .LVU339
+ 1268 01d8 0020     		movs	r0, #0
+ 1269              	.LVL139:
+ 1270              	.L53:
+ 280:Modules/fft/Src/double_integral.c **** }
+ 1271              		.loc 1 280 1 view .LVU340
+ 1272 01da BDE8F081 		pop	{r4, r5, r6, r7, r8, pc}
+ 1273              	.LVL140:
+ 1274              	.L77:
+ 203:Modules/fft/Src/double_integral.c **** 
+ 1275              		.loc 1 203 16 view .LVU341
+ARM GAS  C:\Users\wyx12\AppData\Local\Temp\ccXgUGP1.s 			page 30
+
+
+ 1276 01de 4FF0FF30 		mov	r0, #-1
+ 1277              	.LVL141:
+ 203:Modules/fft/Src/double_integral.c **** 
+ 1278              		.loc 1 203 16 view .LVU342
+ 1279 01e2 FAE7     		b	.L53
+ 1280              	.L82:
+ 1281              		.align	2
+ 1282              	.L81:
+ 1283 01e4 00000000 		.word	integ
+ 1284 01e8 00000000 		.word	WindowCoef1024
+ 1285              		.cfi_endproc
+ 1286              	.LFE103:
+ 1288              		.global	integ
+ 1289              		.section	.data.integ,"aw"
+ 1290              		.align	2
+ 1293              	integ:
+ 1294 0000 00000000 		.word	god
+ 1295              		.global	god
+ 1296              		.section	.bss.god,"aw",%nobits
+ 1297              		.align	2
+ 1300              	god:
+ 1301 0000 00000000 		.space	52
+ 1301      00000000 
+ 1301      00000000 
+ 1301      00000000 
+ 1301      00000000 
+ 1302              		.section	.bss.wave_buf,"aw",%nobits
+ 1303              		.align	2
+ 1306              	wave_buf:
+ 1307 0000 00000000 		.space	4096
+ 1307      00000000 
+ 1307      00000000 
+ 1307      00000000 
+ 1307      00000000 
+ 1308              		.section	.bss.fft_buf,"aw",%nobits
+ 1309              		.align	2
+ 1312              	fft_buf:
+ 1313 0000 00000000 		.space	8192
+ 1313      00000000 
+ 1313      00000000 
+ 1313      00000000 
+ 1313      00000000 
+ 1314              		.text
+ 1315              	.Letext0:
+ 1316              		.file 2 "c:\\program files (x86)\\arm gnu toolchain arm-none-eabi\\12.2 rel1\\arm-none-eabi\\inclu
+ 1317              		.file 3 "c:\\program files (x86)\\arm gnu toolchain arm-none-eabi\\12.2 rel1\\arm-none-eabi\\inclu
+ 1318              		.file 4 "Middlewares/ST/ARM/DSP/Inc/arm_math.h"
+ 1319              		.file 5 "Modules/fft/Inc/double_integral.h"
+ 1320              		.file 6 "Drivers/CMSIS/DSP/Include/arm_const_structs.h"
+ 1321              		.file 7 "Modules/fft/Inc/WindowCoeff.h"
+ 1322              		.file 8 "c:\\program files (x86)\\arm gnu toolchain arm-none-eabi\\12.2 rel1\\arm-none-eabi\\inclu
+ 1323              		.file 9 "c:\\program files (x86)\\arm gnu toolchain arm-none-eabi\\12.2 rel1\\arm-none-eabi\\inclu
+ARM GAS  C:\Users\wyx12\AppData\Local\Temp\ccXgUGP1.s 			page 31
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 double_integral.c
+C:\Users\wyx12\AppData\Local\Temp\ccXgUGP1.s:31     .text.integ_init:00000000 $t
+C:\Users\wyx12\AppData\Local\Temp\ccXgUGP1.s:37     .text.integ_init:00000000 integ_init
+C:\Users\wyx12\AppData\Local\Temp\ccXgUGP1.s:521    .text.integ_init:0000027c $d
+C:\Users\wyx12\AppData\Local\Temp\ccXgUGP1.s:1293   .data.integ:00000000 integ
+C:\Users\wyx12\AppData\Local\Temp\ccXgUGP1.s:1312   .bss.fft_buf:00000000 fft_buf
+C:\Users\wyx12\AppData\Local\Temp\ccXgUGP1.s:1306   .bss.wave_buf:00000000 wave_buf
+C:\Users\wyx12\AppData\Local\Temp\ccXgUGP1.s:540    .text.integ_deinit:00000000 $t
+C:\Users\wyx12\AppData\Local\Temp\ccXgUGP1.s:546    .text.integ_deinit:00000000 integ_deinit
+C:\Users\wyx12\AppData\Local\Temp\ccXgUGP1.s:593    .text.integ_deinit:00000024 $d
+C:\Users\wyx12\AppData\Local\Temp\ccXgUGP1.s:601    .text.GetMagAndFreq:00000000 $t
+C:\Users\wyx12\AppData\Local\Temp\ccXgUGP1.s:607    .text.GetMagAndFreq:00000000 GetMagAndFreq
+C:\Users\wyx12\AppData\Local\Temp\ccXgUGP1.s:826    .text.GetMagAndFreq:000000fc $d
+C:\Users\wyx12\AppData\Local\Temp\ccXgUGP1.s:835    .text.frq_domain_integral:00000000 $t
+C:\Users\wyx12\AppData\Local\Temp\ccXgUGP1.s:841    .text.frq_domain_integral:00000000 frq_domain_integral
+C:\Users\wyx12\AppData\Local\Temp\ccXgUGP1.s:1283   .text.frq_domain_integral:000001e4 $d
+C:\Users\wyx12\AppData\Local\Temp\ccXgUGP1.s:1290   .data.integ:00000000 $d
+C:\Users\wyx12\AppData\Local\Temp\ccXgUGP1.s:1300   .bss.god:00000000 god
+C:\Users\wyx12\AppData\Local\Temp\ccXgUGP1.s:1297   .bss.god:00000000 $d
+C:\Users\wyx12\AppData\Local\Temp\ccXgUGP1.s:1303   .bss.wave_buf:00000000 $d
+C:\Users\wyx12\AppData\Local\Temp\ccXgUGP1.s:1309   .bss.fft_buf:00000000 $d
+
+UNDEFINED SYMBOLS
+__aeabi_fcmple
+__aeabi_ui2d
+__aeabi_i2d
+__aeabi_dcmpge
+__aeabi_d2uiz
+__aeabi_ui2f
+__aeabi_fdiv
+__aeabi_f2d
+__aeabi_d2f
+__aeabi_fmul
+__aeabi_i2f
+__aeabi_fadd
+pow
+round
+arm_cfft_sR_f32_len4096
+arm_cfft_sR_f32_len128
+arm_cfft_sR_f32_len32
+arm_cfft_sR_f32_len1024
+arm_cfft_sR_f32_len16
+arm_cfft_sR_f32_len64
+arm_cfft_sR_f32_len256
+arm_cfft_sR_f32_len512
+arm_cfft_sR_f32_len2048
+free
+__aeabi_f2iz
+__aeabi_fcmplt
+__aeabi_f2uiz
+sqrt
+__aeabi_fcmpgt
+__aeabi_fsub
+__aeabi_fcmpge
+arm_cmplx_mult_real_f32
+arm_cfft_f32
+ARM GAS  C:\Users\wyx12\AppData\Local\Temp\ccXgUGP1.s 			page 32
+
+
+WindowCoef1024

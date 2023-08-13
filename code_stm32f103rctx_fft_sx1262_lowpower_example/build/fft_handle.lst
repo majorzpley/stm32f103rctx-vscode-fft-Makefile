@@ -1,0 +1,592 @@
+ARM GAS  C:\Users\wyx12\AppData\Local\Temp\ccRnvjcj.s 			page 1
+
+
+   1              		.cpu cortex-m3
+   2              		.arch armv7-m
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 1
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.file	"fft_handle.c"
+  14              		.text
+  15              	.Ltext0:
+  16              		.cfi_sections	.debug_frame
+  17              		.file 1 "Modules/fft/Src/fft_handle.c"
+  18              		.section	.text.SampleClk,"ax",%progbits
+  19              		.align	1
+  20              		.syntax unified
+  21              		.thumb
+  22              		.thumb_func
+  24              	SampleClk:
+  25              	.LFB122:
+   1:Modules/fft/Src/fft_handle.c **** #include "fft_handle.h"
+   2:Modules/fft/Src/fft_handle.c **** #include "main.h"
+   3:Modules/fft/Src/fft_handle.c **** #include "double_integral.h"
+   4:Modules/fft/Src/fft_handle.c **** uint16_t ADC1_buff[Samp1_Point] = {0};
+   5:Modules/fft/Src/fft_handle.c **** uint16_t ADC2_buff[Samp2_Point] = {0};
+   6:Modules/fft/Src/fft_handle.c **** 
+   7:Modules/fft/Src/fft_handle.c **** void Delay(unsigned int n)
+   8:Modules/fft/Src/fft_handle.c **** {
+   9:Modules/fft/Src/fft_handle.c ****     unsigned int i;
+  10:Modules/fft/Src/fft_handle.c ****     for (i = 0; i < n; i++)
+  11:Modules/fft/Src/fft_handle.c ****         ;
+  12:Modules/fft/Src/fft_handle.c ****     return;
+  13:Modules/fft/Src/fft_handle.c **** }
+  14:Modules/fft/Src/fft_handle.c **** // 模拟生成读取时钟信号
+  15:Modules/fft/Src/fft_handle.c **** static void SampleClk(void)
+  16:Modules/fft/Src/fft_handle.c **** {
+  26              		.loc 1 16 1 view -0
+  27              		.cfi_startproc
+  28              		@ args = 0, pretend = 0, frame = 0
+  29              		@ frame_needed = 0, uses_anonymous_args = 0
+  30              		@ link register save eliminated.
+  17:Modules/fft/Src/fft_handle.c ****     SAMPLE_SCK_0;
+  31              		.loc 1 17 5 view .LVU1
+  32 0000 224B     		ldr	r3, .L2
+  33 0002 D3F80C1C 		ldr	r1, [r3, #3084]
+  34 0006 4DF6FF72 		movw	r2, #57343
+  35 000a 1140     		ands	r1, r1, r2
+  36 000c C3F80C1C 		str	r1, [r3, #3084]
+  18:Modules/fft/Src/fft_handle.c ****     Delay(DELAYMS);
+  37              		.loc 1 18 5 view .LVU2
+  19:Modules/fft/Src/fft_handle.c ****     SAMPLE_SCK_1;
+  38              		.loc 1 19 5 view .LVU3
+  39 0010 D3F80C1C 		ldr	r1, [r3, #3084]
+ARM GAS  C:\Users\wyx12\AppData\Local\Temp\ccRnvjcj.s 			page 2
+
+
+  40 0014 41F40051 		orr	r1, r1, #8192
+  41 0018 C3F80C1C 		str	r1, [r3, #3084]
+  20:Modules/fft/Src/fft_handle.c ****     Delay(DELAYMS);
+  42              		.loc 1 20 5 view .LVU4
+  21:Modules/fft/Src/fft_handle.c ****     SAMPLE_SCK_0;
+  43              		.loc 1 21 5 view .LVU5
+  44 001c D3F80C1C 		ldr	r1, [r3, #3084]
+  45 0020 1140     		ands	r1, r1, r2
+  46 0022 C3F80C1C 		str	r1, [r3, #3084]
+  22:Modules/fft/Src/fft_handle.c ****     Delay(DELAYMS);
+  47              		.loc 1 22 5 view .LVU6
+  23:Modules/fft/Src/fft_handle.c ****     SAMPLE_SCK_1;
+  48              		.loc 1 23 5 view .LVU7
+  49 0026 D3F80C1C 		ldr	r1, [r3, #3084]
+  50 002a 41F40051 		orr	r1, r1, #8192
+  51 002e C3F80C1C 		str	r1, [r3, #3084]
+  24:Modules/fft/Src/fft_handle.c ****     Delay(DELAYMS);
+  52              		.loc 1 24 5 view .LVU8
+  25:Modules/fft/Src/fft_handle.c ****     SAMPLE_SCK_0;
+  53              		.loc 1 25 5 view .LVU9
+  54 0032 D3F80C1C 		ldr	r1, [r3, #3084]
+  55 0036 1140     		ands	r1, r1, r2
+  56 0038 C3F80C1C 		str	r1, [r3, #3084]
+  26:Modules/fft/Src/fft_handle.c ****     Delay(DELAYMS);
+  57              		.loc 1 26 5 view .LVU10
+  27:Modules/fft/Src/fft_handle.c ****     SAMPLE_SCK_1;
+  58              		.loc 1 27 5 view .LVU11
+  59 003c D3F80C1C 		ldr	r1, [r3, #3084]
+  60 0040 41F40051 		orr	r1, r1, #8192
+  61 0044 C3F80C1C 		str	r1, [r3, #3084]
+  28:Modules/fft/Src/fft_handle.c ****     Delay(DELAYMS);
+  62              		.loc 1 28 5 view .LVU12
+  29:Modules/fft/Src/fft_handle.c ****     SAMPLE_SCK_0;
+  63              		.loc 1 29 5 view .LVU13
+  64 0048 D3F80C1C 		ldr	r1, [r3, #3084]
+  65 004c 1140     		ands	r1, r1, r2
+  66 004e C3F80C1C 		str	r1, [r3, #3084]
+  30:Modules/fft/Src/fft_handle.c ****     Delay(DELAYMS);
+  67              		.loc 1 30 5 view .LVU14
+  31:Modules/fft/Src/fft_handle.c ****     SAMPLE_SCK_1;
+  68              		.loc 1 31 5 view .LVU15
+  69 0052 D3F80C1C 		ldr	r1, [r3, #3084]
+  70 0056 41F40051 		orr	r1, r1, #8192
+  71 005a C3F80C1C 		str	r1, [r3, #3084]
+  32:Modules/fft/Src/fft_handle.c ****     Delay(DELAYMS);
+  72              		.loc 1 32 5 view .LVU16
+  33:Modules/fft/Src/fft_handle.c ****     SAMPLE_SCK_0;
+  73              		.loc 1 33 5 view .LVU17
+  74 005e D3F80C1C 		ldr	r1, [r3, #3084]
+  75 0062 1140     		ands	r1, r1, r2
+  76 0064 C3F80C1C 		str	r1, [r3, #3084]
+  34:Modules/fft/Src/fft_handle.c ****     Delay(DELAYMS);
+  77              		.loc 1 34 5 view .LVU18
+  35:Modules/fft/Src/fft_handle.c ****     SAMPLE_SCK_1;
+  78              		.loc 1 35 5 view .LVU19
+  79 0068 D3F80C1C 		ldr	r1, [r3, #3084]
+  80 006c 41F40051 		orr	r1, r1, #8192
+ARM GAS  C:\Users\wyx12\AppData\Local\Temp\ccRnvjcj.s 			page 3
+
+
+  81 0070 C3F80C1C 		str	r1, [r3, #3084]
+  36:Modules/fft/Src/fft_handle.c ****     Delay(DELAYMS);
+  82              		.loc 1 36 5 view .LVU20
+  37:Modules/fft/Src/fft_handle.c ****     SAMPLE_SCK_0;
+  83              		.loc 1 37 5 view .LVU21
+  84 0074 D3F80C1C 		ldr	r1, [r3, #3084]
+  85 0078 0A40     		ands	r2, r2, r1
+  86 007a C3F80C2C 		str	r2, [r3, #3084]
+  38:Modules/fft/Src/fft_handle.c ****     Delay(DELAYMS);
+  87              		.loc 1 38 5 view .LVU22
+  39:Modules/fft/Src/fft_handle.c ****     SAMPLE_SCK_1;
+  88              		.loc 1 39 5 view .LVU23
+  89 007e D3F80C2C 		ldr	r2, [r3, #3084]
+  90 0082 42F40052 		orr	r2, r2, #8192
+  91 0086 C3F80C2C 		str	r2, [r3, #3084]
+  40:Modules/fft/Src/fft_handle.c ****     Delay(DELAYMS);
+  92              		.loc 1 40 5 view .LVU24
+  41:Modules/fft/Src/fft_handle.c **** }
+  93              		.loc 1 41 1 is_stmt 0 view .LVU25
+  94 008a 7047     		bx	lr
+  95              	.L3:
+  96              		.align	2
+  97              	.L2:
+  98 008c 00000140 		.word	1073807360
+  99              		.cfi_endproc
+ 100              	.LFE122:
+ 102              		.section	.text.Delay,"ax",%progbits
+ 103              		.align	1
+ 104              		.global	Delay
+ 105              		.syntax unified
+ 106              		.thumb
+ 107              		.thumb_func
+ 109              	Delay:
+ 110              	.LVL0:
+ 111              	.LFB121:
+   8:Modules/fft/Src/fft_handle.c ****     unsigned int i;
+ 112              		.loc 1 8 1 is_stmt 1 view -0
+ 113              		.cfi_startproc
+ 114              		@ args = 0, pretend = 0, frame = 0
+ 115              		@ frame_needed = 0, uses_anonymous_args = 0
+ 116              		@ link register save eliminated.
+   9:Modules/fft/Src/fft_handle.c ****     for (i = 0; i < n; i++)
+ 117              		.loc 1 9 5 view .LVU27
+  10:Modules/fft/Src/fft_handle.c ****         ;
+ 118              		.loc 1 10 5 view .LVU28
+  10:Modules/fft/Src/fft_handle.c ****         ;
+ 119              		.loc 1 10 12 is_stmt 0 view .LVU29
+ 120 0000 0023     		movs	r3, #0
+  10:Modules/fft/Src/fft_handle.c ****         ;
+ 121              		.loc 1 10 5 view .LVU30
+ 122 0002 00E0     		b	.L5
+ 123              	.LVL1:
+ 124              	.L6:
+  10:Modules/fft/Src/fft_handle.c ****         ;
+ 125              		.loc 1 10 25 is_stmt 1 discriminator 3 view .LVU31
+ 126 0004 0133     		adds	r3, r3, #1
+ 127              	.LVL2:
+ARM GAS  C:\Users\wyx12\AppData\Local\Temp\ccRnvjcj.s 			page 4
+
+
+ 128              	.L5:
+  10:Modules/fft/Src/fft_handle.c ****         ;
+ 129              		.loc 1 10 19 discriminator 1 view .LVU32
+ 130 0006 8342     		cmp	r3, r0
+ 131 0008 FCD3     		bcc	.L6
+  13:Modules/fft/Src/fft_handle.c **** // 模拟生成读取时钟信号
+ 132              		.loc 1 13 1 is_stmt 0 view .LVU33
+ 133 000a 7047     		bx	lr
+ 134              		.cfi_endproc
+ 135              	.LFE121:
+ 137              		.section	.text.ADRead,"ax",%progbits
+ 138              		.align	1
+ 139              		.global	ADRead
+ 140              		.syntax unified
+ 141              		.thumb
+ 142              		.thumb_func
+ 144              	ADRead:
+ 145              	.LVL3:
+ 146              	.LFB123:
+  42:Modules/fft/Src/fft_handle.c **** 
+  43:Modules/fft/Src/fft_handle.c **** void ADRead(uint16_t *adc1_data, uint16_t *adc2_data)
+  44:Modules/fft/Src/fft_handle.c **** {
+ 147              		.loc 1 44 1 is_stmt 1 view -0
+ 148              		.cfi_startproc
+ 149              		@ args = 0, pretend = 0, frame = 0
+ 150              		@ frame_needed = 0, uses_anonymous_args = 0
+ 151              		.loc 1 44 1 is_stmt 0 view .LVU35
+ 152 0000 70B5     		push	{r4, r5, r6, lr}
+ 153              	.LCFI0:
+ 154              		.cfi_def_cfa_offset 16
+ 155              		.cfi_offset 4, -16
+ 156              		.cfi_offset 5, -12
+ 157              		.cfi_offset 6, -8
+ 158              		.cfi_offset 14, -4
+ 159 0002 0546     		mov	r5, r0
+ 160 0004 0C46     		mov	r4, r1
+  45:Modules/fft/Src/fft_handle.c ****     // EN_5V_ENABLE;
+  46:Modules/fft/Src/fft_handle.c ****     unsigned int i;
+ 161              		.loc 1 46 5 is_stmt 1 view .LVU36
+  47:Modules/fft/Src/fft_handle.c ****     unsigned int tempbit = 0;
+ 162              		.loc 1 47 5 view .LVU37
+ 163              	.LVL4:
+  48:Modules/fft/Src/fft_handle.c ****     unsigned int data1 = 0, data2 = 0;
+ 164              		.loc 1 48 5 view .LVU38
+  49:Modules/fft/Src/fft_handle.c ****     SAMPLE_CS_O;
+ 165              		.loc 1 49 5 view .LVU39
+ 166 0006 244E     		ldr	r6, .L16
+ 167 0008 D6F80C3C 		ldr	r3, [r6, #3084]
+ 168 000c 23F48053 		bic	r3, r3, #4096
+ 169 0010 1B04     		lsls	r3, r3, #16
+ 170 0012 1B0C     		lsrs	r3, r3, #16
+ 171 0014 C6F80C3C 		str	r3, [r6, #3084]
+  50:Modules/fft/Src/fft_handle.c ****     SampleClk();
+ 172              		.loc 1 50 5 view .LVU40
+ 173 0018 FFF7FEFF 		bl	SampleClk
+ 174              	.LVL5:
+  51:Modules/fft/Src/fft_handle.c ****     SAMPLE_SCK_0;
+ARM GAS  C:\Users\wyx12\AppData\Local\Temp\ccRnvjcj.s 			page 5
+
+
+ 175              		.loc 1 51 5 view .LVU41
+ 176 001c D6F80C3C 		ldr	r3, [r6, #3084]
+ 177 0020 23F40053 		bic	r3, r3, #8192
+ 178 0024 1B04     		lsls	r3, r3, #16
+ 179 0026 1B0C     		lsrs	r3, r3, #16
+ 180 0028 C6F80C3C 		str	r3, [r6, #3084]
+  52:Modules/fft/Src/fft_handle.c ****     for (i = 0; i < 16; i++)
+ 181              		.loc 1 52 5 view .LVU42
+ 182              	.LVL6:
+  48:Modules/fft/Src/fft_handle.c ****     SAMPLE_CS_O;
+ 183              		.loc 1 48 29 is_stmt 0 view .LVU43
+ 184 002c 0020     		movs	r0, #0
+  48:Modules/fft/Src/fft_handle.c ****     SAMPLE_CS_O;
+ 185              		.loc 1 48 18 view .LVU44
+ 186 002e 8446     		mov	ip, r0
+ 187              		.loc 1 52 12 view .LVU45
+ 188 0030 0146     		mov	r1, r0
+ 189              		.loc 1 52 5 view .LVU46
+ 190 0032 0BE0     		b	.L8
+ 191              	.LVL7:
+ 192              	.L10:
+  53:Modules/fft/Src/fft_handle.c ****     {
+  54:Modules/fft/Src/fft_handle.c ****         Delay(DELAYMS);
+  55:Modules/fft/Src/fft_handle.c ****         SAMPLE_SCK_1;
+  56:Modules/fft/Src/fft_handle.c ****         if (SAMPLE_DI_1)
+  57:Modules/fft/Src/fft_handle.c ****         {
+  58:Modules/fft/Src/fft_handle.c ****             tempbit = 1;
+  59:Modules/fft/Src/fft_handle.c ****         }
+  60:Modules/fft/Src/fft_handle.c ****         else
+  61:Modules/fft/Src/fft_handle.c ****         {
+  62:Modules/fft/Src/fft_handle.c ****             tempbit = 0;
+  63:Modules/fft/Src/fft_handle.c ****         }
+  64:Modules/fft/Src/fft_handle.c ****         data1 = (data1 << 1) | tempbit;
+  65:Modules/fft/Src/fft_handle.c **** 
+  66:Modules/fft/Src/fft_handle.c ****         if (SAMPLE_DI_2)
+  67:Modules/fft/Src/fft_handle.c ****         {
+  68:Modules/fft/Src/fft_handle.c ****             tempbit = 1;
+  69:Modules/fft/Src/fft_handle.c ****         }
+  70:Modules/fft/Src/fft_handle.c ****         else
+  71:Modules/fft/Src/fft_handle.c ****         {
+  72:Modules/fft/Src/fft_handle.c ****             tempbit = 0;
+  73:Modules/fft/Src/fft_handle.c ****         }
+  74:Modules/fft/Src/fft_handle.c ****         data2 = (data2 << 1) | tempbit;
+ 193              		.loc 1 74 9 is_stmt 1 discriminator 2 view .LVU47
+ 194              		.loc 1 74 15 is_stmt 0 discriminator 2 view .LVU48
+ 195 0034 43EA4000 		orr	r0, r3, r0, lsl #1
+ 196              	.LVL8:
+  75:Modules/fft/Src/fft_handle.c ****         SAMPLE_SCK_0;
+ 197              		.loc 1 75 9 is_stmt 1 discriminator 2 view .LVU49
+ 198 0038 174A     		ldr	r2, .L16
+ 199 003a D2F80C3C 		ldr	r3, [r2, #3084]
+ 200              	.LVL9:
+ 201              		.loc 1 75 9 is_stmt 0 discriminator 2 view .LVU50
+ 202 003e 23F40053 		bic	r3, r3, #8192
+ 203 0042 1B04     		lsls	r3, r3, #16
+ 204 0044 1B0C     		lsrs	r3, r3, #16
+ 205 0046 C2F80C3C 		str	r3, [r2, #3084]
+ARM GAS  C:\Users\wyx12\AppData\Local\Temp\ccRnvjcj.s 			page 6
+
+
+  52:Modules/fft/Src/fft_handle.c ****     {
+ 206              		.loc 1 52 26 is_stmt 1 discriminator 2 view .LVU51
+ 207 004a 0131     		adds	r1, r1, #1
+ 208              	.LVL10:
+ 209              	.L8:
+  52:Modules/fft/Src/fft_handle.c ****     {
+ 210              		.loc 1 52 19 discriminator 1 view .LVU52
+ 211 004c 0F29     		cmp	r1, #15
+ 212 004e 16D8     		bhi	.L15
+  54:Modules/fft/Src/fft_handle.c ****         SAMPLE_SCK_1;
+ 213              		.loc 1 54 9 view .LVU53
+  55:Modules/fft/Src/fft_handle.c ****         if (SAMPLE_DI_1)
+ 214              		.loc 1 55 9 view .LVU54
+ 215 0050 114B     		ldr	r3, .L16
+ 216 0052 D3F80C2C 		ldr	r2, [r3, #3084]
+ 217 0056 42F40052 		orr	r2, r2, #8192
+ 218 005a C3F80C2C 		str	r2, [r3, #3084]
+  56:Modules/fft/Src/fft_handle.c ****         {
+ 219              		.loc 1 56 9 view .LVU55
+  56:Modules/fft/Src/fft_handle.c ****         {
+ 220              		.loc 1 56 13 is_stmt 0 view .LVU56
+ 221 005e D3F8083C 		ldr	r3, [r3, #3080]
+  56:Modules/fft/Src/fft_handle.c ****         {
+ 222              		.loc 1 56 12 view .LVU57
+ 223 0062 13F48043 		ands	r3, r3, #16384
+ 224 0066 00D0     		beq	.L9
+  58:Modules/fft/Src/fft_handle.c ****         }
+ 225              		.loc 1 58 21 view .LVU58
+ 226 0068 0123     		movs	r3, #1
+ 227              	.L9:
+ 228              	.LVL11:
+  64:Modules/fft/Src/fft_handle.c **** 
+ 229              		.loc 1 64 9 is_stmt 1 view .LVU59
+  64:Modules/fft/Src/fft_handle.c **** 
+ 230              		.loc 1 64 15 is_stmt 0 view .LVU60
+ 231 006a 43EA4C0C 		orr	ip, r3, ip, lsl #1
+ 232              	.LVL12:
+  66:Modules/fft/Src/fft_handle.c ****         {
+ 233              		.loc 1 66 9 is_stmt 1 view .LVU61
+  66:Modules/fft/Src/fft_handle.c ****         {
+ 234              		.loc 1 66 13 is_stmt 0 view .LVU62
+ 235 006e 0A4B     		ldr	r3, .L16
+ 236              	.LVL13:
+  66:Modules/fft/Src/fft_handle.c ****         {
+ 237              		.loc 1 66 13 view .LVU63
+ 238 0070 D3F80C3C 		ldr	r3, [r3, #3084]
+  66:Modules/fft/Src/fft_handle.c ****         {
+ 239              		.loc 1 66 12 view .LVU64
+ 240 0074 13F40043 		ands	r3, r3, #32768
+ 241 0078 DCD0     		beq	.L10
+  68:Modules/fft/Src/fft_handle.c ****         }
+ 242              		.loc 1 68 21 view .LVU65
+ 243 007a 0123     		movs	r3, #1
+ 244 007c DAE7     		b	.L10
+ 245              	.LVL14:
+ 246              	.L15:
+  76:Modules/fft/Src/fft_handle.c ****     }
+ARM GAS  C:\Users\wyx12\AppData\Local\Temp\ccRnvjcj.s 			page 7
+
+
+  77:Modules/fft/Src/fft_handle.c ****     SAMPLE_CS_1;
+ 247              		.loc 1 77 5 is_stmt 1 view .LVU66
+ 248 007e 064A     		ldr	r2, .L16
+ 249 0080 D2F80C3C 		ldr	r3, [r2, #3084]
+ 250 0084 43F48053 		orr	r3, r3, #4096
+ 251 0088 C2F80C3C 		str	r3, [r2, #3084]
+  78:Modules/fft/Src/fft_handle.c ****     if (adc1_data)
+ 252              		.loc 1 78 5 view .LVU67
+ 253              		.loc 1 78 8 is_stmt 0 view .LVU68
+ 254 008c 0DB1     		cbz	r5, .L12
+  79:Modules/fft/Src/fft_handle.c ****         *adc1_data = data1;
+ 255              		.loc 1 79 9 is_stmt 1 view .LVU69
+ 256              		.loc 1 79 20 is_stmt 0 view .LVU70
+ 257 008e A5F800C0 		strh	ip, [r5]	@ movhi
+ 258              	.L12:
+  80:Modules/fft/Src/fft_handle.c ****     if (adc2_data)
+ 259              		.loc 1 80 5 is_stmt 1 view .LVU71
+ 260              		.loc 1 80 8 is_stmt 0 view .LVU72
+ 261 0092 04B1     		cbz	r4, .L7
+  81:Modules/fft/Src/fft_handle.c ****         *adc2_data = data2;
+ 262              		.loc 1 81 9 is_stmt 1 view .LVU73
+ 263              		.loc 1 81 20 is_stmt 0 view .LVU74
+ 264 0094 2080     		strh	r0, [r4]	@ movhi
+ 265              	.L7:
+  82:Modules/fft/Src/fft_handle.c ****     // EN_5V_DISABLE;
+  83:Modules/fft/Src/fft_handle.c **** }
+ 266              		.loc 1 83 1 view .LVU75
+ 267 0096 70BD     		pop	{r4, r5, r6, pc}
+ 268              	.LVL15:
+ 269              	.L17:
+ 270              		.loc 1 83 1 view .LVU76
+ 271              		.align	2
+ 272              	.L16:
+ 273 0098 00000140 		.word	1073807360
+ 274              		.cfi_endproc
+ 275              	.LFE123:
+ 277              		.global	__aeabi_i2d
+ 278              		.global	__aeabi_ddiv
+ 279              		.global	__aeabi_dmul
+ 280              		.global	__aeabi_dsub
+ 281              		.global	__aeabi_d2f
+ 282              		.section	.text.fftGetFreqAmplitude,"ax",%progbits
+ 283              		.align	1
+ 284              		.global	fftGetFreqAmplitude
+ 285              		.syntax unified
+ 286              		.thumb
+ 287              		.thumb_func
+ 289              	fftGetFreqAmplitude:
+ 290              	.LVL16:
+ 291              	.LFB124:
+  84:Modules/fft/Src/fft_handle.c **** 
+  85:Modules/fft/Src/fft_handle.c **** float adc_temp[1024] = {0};
+  86:Modules/fft/Src/fft_handle.c **** // BUG:运用fft计算出频率和幅度
+  87:Modules/fft/Src/fft_handle.c **** void fftGetFreqAmplitude(uint16_t *input, uint16_t samplePoints, float *freq, float *amplitude)
+  88:Modules/fft/Src/fft_handle.c **** {
+ 292              		.loc 1 88 1 is_stmt 1 view -0
+ 293              		.cfi_startproc
+ARM GAS  C:\Users\wyx12\AppData\Local\Temp\ccRnvjcj.s 			page 8
+
+
+ 294              		@ args = 0, pretend = 0, frame = 0
+ 295              		@ frame_needed = 0, uses_anonymous_args = 0
+ 296              		.loc 1 88 1 is_stmt 0 view .LVU78
+ 297 0000 2DE9F843 		push	{r3, r4, r5, r6, r7, r8, r9, lr}
+ 298              	.LCFI1:
+ 299              		.cfi_def_cfa_offset 32
+ 300              		.cfi_offset 3, -32
+ 301              		.cfi_offset 4, -28
+ 302              		.cfi_offset 5, -24
+ 303              		.cfi_offset 6, -20
+ 304              		.cfi_offset 7, -16
+ 305              		.cfi_offset 8, -12
+ 306              		.cfi_offset 9, -8
+ 307              		.cfi_offset 14, -4
+ 308 0004 0746     		mov	r7, r0
+ 309 0006 0E46     		mov	r6, r1
+ 310 0008 9146     		mov	r9, r2
+ 311 000a 9846     		mov	r8, r3
+  89:Modules/fft/Src/fft_handle.c ****     for (size_t i = 0; i < samplePoints; i++)
+ 312              		.loc 1 89 5 is_stmt 1 view .LVU79
+ 313              	.LBB2:
+ 314              		.loc 1 89 10 view .LVU80
+ 315              	.LVL17:
+ 316              		.loc 1 89 17 is_stmt 0 view .LVU81
+ 317 000c 0024     		movs	r4, #0
+ 318              		.loc 1 89 5 view .LVU82
+ 319 000e 17E0     		b	.L19
+ 320              	.LVL18:
+ 321              	.L20:
+  90:Modules/fft/Src/fft_handle.c ****     {
+  91:Modules/fft/Src/fft_handle.c ****         // 计算出每个点的电压值±2.5V
+  92:Modules/fft/Src/fft_handle.c ****         adc_temp[i] = (float)(input[i] / 65535.0 * 5.0 - 2.497);
+ 322              		.loc 1 92 9 is_stmt 1 discriminator 3 view .LVU83
+ 323              		.loc 1 92 40 is_stmt 0 discriminator 3 view .LVU84
+ 324 0010 37F81400 		ldrh	r0, [r7, r4, lsl #1]
+ 325 0014 FFF7FEFF 		bl	__aeabi_i2d
+ 326              	.LVL19:
+ 327 0018 11A3     		adr	r3, .L22
+ 328 001a D3E90023 		ldrd	r2, [r3]
+ 329 001e FFF7FEFF 		bl	__aeabi_ddiv
+ 330              	.LVL20:
+ 331              		.loc 1 92 50 discriminator 3 view .LVU85
+ 332 0022 0022     		movs	r2, #0
+ 333 0024 124B     		ldr	r3, .L22+16
+ 334 0026 FFF7FEFF 		bl	__aeabi_dmul
+ 335              	.LVL21:
+ 336              		.loc 1 92 56 discriminator 3 view .LVU86
+ 337 002a 0FA3     		adr	r3, .L22+8
+ 338 002c D3E90023 		ldrd	r2, [r3]
+ 339 0030 FFF7FEFF 		bl	__aeabi_dsub
+ 340              	.LVL22:
+ 341              		.loc 1 92 23 discriminator 3 view .LVU87
+ 342 0034 FFF7FEFF 		bl	__aeabi_d2f
+ 343              	.LVL23:
+ 344              		.loc 1 92 21 discriminator 3 view .LVU88
+ 345 0038 0E4D     		ldr	r5, .L22+20
+ 346 003a 45F82400 		str	r0, [r5, r4, lsl #2]	@ float
+ARM GAS  C:\Users\wyx12\AppData\Local\Temp\ccRnvjcj.s 			page 9
+
+
+  89:Modules/fft/Src/fft_handle.c ****     for (size_t i = 0; i < samplePoints; i++)
+ 347              		.loc 1 89 43 is_stmt 1 discriminator 3 view .LVU89
+ 348 003e 0134     		adds	r4, r4, #1
+ 349              	.LVL24:
+ 350              	.L19:
+  89:Modules/fft/Src/fft_handle.c ****     for (size_t i = 0; i < samplePoints; i++)
+ 351              		.loc 1 89 26 discriminator 1 view .LVU90
+ 352 0040 A642     		cmp	r6, r4
+ 353 0042 E5D8     		bhi	.L20
+ 354              	.LBE2:
+  93:Modules/fft/Src/fft_handle.c ****     }
+  94:Modules/fft/Src/fft_handle.c ****     // 采样点数：2048，积分次数：1
+  95:Modules/fft/Src/fft_handle.c ****     integ_init(samplePoints, 1);
+ 355              		.loc 1 95 5 view .LVU91
+ 356 0044 0121     		movs	r1, #1
+ 357 0046 3046     		mov	r0, r6
+ 358 0048 FFF7FEFF 		bl	integ_init
+ 359              	.LVL25:
+  96:Modules/fft/Src/fft_handle.c ****     frq_domain_integral(adc_temp, NULL, amplitude, freq);
+ 360              		.loc 1 96 5 view .LVU92
+ 361 004c 4B46     		mov	r3, r9
+ 362 004e 4246     		mov	r2, r8
+ 363 0050 0021     		movs	r1, #0
+ 364 0052 0848     		ldr	r0, .L22+20
+ 365 0054 FFF7FEFF 		bl	frq_domain_integral
+ 366              	.LVL26:
+  97:Modules/fft/Src/fft_handle.c **** }
+ 367              		.loc 1 97 1 is_stmt 0 view .LVU93
+ 368 0058 BDE8F883 		pop	{r3, r4, r5, r6, r7, r8, r9, pc}
+ 369              	.LVL27:
+ 370              	.L23:
+ 371              		.loc 1 97 1 view .LVU94
+ 372 005c AFF30080 		.align	3
+ 373              	.L22:
+ 374 0060 00000000 		.word	0
+ 375 0064 E0FFEF40 		.word	1089470432
+ 376 0068 60E5D022 		.word	584115552
+ 377 006c DBF90340 		.word	1074002395
+ 378 0070 00001440 		.word	1075052544
+ 379 0074 00000000 		.word	adc_temp
+ 380              		.cfi_endproc
+ 381              	.LFE124:
+ 383              		.global	adc_temp
+ 384              		.section	.bss.adc_temp,"aw",%nobits
+ 385              		.align	2
+ 388              	adc_temp:
+ 389 0000 00000000 		.space	4096
+ 389      00000000 
+ 389      00000000 
+ 389      00000000 
+ 389      00000000 
+ 390              		.global	ADC2_buff
+ 391              		.section	.bss.ADC2_buff,"aw",%nobits
+ 392              		.align	2
+ 395              	ADC2_buff:
+ 396 0000 00000000 		.space	2048
+ 396      00000000 
+ARM GAS  C:\Users\wyx12\AppData\Local\Temp\ccRnvjcj.s 			page 10
+
+
+ 396      00000000 
+ 396      00000000 
+ 396      00000000 
+ 397              		.global	ADC1_buff
+ 398              		.section	.bss.ADC1_buff,"aw",%nobits
+ 399              		.align	2
+ 402              	ADC1_buff:
+ 403 0000 00000000 		.space	2048
+ 403      00000000 
+ 403      00000000 
+ 403      00000000 
+ 403      00000000 
+ 404              		.text
+ 405              	.Letext0:
+ 406              		.file 2 "c:\\program files (x86)\\arm gnu toolchain arm-none-eabi\\12.2 rel1\\lib\\gcc\\arm-none-e
+ 407              		.file 3 "Modules/fft/Inc/fft_handle.h"
+ 408              		.file 4 "c:\\program files (x86)\\arm gnu toolchain arm-none-eabi\\12.2 rel1\\lib\\gcc\\arm-none-e
+ 409              		.file 5 "Modules/fft/Inc/double_integral.h"
+ARM GAS  C:\Users\wyx12\AppData\Local\Temp\ccRnvjcj.s 			page 11
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 fft_handle.c
+C:\Users\wyx12\AppData\Local\Temp\ccRnvjcj.s:19     .text.SampleClk:00000000 $t
+C:\Users\wyx12\AppData\Local\Temp\ccRnvjcj.s:24     .text.SampleClk:00000000 SampleClk
+C:\Users\wyx12\AppData\Local\Temp\ccRnvjcj.s:98     .text.SampleClk:0000008c $d
+C:\Users\wyx12\AppData\Local\Temp\ccRnvjcj.s:103    .text.Delay:00000000 $t
+C:\Users\wyx12\AppData\Local\Temp\ccRnvjcj.s:109    .text.Delay:00000000 Delay
+C:\Users\wyx12\AppData\Local\Temp\ccRnvjcj.s:138    .text.ADRead:00000000 $t
+C:\Users\wyx12\AppData\Local\Temp\ccRnvjcj.s:144    .text.ADRead:00000000 ADRead
+C:\Users\wyx12\AppData\Local\Temp\ccRnvjcj.s:273    .text.ADRead:00000098 $d
+C:\Users\wyx12\AppData\Local\Temp\ccRnvjcj.s:283    .text.fftGetFreqAmplitude:00000000 $t
+C:\Users\wyx12\AppData\Local\Temp\ccRnvjcj.s:289    .text.fftGetFreqAmplitude:00000000 fftGetFreqAmplitude
+C:\Users\wyx12\AppData\Local\Temp\ccRnvjcj.s:374    .text.fftGetFreqAmplitude:00000060 $d
+C:\Users\wyx12\AppData\Local\Temp\ccRnvjcj.s:388    .bss.adc_temp:00000000 adc_temp
+C:\Users\wyx12\AppData\Local\Temp\ccRnvjcj.s:385    .bss.adc_temp:00000000 $d
+C:\Users\wyx12\AppData\Local\Temp\ccRnvjcj.s:395    .bss.ADC2_buff:00000000 ADC2_buff
+C:\Users\wyx12\AppData\Local\Temp\ccRnvjcj.s:392    .bss.ADC2_buff:00000000 $d
+C:\Users\wyx12\AppData\Local\Temp\ccRnvjcj.s:402    .bss.ADC1_buff:00000000 ADC1_buff
+C:\Users\wyx12\AppData\Local\Temp\ccRnvjcj.s:399    .bss.ADC1_buff:00000000 $d
+
+UNDEFINED SYMBOLS
+__aeabi_i2d
+__aeabi_ddiv
+__aeabi_dmul
+__aeabi_dsub
+__aeabi_d2f
+integ_init
+frq_domain_integral
